@@ -2,6 +2,48 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://jiemin.wang/categories/index.html</loc>
+    
+    <lastmod>2019-03-11T13:45:05.158Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/03/11/disk-cache-policy-in-RAID/</loc>
+    
+    <lastmod>2019-03-11T13:39:43.204Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/03/11/check-e2fsck-progress-realtime/</loc>
+    
+    <lastmod>2019-03-11T13:31:59.698Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/03/11/iSCSI-command/</loc>
+    
+    <lastmod>2019-03-11T13:26:58.665Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/03/11/ipmitool/</loc>
+    
+    <lastmod>2019-03-11T13:20:00.889Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/03/11/showmount/</loc>
+    
+    <lastmod>2019-03-11T13:01:42.419Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://jiemin.wang/2019/03/11/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3iostat/</loc>
     
     <lastmod>2019-03-11T12:29:06.954Z</lastmod>
@@ -61,13 +103,6 @@
     <loc>https://jiemin.wang/about/index.html</loc>
     
     <lastmod>2019-03-04T09:28:24.804Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://jiemin.wang/categories/index.html</loc>
-    
-    <lastmod>2019-03-04T09:28:09.547Z</lastmod>
     
   </url>
   
