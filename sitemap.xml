@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://jiemin.wang/2019/03/20/ClickHouse-sync-to-MySQLDate/</loc>
+    
+    <lastmod>2019-03-20T03:28:42.252Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://jiemin.wang/categories/index.html</loc>
     
     <lastmod>2019-03-11T13:45:05.158Z</lastmod>
