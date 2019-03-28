@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-center-simple.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/xiaoxin-01.png?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+<script>(function(T,h,i,n,k,P,a,g,e){g=function(){P=h.createElement(i);a=h.getElementsByTagName(i)[0];P.src=k;P.charset="utf-8";P.async=1;a.parentNode.insertBefore(P,a)};T["ThinkPageWeatherWidgetObject"]=n;T[n]||(T[n]=function(){(T[n].q=T[n].q||[]).push(arguments)});T[n].l=+new Date();if(T.attachEvent){T.attachEvent("onload",g)}else{T.addEventListener("load",g,false)}}(window,document,"script","tpwidget","//widget.seniverse.com/widget/chameleon.js"))</script>
+<script>tpwidget("init", {
+    "flavor": "bubble",
+    "location": "WX4FBXXFKE4F",
+    "geolocation": "enabled",
+    "position": "top-right",
+    "margin": "10px 10px",
+    "language": "auto",
+    "unit": "c",
+    "theme": "chameleon",
+    "uid": "U6899A955F",
+    "hash": "3537a35c8bfe0f65e5d773944596793a"
+});
+tpwidget("show");</script>
+
+  <meta name="description" content="&amp;#x524D;&amp;#x8A00;&amp;#x6628;&amp;#x5929;&amp;#x516C;&amp;#x53F8;&amp;#x8981;&amp;#x8FDB;&amp;#x884C;&amp;#x7EBF;&amp;#x4E0A;MHA&amp;#x9AD8;&amp;#x53EF;&amp;#x7528;&amp;#x96C6;&amp;#x7FA4;&amp;#x6545;&amp;#x969C;&amp;#x5207;&amp;#x6362;&amp;#x6F14;&amp;#x7EC3;&amp;#x3002;&amp;#x7531;&amp;#x4E">
+<meta name="keywords" content="MySQL,MHA">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MHA 故障切换演练 --- masterha_master_switch">
+<meta property="og:url" content="https://jiemin.wang/2019/03/28/mha-switch/index.html">
+<meta property="og:site_name" content="Jamin Blog">
+<meta property="og:description" content="&amp;#x524D;&amp;#x8A00;&amp;#x6628;&amp;#x5929;&amp;#x516C;&amp;#x53F8;&amp;#x8981;&amp;#x8FDB;&amp;#x884C;&amp;#x7EBF;&amp;#x4E0A;MHA&amp;#x9AD8;&amp;#x53EF;&amp;#x7528;&amp;#x96C6;&amp;#x7FA4;&amp;#x6545;&amp;#x969C;&amp;#x5207;&amp;#x6362;&amp;#x6F14;&amp;#x7EC3;&amp;#x3002;&amp;#x7531;&amp;#x4E">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-28T03:11:36.301Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MHA 故障切换演练 --- masterha_master_switch">
+<meta name="twitter:description" content="&amp;#x524D;&amp;#x8A00;&amp;#x6628;&amp;#x5929;&amp;#x516C;&amp;#x53F8;&amp;#x8981;&amp;#x8FDB;&amp;#x884C;&amp;#x7EBF;&amp;#x4E0A;MHA&amp;#x9AD8;&amp;#x53EF;&amp;#x7528;&amp;#x96C6;&amp;#x7FA4;&amp;#x6545;&amp;#x969C;&amp;#x5207;&amp;#x6362;&amp;#x6F14;&amp;#x7EC3;&amp;#x3002;&amp;#x7531;&amp;#x4E">
+
+
+
+
+
+
+  <link rel="canonical" href="https://jiemin.wang/2019/03/28/mha-switch/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>MHA 故障切换演练 --- masterha_master_switch | Jamin Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jamin Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">一个不聊技术的 DBA 不是一个好厨子...</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-life">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/coffee" rel="section"><i class="menu-item-icon fa fa-fw fa-coffee"></i> <br>生活中的美好</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>Search</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="Searching..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://jiemin.wang/2019/03/28/mha-switch/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Wang Jiemin">
+      <meta itemprop="description" content="我从不生产BUG, 我是BUG的搬运工~">
+      <meta itemprop="image" content="/images/XIAOXIN.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jamin Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">MHA 故障切换演练 --- masterha_master_switch
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-03-28 10:33:34 / Modified: 11:11:36" itemprop="dateCreated datePublished" datetime="2019-03-28T10:33:34+08:00">2019-03-28</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/MHA/" itemprop="url" rel="index"><span itemprop="name">MHA</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/03/28/mha-switch/" class="leancloud_visitors" data-flag-title="MHA 故障切换演练 --- masterha_master_switch">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Views: </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+                 <span>℃</span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="&#x524D;&#x8A00;"><a href="#&#x524D;&#x8A00;" class="headerlink" title="&#x524D;&#x8A00;"></a>&#x524D;&#x8A00;</h2><p>&#x6628;&#x5929;&#x516C;&#x53F8;&#x8981;&#x8FDB;&#x884C;&#x7EBF;&#x4E0A;MHA&#x9AD8;&#x53EF;&#x7528;&#x96C6;&#x7FA4;&#x6545;&#x969C;&#x5207;&#x6362;&#x6F14;&#x7EC3;&#x3002;&#x7531;&#x4E8E;&#x6211;&#x521A;&#x5165;&#x804C;&#x516C;&#x53F8;&#x3002;&#x516C;&#x53F8;&#x8FD8;&#x6CA1;&#x6709;&#x505A;&#x8FC7;&#x592A;&#x591A;&#x7684;&#x707E;&#x96BE;&#x7EA7;&#x522B;&#x7684;&#x6545;&#x969C;&#x6F14;&#x7EC3;&#x3002;</p>
+<h5 id="&#x6211;&#x5199;&#x4E86;&#x4E00;&#x4E9B;&#x6B65;&#x9AA4;&#xFF1A;"><a href="#&#x6211;&#x5199;&#x4E86;&#x4E00;&#x4E9B;&#x6B65;&#x9AA4;&#xFF1A;" class="headerlink" title="&#x6211;&#x5199;&#x4E86;&#x4E00;&#x4E9B;&#x6B65;&#x9AA4;&#xFF1A;"></a>&#x6211;&#x5199;&#x4E86;&#x4E00;&#x4E9B;&#x6B65;&#x9AA4;&#xFF1A;</h5><h6 id="&#x6545;&#x969C;&#x5207;&#x6362;"><a href="#&#x6545;&#x969C;&#x5207;&#x6362;" class="headerlink" title="&#x6545;&#x969C;&#x5207;&#x6362;"></a>&#x6545;&#x969C;&#x5207;&#x6362;</h6><ol>
+<li>&#x67E5;&#x770B;&#x4E3B;&#x4ECE;&#x5EF6;&#x8FDF;&#x72B6;&#x6001;</li>
+<li>&#x767B;&#x5F55;MHA&#x4E2D;&#x63A7;&#x673A;&#xFF0C;&#x67E5;&#x770B;&#x6F14;&#x7EC3;&#x5207;&#x6362;&#x7684;&#x6570;&#x636E;&#x5E93;MHA log&#x6587;&#x4EF6;&#xFF0C;&#x4F7F;&#x7528;tail -f &#x547D;&#x4EE4;&#x6765;&#x83B7;&#x53D6;&#x5207;&#x6362;&#x7684;log&#x65E5;&#x5FD7;&#x4FE1;&#x606F;</li>
+<li>&#x767B;&#x5F55;master&#x673A;&#x5668;&#xFF0C;&#x6267;&#x884C; /etc/init.d/mysql stop</li>
+<li>&#x67E5;&#x770B;MHA&#x4E2D;&#x63A7;&#x673A;&#x65E5;&#x5FD7;&#x4FE1;&#x606F;&#x3002;</li>
+<li>&#x5207;&#x6362;&#x6210;&#x529F;&#xFF0C;&#x767B;&#x5F55;&#x5230; new_master &#x4E2D;&#x67E5;&#x770B;vip&#x662F;&#x5426;&#x5DF2;&#x7ECF;&#x7ED1;&#x5B9A;&#x5230;&#x7F51;&#x5361;&#x4E0A;</li>
+<li>&#x767B;&#x5F55;slave&#xFF0C;&#x67E5;&#x770B; show slave status &#x662F;&#x5426;&#x5DF2;&#x7ECF;change master to new_master ip&#x4E0A;&#xFF0C;&#x67E5;&#x770B;slave&#x6B63;&#x5E38;&#x4E0E;&#x5426;</li>
+<li>&#x5728; MHA &#x4E2D;&#x63A7;&#x673A;&#x542F;&#x52A8; masterha_manager &#x8FDB;&#x7A0B;&#xFF0C;&#x67E5;&#x770B;MHA&#x96C6;&#x7FA4;&#x542F;&#x52A8;&#x662F;&#x5426;&#x6B63;&#x5E38;&#x3002;(&#x4E24;&#x8282;&#x70B9;)<br>&#x7ED3;&#x6784;&#x56FE;&#xFF1A;<br>new_master: (master)<br>&#x2014;&gt; slave: (slave)</li>
+</ol>
+<h6 id="master-&#x6570;&#x636E;&#x5E93;&#x6062;&#x590D;"><a href="#master-&#x6570;&#x636E;&#x5E93;&#x6062;&#x590D;" class="headerlink" title="master &#x6570;&#x636E;&#x5E93;&#x6062;&#x590D;"></a>master &#x6570;&#x636E;&#x5E93;&#x6062;&#x590D;</h6><ol>
+<li>&#x767B;&#x5F55;&#x5230;old_master &#x673A;&#x5668;&#x4E0A;&#x6267;&#x884C; /etc/init.d/mysql start &#x662F;&#x5426;&#x6B63;&#x5E38;&#x542F;&#x52A8;&#x670D;&#x52A1;</li>
+<li>&#x5728;MHA&#x4E2D;&#x63A7;&#x673A;&#x4E2D;&#x83B7;&#x53D6;&#x5207;&#x6362;&#x7684;log &#x65E5;&#x5FD7;&#x4FE1;&#x606F;&#x627E;&#x51FA; change master to new_master &#x4FE1;&#x606F;&#x8BED;&#x53E5;</li>
+<li>&#x5728;old_master &#x4E2D;&#x6267;&#x884C;change master to &#x8BED;&#x53E5;&#xFF0C;&#x53D8;&#x4E3A; new_master&#x7684;slave</li>
+<li>show slave status &#x67E5;&#x770B; old_master &#x662F;&#x5426;&#x6B63;&#x5E38;&#x53D8;&#x4E3A; new_master &#x7684;slave</li>
+<li>&#x5728;MHA &#x4E2D;&#x63A7;&#x673A;&#x8282;&#x70B9;&#xFF0C;&#x6267;&#x884C; masterha_stop &#x547D;&#x4EE4;&#x7ED3;&#x675F; masterha_manager&#x8FDB;&#x7A0B;&#x3002;</li>
+<li>&#x5728;MHA &#x4E2D;&#x63A7;&#x673A;&#x542F;&#x52A8; masterha_manager &#x8FDB;&#x7A0B;&#xFF0C;&#x67E5;&#x770B;&#x6062;&#x590D;&#x597D;&#x7684;old_master&#x662F;&#x5426;&#x6B63;&#x5E38;&#x52A0;&#x5165;&#x5230;MHA&#x8282;&#x70B9; (&#x4E09;&#x8282;&#x70B9;&#xFF09;<br>&#x7ED3;&#x6784;&#x56FE;&#xFF1A;<br>new_master: (master)<br>&#x2014;&gt; old_master: (slave)<br>&#x2014;&gt; slave: (slave)</li>
+</ol>
+<h6 id="&#x6062;&#x590D;-old-master&#x4E3A;-master-&#x89D2;&#x8272;"><a href="#&#x6062;&#x590D;-old-master&#x4E3A;-master-&#x89D2;&#x8272;" class="headerlink" title="&#x6062;&#x590D; old_master&#x4E3A; master &#x89D2;&#x8272;"></a>&#x6062;&#x590D; old_master&#x4E3A; master &#x89D2;&#x8272;</h6><ol>
+<li>&#x67E5;&#x770B;&#x4E3B;&#x4ECE;&#x5EF6;&#x8FDF;&#x72B6;&#x6001;</li>
+<li>&#x767B;&#x5F55;MHA&#x4E2D;&#x63A7;&#x673A;&#xFF0C;&#x67E5;&#x770B;&#x6F14;&#x7EC3;&#x5207;&#x6362;&#x7684;&#x6570;&#x636E;&#x5E93;MHA log&#x6587;&#x4EF6;&#xFF0C;&#x4F7F;&#x7528;tail -f &#x547D;&#x4EE4;&#x6765;&#x83B7;&#x53D6;&#x5207;&#x6362;&#x7684;log&#x65E5;&#x5FD7;&#x4FE1;&#x606F;</li>
+<li>&#x767B;&#x5F55;new_master&#x673A;&#x5668;&#xFF0C;&#x6267;&#x884C; /etc/init.d/mysql stop</li>
+<li>&#x67E5;&#x770B;MHA&#x4E2D;&#x63A7;&#x673A;&#x65E5;&#x5FD7;&#x4FE1;&#x606F;&#x3002;</li>
+<li>&#x5207;&#x6362;&#x6210;&#x529F;&#xFF0C;&#x767B;&#x5F55;&#x5230; old_master &#x4E2D;&#x67E5;&#x770B;vip&#x662F;&#x5426;&#x5DF2;&#x7ECF;&#x7ED1;&#x5B9A;&#x5230;&#x7F51;&#x5361;&#x4E0A;</li>
+<li>&#x767B;&#x5F55;slave&#xFF0C;&#x67E5;&#x770B; show slave status &#x662F;&#x5426;&#x5DF2;&#x7ECF;change master to old_master ip&#x4E0A;&#xFF0C;&#x67E5;&#x770B;slave&#x6B63;&#x5E38;&#x4E0E;&#x5426;</li>
+<li>&#x5728; MHA &#x4E2D;&#x63A7;&#x673A;&#x542F;&#x52A8; masterha_manager &#x8FDB;&#x7A0B;&#xFF0C;&#x67E5;&#x770B;MHA&#x96C6;&#x7FA4;&#x542F;&#x52A8;&#x662F;&#x5426;&#x6B63;&#x5E38;&#x3002;(&#x4E24;&#x8282;&#x70B9;)<br>&#x7ED3;&#x6784;&#x56FE;&#xFF1A;<br>master(old_master): (master)<br>&#x2014;&gt; slave(new_master): (slave)<br>&#x2014;&gt; slave: (slave)</li>
+</ol>
+<h5 id="&#x4F46;&#x662F;&#x8FD9;&#x4E48;&#x64CD;&#x4F5C;&#x867D;&#x7136;&#x80FD;&#x66F4;&#x8D34;&#x8FD1;&#x771F;&#x5B9E;&#x707E;&#x96BE;-&#x6682;&#x65F6;&#x6CA1;&#x6709;&#x628A;&#x4E3B;&#x4ECE;&#x6570;&#x636E;&#x5EF6;&#x8FDF;&#x8003;&#x8651;&#x8FDB;&#x5165;-&#xFF0C;&#x9700;&#x8981;&#x7684;&#x65F6;&#x95F4;&#x4F1A;&#x66F4;&#x591A;&#x3002;&#x9886;&#x5BFC;&#x5EFA;&#x8BAE;&#x624B;&#x52A8;&#x64CD;&#x4F5C;MHA-failover&#x6D4B;&#x8BD5;&#x80FD;&#x4E0D;&#x80FD;&#x5207;&#x6362;&#x3002;"><a href="#&#x4F46;&#x662F;&#x8FD9;&#x4E48;&#x64CD;&#x4F5C;&#x867D;&#x7136;&#x80FD;&#x66F4;&#x8D34;&#x8FD1;&#x771F;&#x5B9E;&#x707E;&#x96BE;-&#x6682;&#x65F6;&#x6CA1;&#x6709;&#x628A;&#x4E3B;&#x4ECE;&#x6570;&#x636E;&#x5EF6;&#x8FDF;&#x8003;&#x8651;&#x8FDB;&#x5165;-&#xFF0C;&#x9700;&#x8981;&#x7684;&#x65F6;&#x95F4;&#x4F1A;&#x66F4;&#x591A;&#x3002;&#x9886;&#x5BFC;&#x5EFA;&#x8BAE;&#x624B;&#x52A8;&#x64CD;&#x4F5C;MHA-failover&#x6D4B;&#x8BD5;&#x80FD;&#x4E0D;&#x80FD;&#x5207;&#x6362;&#x3002;" class="headerlink" title="&#x4F46;&#x662F;&#x8FD9;&#x4E48;&#x64CD;&#x4F5C;&#x867D;&#x7136;&#x80FD;&#x66F4;&#x8D34;&#x8FD1;&#x771F;&#x5B9E;&#x707E;&#x96BE;(&#x6682;&#x65F6;&#x6CA1;&#x6709;&#x628A;&#x4E3B;&#x4ECE;&#x6570;&#x636E;&#x5EF6;&#x8FDF;&#x8003;&#x8651;&#x8FDB;&#x5165;)&#xFF0C;&#x9700;&#x8981;&#x7684;&#x65F6;&#x95F4;&#x4F1A;&#x66F4;&#x591A;&#x3002;&#x9886;&#x5BFC;&#x5EFA;&#x8BAE;&#x624B;&#x52A8;&#x64CD;&#x4F5C;MHA failover&#x6D4B;&#x8BD5;&#x80FD;&#x4E0D;&#x80FD;&#x5207;&#x6362;&#x3002;"></a>&#x4F46;&#x662F;&#x8FD9;&#x4E48;&#x64CD;&#x4F5C;&#x867D;&#x7136;&#x80FD;&#x66F4;&#x8D34;&#x8FD1;&#x771F;&#x5B9E;&#x707E;&#x96BE;(&#x6682;&#x65F6;&#x6CA1;&#x6709;&#x628A;&#x4E3B;&#x4ECE;&#x6570;&#x636E;&#x5EF6;&#x8FDF;&#x8003;&#x8651;&#x8FDB;&#x5165;)&#xFF0C;&#x9700;&#x8981;&#x7684;&#x65F6;&#x95F4;&#x4F1A;&#x66F4;&#x591A;&#x3002;&#x9886;&#x5BFC;&#x5EFA;&#x8BAE;&#x624B;&#x52A8;&#x64CD;&#x4F5C;MHA failover&#x6D4B;&#x8BD5;&#x80FD;&#x4E0D;&#x80FD;&#x5207;&#x6362;&#x3002;</h5><h2 id="&#x670D;&#x52A1;&#x5668;&#x67B6;&#x6784;"><a href="#&#x670D;&#x52A1;&#x5668;&#x67B6;&#x6784;" class="headerlink" title="&#x670D;&#x52A1;&#x5668;&#x67B6;&#x6784;"></a>&#x670D;&#x52A1;&#x5668;&#x67B6;&#x6784;</h2><table>
+<thead>
+<tr>
+<th style="text-align:center">server</th>
+<th style="text-align:center">role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">master</td>
+<td style="text-align:center">old_master</td>
+</tr>
+<tr>
+<td style="text-align:center">slave</td>
+<td style="text-align:center">new_master</td>
+</tr>
+<tr>
+<td style="text-align:center">slave</td>
+<td style="text-align:center">slave</td>
+</tr>
+</tbody>
+</table>
+<h2 id="&#x5177;&#x4F53;&#x64CD;&#x4F5C;"><a href="#&#x5177;&#x4F53;&#x64CD;&#x4F5C;" class="headerlink" title="&#x5177;&#x4F53;&#x64CD;&#x4F5C;"></a>&#x5177;&#x4F53;&#x64CD;&#x4F5C;</h2><p>&#x5728;MHA &#x4E2D;&#x63A7;&#x673A;&#x4E2D;&#x6267;&#x884C;&#x547D;&#x4EE4;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># masterha_check_repl --conf=/root/dba/mha/conf/babybi_#1.conf</span></span><br></pre></td></tr></tbody></table></figure><p></p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line">Wed Mar 27 23:28:28 2019 - [warning] Global configuration file /etc/masterha_default.cnf not found. Skipping.</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info] Reading application default configuration from /root/dba/mha/conf/babybi_<span class="comment">#1.conf..</span></span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info] Reading server configuration from /root/dba/mha/conf/babybi_<span class="comment">#1.conf..</span></span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info] MHA::MasterMonitor version 0.56.</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info] GTID failover mode = 0</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info] Dead Servers:</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info] Alive Servers:</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info]   10.25.1.66(10.25.1.66:3306)</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info]   10.25.1.67(10.25.1.67:3306)</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info]   10.25.1.68(10.25.1.68:3306)</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info] Alive Slaves:</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info]   10.25.1.67(10.25.1.67:3306)  Version=5.6.29-76.2-log (oldest major version between slaves) <span class="built_in">log</span>-bin:enabled</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info]     Replicating from 10.25.1.66(10.25.1.66:3306)</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info]     Primary candidate <span class="keyword">for</span> the new Master (candidate_master is <span class="built_in">set</span>)</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info]   10.25.1.68(10.25.1.68:3306)  Version=5.6.29-76.2-log (oldest major version between slaves) <span class="built_in">log</span>-bin:enabled</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info]     Replicating from 10.25.1.66(10.25.1.66:3306)</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info] Current Alive Master: 10.25.1.66(10.25.1.66:3306)</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info] Checking slave configurations..</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [warning]  relay_log_purge=0 is not <span class="built_in">set</span> on slave 10.25.1.67(10.25.1.67:3306).</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [warning]  relay_log_purge=0 is not <span class="built_in">set</span> on slave 10.25.1.68(10.25.1.68:3306).</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info] Checking replication filtering settings..</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info]  binlog_do_db= , binlog_ignore_db= </span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info]  Replication filtering check ok.</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info] GTID (with auto-pos) is not supported</span><br><span class="line">Wed Mar 27 23:28:28 2019 - [info] Starting SSH connection tests..</span><br><span class="line">Wed Mar 27 23:28:29 2019 - [info] All SSH connection tests passed successfully.</span><br><span class="line">Wed Mar 27 23:28:29 2019 - [info] Checking MHA Node version..</span><br><span class="line">Wed Mar 27 23:28:30 2019 - [info]  Version check ok.</span><br><span class="line">Wed Mar 27 23:28:30 2019 - [info] Checking SSH publickey authentication settings on the current master..</span><br><span class="line">Wed Mar 27 23:28:30 2019 - [info] HealthCheck: SSH to 10.25.1.66 is reachable.</span><br><span class="line">Wed Mar 27 23:28:30 2019 - [info] Master MHA Node version is 0.56.</span><br><span class="line">Wed Mar 27 23:28:30 2019 - [info] Checking recovery script configurations on 10.25.1.66(10.25.1.66:3306)..</span><br><span class="line">Wed Mar 27 23:28:30 2019 - [info]   Executing <span class="built_in">command</span>: save_binary_logs --<span class="built_in">command</span>=<span class="built_in">test</span> --start_pos=4 --binlog_dir=/<span class="built_in">log</span>/mysql/binlog/ --output_file=/var/tmp/save_binary_logs_test --manager_version=0.56 --start_file=mysql-bin.004691 </span><br><span class="line">Wed Mar 27 23:28:30 2019 - [info]   Connecting to root@10.25.1.66(10.25.1.66:22).. </span><br><span class="line">  Creating /var/tmp <span class="keyword">if</span> not exists..    ok.</span><br><span class="line">  Checking output directory is accessible or not..</span><br><span class="line">   ok.</span><br><span class="line">  Binlog found at /<span class="built_in">log</span>/mysql/binlog/, up to mysql-bin.004691</span><br><span class="line">Wed Mar 27 23:28:31 2019 - [info] Binlog setting check <span class="keyword">done</span>.</span><br><span class="line">Wed Mar 27 23:28:31 2019 - [info] Checking SSH publickey authentication and checking recovery script configurations on all alive slave servers..</span><br><span class="line">Wed Mar 27 23:28:31 2019 - [info]   Executing <span class="built_in">command</span> : apply_diff_relay_logs --<span class="built_in">command</span>=<span class="built_in">test</span> --slave_user=<span class="string">&apos;mha&apos;</span> --slave_host=10.25.1.67 --slave_ip=10.25.1.67 --slave_port=3306 --workdir=/var/tmp --target_version=5.6.29-76.2-log --manager_version=0.56 --relay_log_info=/my/data/percona/relay-log.info  --relay_dir=/my/data/percona/  --slave_pass=xxx</span><br><span class="line">Wed Mar 27 23:28:31 2019 - [info]   Connecting to root@10.25.1.67(10.25.1.67:22).. </span><br><span class="line">  Checking slave recovery environment settings..</span><br><span class="line">    Opening /my/data/percona/relay-log.info ... ok.</span><br><span class="line">    Relay <span class="built_in">log</span> found at /<span class="built_in">log</span>/mysql/relaylog, up to relay-log.014072</span><br><span class="line">    Temporary relay <span class="built_in">log</span> file is /<span class="built_in">log</span>/mysql/relaylog/relay-log.014072</span><br><span class="line">    Testing mysql connection and privileges..Warning: Using a password on the <span class="built_in">command</span> line interface can be insecure.</span><br><span class="line"> <span class="keyword">done</span>.</span><br><span class="line">    Testing mysqlbinlog output.. <span class="keyword">done</span>.</span><br><span class="line">    Cleaning up <span class="built_in">test</span> file(s).. <span class="keyword">done</span>.</span><br><span class="line">Wed Mar 27 23:28:31 2019 - [info]   Executing <span class="built_in">command</span> : apply_diff_relay_logs --<span class="built_in">command</span>=<span class="built_in">test</span> --slave_user=<span class="string">&apos;mha&apos;</span> --slave_host=10.25.1.68 --slave_ip=10.25.1.68 --slave_port=3306 --workdir=/var/tmp --target_version=5.6.29-76.2-log --manager_version=0.56 --relay_log_info=/my/data/percona/relay-log.info  --relay_dir=/my/data/percona/  --slave_pass=xxx</span><br><span class="line">Wed Mar 27 23:28:31 2019 - [info]   Connecting to root@10.25.1.68(10.25.1.68:22).. </span><br><span class="line">  Checking slave recovery environment settings..</span><br><span class="line">    Opening /my/data/percona/relay-log.info ... ok.</span><br><span class="line">    Relay <span class="built_in">log</span> found at /<span class="built_in">log</span>/mysql/relaylog, up to relay-log.014072</span><br><span class="line">    Temporary relay <span class="built_in">log</span> file is /<span class="built_in">log</span>/mysql/relaylog/relay-log.014072</span><br><span class="line">    Testing mysql connection and privileges..Warning: Using a password on the <span class="built_in">command</span> line interface can be insecure.</span><br><span class="line"> <span class="keyword">done</span>.</span><br><span class="line">    Testing mysqlbinlog output.. <span class="keyword">done</span>.</span><br><span class="line">    Cleaning up <span class="built_in">test</span> file(s).. <span class="keyword">done</span>.</span><br><span class="line">Wed Mar 27 23:28:31 2019 - [info] Slaves settings check <span class="keyword">done</span>.</span><br><span class="line">Wed Mar 27 23:28:31 2019 - [info] </span><br><span class="line">10.25.1.66(10.25.1.66:3306) (current master)</span><br><span class="line"> +--10.25.1.67(10.25.1.67:3306)</span><br><span class="line"> +--10.25.1.68(10.25.1.68:3306)</span><br><span class="line"></span><br><span class="line">Wed Mar 27 23:28:31 2019 - [info] Checking replication health on 10.25.1.67..</span><br><span class="line">Wed Mar 27 23:28:31 2019 - [info]  ok.</span><br><span class="line">Wed Mar 27 23:28:31 2019 - [info] Checking replication health on 10.25.1.68..</span><br><span class="line">Wed Mar 27 23:28:31 2019 - [info]  ok.</span><br><span class="line">Wed Mar 27 23:28:31 2019 - [info] Checking master_ip_failover_script status:</span><br><span class="line">Wed Mar 27 23:28:31 2019 - [info]   /root/dba/mha/script/master_ip_failover.sh --<span class="built_in">command</span>=status --ssh_user=root --orig_master_host=10.25.1.66 --orig_master_ip=10.25.1.66 --orig_master_port=3306 </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">IN SCRIPT TEST====/etc/init.d/keepalived stop==/etc/init.d/keepalived start===</span><br><span class="line"></span><br><span class="line">Checking the Status of the script.. OK </span><br><span class="line">Wed Mar 27 23:28:31 2019 - [info]  OK.</span><br><span class="line">Wed Mar 27 23:28:31 2019 - [warning] shutdown_script is not defined.</span><br><span class="line">Wed Mar 27 23:28:31 2019 - [info] Got <span class="built_in">exit</span> code 0 (Not master dead).</span><br><span class="line"></span><br><span class="line">MySQL Replication Health is OK.</span><br></pre></td></tr></tbody></table></figure>
+<p>&#x6267;&#x884C; <a href="https://github.com/yoshinorim/mha4mysql-manager/wiki/masterha_master_switch" target="_blank" rel="noopener">masterha_master_switch</a> &#x547D;&#x4EE4;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># masterha_master_switch --conf=/root/dba/mha/conf/babybi_#1.conf --master_state=alive --new_master_host=10.25.1.67 --new_master_port=3306 --orig_master_is_new_slave --running_updates_limit=10000</span></span><br></pre></td></tr></tbody></table></figure><p></p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line">Wed Mar 27 23:34:27 2019 - [info] MHA::MasterRotate version 0.56.</span><br><span class="line">Wed Mar 27 23:34:27 2019 - [info] Starting online master switch..</span><br><span class="line">Wed Mar 27 23:34:27 2019 - [info] </span><br><span class="line">Wed Mar 27 23:34:27 2019 - [info] * Phase 1: Configuration Check Phase..</span><br><span class="line">Wed Mar 27 23:34:27 2019 - [info] </span><br><span class="line">Wed Mar 27 23:34:27 2019 - [warning] Global configuration file /etc/masterha_default.cnf not found. Skipping.</span><br><span class="line">Wed Mar 27 23:34:27 2019 - [info] Reading application default configuration from /root/dba/mha/conf/babybi_<span class="comment">#1.conf..</span></span><br><span class="line">Wed Mar 27 23:34:27 2019 - [info] Reading server configuration from /root/dba/mha/conf/babybi_<span class="comment">#1.conf..</span></span><br><span class="line">Wed Mar 27 23:34:27 2019 - [info] GTID failover mode = 0</span><br><span class="line">Wed Mar 27 23:34:27 2019 - [info] Current Alive Master: 10.25.1.66(10.25.1.66:3306)</span><br><span class="line">Wed Mar 27 23:34:27 2019 - [info] Alive Slaves:</span><br><span class="line">Wed Mar 27 23:34:27 2019 - [info]   10.25.1.67(10.25.1.67:3306)  Version=5.6.29-76.2-log (oldest major version between slaves) <span class="built_in">log</span>-bin:enabled</span><br><span class="line">Wed Mar 27 23:34:27 2019 - [info]     Replicating from 10.25.1.66(10.25.1.66:3306)</span><br><span class="line">Wed Mar 27 23:34:27 2019 - [info]     Primary candidate <span class="keyword">for</span> the new Master (candidate_master is <span class="built_in">set</span>)</span><br><span class="line">Wed Mar 27 23:34:27 2019 - [info]   10.25.1.68(10.25.1.68:3306)  Version=5.6.29-76.2-log (oldest major version between slaves) <span class="built_in">log</span>-bin:enabled</span><br><span class="line">Wed Mar 27 23:34:27 2019 - [info]     Replicating from 10.25.1.66(10.25.1.66:3306)</span><br><span class="line"></span><br><span class="line">It is better to execute FLUSH NO_WRITE_TO_BINLOG TABLES on the master before switching. Is it ok to execute on 10.25.1.66(10.25.1.66:3306)? (YES/no): ---&gt; &#x8F93;&#x5165;: yes</span><br><span class="line">Wed Mar 27 23:34:34 2019 - [info] Executing FLUSH NO_WRITE_TO_BINLOG TABLES. This may take long time..</span><br><span class="line">Wed Mar 27 23:34:34 2019 - [info]  ok.</span><br><span class="line">Wed Mar 27 23:34:34 2019 - [info] Checking MHA is not monitoring or doing failover..</span><br><span class="line">Wed Mar 27 23:34:34 2019 - [info] Checking replication health on 10.25.1.67..</span><br><span class="line">Wed Mar 27 23:34:34 2019 - [info]  ok.</span><br><span class="line">Wed Mar 27 23:34:34 2019 - [info] Checking replication health on 10.25.1.68..</span><br><span class="line">Wed Mar 27 23:34:34 2019 - [info]  ok.</span><br><span class="line">Wed Mar 27 23:34:34 2019 - [info] 10.25.1.67 can be new master.</span><br><span class="line">Wed Mar 27 23:34:34 2019 - [info] </span><br><span class="line">From:</span><br><span class="line">10.25.1.66(10.25.1.66:3306) (current master)</span><br><span class="line"> +--10.25.1.67(10.25.1.67:3306)</span><br><span class="line"> +--10.25.1.68(10.25.1.68:3306)</span><br><span class="line"></span><br><span class="line">To:</span><br><span class="line">10.25.1.67(10.25.1.67:3306) (new master)</span><br><span class="line"> +--10.25.1.68(10.25.1.68:3306)</span><br><span class="line"> +--10.25.1.66(10.25.1.66:3306)</span><br><span class="line"></span><br><span class="line">Starting master switch from 10.25.1.66(10.25.1.66:3306) to 10.25.1.67(10.25.1.67:3306)? (yes/NO): ---&gt; &#x8F93;&#x5165;: yes</span><br><span class="line">Wed Mar 27 23:34:37 2019 - [info] Checking whether 10.25.1.67(10.25.1.67:3306) is ok <span class="keyword">for</span> the new master..</span><br><span class="line">Wed Mar 27 23:34:37 2019 - [info]  ok.</span><br><span class="line">Wed Mar 27 23:34:37 2019 - [info] 10.25.1.66(10.25.1.66:3306): SHOW SLAVE STATUS returned empty result. To check replication filtering rules, temporarily executing CHANGE MASTER to a dummy host.</span><br><span class="line">Wed Mar 27 23:34:37 2019 - [info] 10.25.1.66(10.25.1.66:3306): Resetting slave pointing to the dummy host.</span><br><span class="line">Wed Mar 27 23:34:37 2019 - [info] ** Phase 1: Configuration Check Phase completed.</span><br><span class="line">Wed Mar 27 23:34:37 2019 - [info] </span><br><span class="line">Wed Mar 27 23:34:37 2019 - [info] * Phase 2: Rejecting updates Phase..</span><br><span class="line">Wed Mar 27 23:34:37 2019 - [info] </span><br><span class="line">Wed Mar 27 23:34:37 2019 - [info] Executing master ip online change script to <span class="built_in">disable</span> write on the current master:</span><br><span class="line">Wed Mar 27 23:34:37 2019 - [info]   /root/dba/mha/script/master_ip_online_change.sh --<span class="built_in">command</span>=stop --orig_master_host=10.25.1.66 --orig_master_ip=10.25.1.66 --orig_master_port=3306 --orig_master_user=<span class="string">&apos;mha&apos;</span> --orig_master_password=<span class="string">&apos;mhapassword&apos;</span> --new_master_host=10.25.1.67 --new_master_ip=10.25.1.67 --new_master_port=3306 --new_master_user=<span class="string">&apos;mha&apos;</span> --new_master_password=<span class="string">&apos;mhapassword&apos;</span> --orig_master_ssh_user=root --new_master_ssh_user=root   --orig_master_is_new_slave</span><br><span class="line">2019-03-27 23:34:38 set_mysql_read_only successful!</span><br><span class="line">Stopping keepalived: [  OK  ]</span><br><span class="line">2019-03-27 23:34:38 stop_keepalived successful!</span><br><span class="line">Wed Mar 27 23:34:38 2019 - [info]  ok.</span><br><span class="line">Wed Mar 27 23:34:38 2019 - [info] Locking all tables on the orig master to reject updates from everybody (including root):</span><br><span class="line">Wed Mar 27 23:34:38 2019 - [info] Executing FLUSH TABLES WITH READ LOCK..</span><br><span class="line">Wed Mar 27 23:34:38 2019 - [info]  ok.</span><br><span class="line">Wed Mar 27 23:34:38 2019 - [info] Orig master binlog:pos is mysql-bin.004691:854373586.</span><br><span class="line">Wed Mar 27 23:34:38 2019 - [info]  Waiting to execute all relay logs on 10.25.1.67(10.25.1.67:3306)..</span><br><span class="line">Wed Mar 27 23:34:38 2019 - [info]  master_pos_wait(mysql-bin.004691:854373586) completed on 10.25.1.67(10.25.1.67:3306). Executed 0 events.</span><br><span class="line">Wed Mar 27 23:34:38 2019 - [info]   <span class="keyword">done</span>.</span><br><span class="line">Wed Mar 27 23:34:38 2019 - [info] Getting new master<span class="string">&apos;s binlog name and position..</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info]  mysql-bin.000001:120</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info]  All other slaves should start replication from here. Statement should be: CHANGE MASTER TO MASTER_HOST=&apos;</span>10.25.1.67<span class="string">&apos;, MASTER_PORT=3306, MASTER_LOG_FILE=&apos;</span>mysql-bin.000001<span class="string">&apos;, MASTER_LOG_POS=120, MASTER_USER=&apos;</span>repl<span class="string">&apos;, MASTER_PASSWORD=&apos;</span>xxx<span class="string">&apos;;</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info] Executing master ip online change script to allow write on the new master:</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info]   /root/dba/mha/script/master_ip_online_change.sh --command=start --orig_master_host=10.25.1.66 --orig_master_ip=10.25.1.66 --orig_master_port=3306 --orig_master_user=&apos;</span>mha<span class="string">&apos; --orig_master_password=&apos;</span>mhapassword<span class="string">&apos; --new_master_host=10.25.1.67 --new_master_ip=10.25.1.67 --new_master_port=3306 --new_master_user=&apos;</span>mha<span class="string">&apos; --new_master_password=&apos;</span>mhapassword<span class="string">&apos; --orig_master_ssh_user=root --new_master_ssh_user=root   --orig_master_is_new_slave</span></span><br><span class="line"><span class="string">Starting keepalived: [  OK  ]</span></span><br><span class="line"><span class="string">2019-03-27 23:34:38 start_keepalived successful!</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info]  ok.</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info] Setting read_only=0 on 10.25.1.67(10.25.1.67:3306)..</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info]  ok.</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info] </span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info] * Switching slaves in parallel..</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info] </span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info] -- Slave switch on host 10.25.1.68(10.25.1.68:3306) started, pid: 20673</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info] </span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info] Log messages from 10.25.1.68 ...</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:39 2019 - [info] </span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info]  Waiting to execute all relay logs on 10.25.1.68(10.25.1.68:3306)..</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info]  master_pos_wait(mysql-bin.004691:854373586) completed on 10.25.1.68(10.25.1.68:3306). Executed 0 events.</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info]   done.</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info]  Resetting slave 10.25.1.68(10.25.1.68:3306) and starting replication from the new master 10.25.1.67(10.25.1.67:3306)..</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info]  Executed CHANGE MASTER.</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:38 2019 - [info]  Slave started.</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:39 2019 - [info] End of log messages from 10.25.1.68 ...</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:39 2019 - [info] </span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:39 2019 - [info] -- Slave switch on host 10.25.1.68(10.25.1.68:3306) succeeded.</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:39 2019 - [info] Unlocking all tables on the orig master:</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:39 2019 - [info] Executing UNLOCK TABLES..</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:39 2019 - [info]  ok.</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:39 2019 - [info] Starting orig master as a new slave..</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:39 2019 - [info]  Resetting slave 10.25.1.66(10.25.1.66:3306) and starting replication from the new master 10.25.1.67(10.25.1.67:3306)..</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:39 2019 - [info]  Executed CHANGE MASTER.</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:39 2019 - [info]  Slave started.</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:39 2019 - [info] All new slave servers switched successfully.</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:39 2019 - [info] </span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:39 2019 - [info] * Phase 5: New master cleanup phase..</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:39 2019 - [info] </span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:39 2019 - [info]  10.25.1.67: Resetting slave info succeeded.</span></span><br><span class="line"><span class="string">Wed Mar 27 23:34:39 2019 - [info] Switching master to 10.25.1.67(10.25.1.67:3306) completed successfully.</span></span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ps -ef|grep babybi_#1.conf</span></span><br><span class="line">root      3578     1  0 Jan08 ?        00:42:35 perl /usr/bin/masterha_manager --conf=/root/dba/mha/conf/babybi_<span class="comment">#1.conf --ignore_last_failover</span></span><br><span class="line">root     21082 17518  0 23:35 pts/0    00:00:00 grep --colour=auto babybi_<span class="comment">#1.conf</span></span><br><span class="line"><span class="comment">#</span></span><br></pre></td></tr></tbody></table></figure>
+<p>&#x5230;new_master&#x673A;&#x5668;&#x4E2D;&#x67E5;&#x770B;VIP&#x6709;&#x6CA1;&#x6709;&#x7ED1;&#x5B9A;&#x8FC7;&#x6765;&#x5230;&#x7F51;&#x5361;&#x4E0A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ip a</span></span><br></pre></td></tr></tbody></table></figure><p></p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN </span><br><span class="line">    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00</span><br><span class="line">    inet 127.0.0.1/8 scope host lo</span><br><span class="line">    inet6 ::1/128 scope host </span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">2: em1: &lt;BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP&gt; mtu 1500 qdisc mq master bond0 state UP qlen 1000</span><br><span class="line">    link/ether 24:6e:96:13:61:30 brd ff:ff:ff:ff:ff:ff</span><br><span class="line">3: em2: &lt;BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP&gt; mtu 1500 qdisc mq master bond0 state UP qlen 1000</span><br><span class="line">    link/ether 24:6e:96:13:61:30 brd ff:ff:ff:ff:ff:ff</span><br><span class="line">4: em3: &lt;BROADCAST,MULTICAST&gt; mtu 1500 qdisc noop state DOWN qlen 1000</span><br><span class="line">    link/ether 24:6e:96:13:61:34 brd ff:ff:ff:ff:ff:ff</span><br><span class="line">5: em4: &lt;BROADCAST,MULTICAST&gt; mtu 1500 qdisc noop state DOWN qlen 1000</span><br><span class="line">    link/ether 24:6e:96:13:61:35 brd ff:ff:ff:ff:ff:ff</span><br><span class="line">6: bond0: &lt;BROADCAST,MULTICAST,MASTER,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UP </span><br><span class="line">    link/ether 24:6e:96:13:61:30 brd ff:ff:ff:ff:ff:ff</span><br><span class="line">    inet 10.25.1.67/24 brd 10.25.1.255 scope global bond0</span><br><span class="line">    inet 10.25.1.203/32 scope global bond0</span><br><span class="line">    inet6 fe80::266e:96ff:fe13:6130/64 scope link </span><br><span class="line">       valid_lft forever preferred_lft forever</span><br></pre></td></tr></tbody></table></figure>
+<p>&#x767B;&#x5F55;&#x5230;slave&#x673A;&#x5668;&#x4E0A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show slave status\G</span><br><span class="line">ERROR 2006 (HY000): MySQL server has gone away</span><br><span class="line">No connection. Trying to reconnect...</span><br><span class="line">Connection id:    2049252955</span><br><span class="line">Current database: *** NONE ***</span><br><span class="line"></span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">               Slave_IO_State: Waiting <span class="keyword">for</span> master to send event</span><br><span class="line">                  Master_Host: 10.25.1.67</span><br><span class="line">                  Master_User: repl</span><br><span class="line">                  Master_Port: 3306</span><br><span class="line">                Connect_Retry: 60</span><br><span class="line">              Master_Log_File: mysql-bin.000001</span><br><span class="line">          Read_Master_Log_Pos: 62528</span><br><span class="line">               Relay_Log_File: relay-log.000002</span><br><span class="line">                Relay_Log_Pos: 62691</span><br><span class="line">        Relay_Master_Log_File: mysql-bin.000001</span><br><span class="line">             Slave_IO_Running: Yes</span><br><span class="line">            Slave_SQL_Running: Yes</span><br><span class="line">              Replicate_Do_DB: </span><br><span class="line">          Replicate_Ignore_DB: </span><br><span class="line">           Replicate_Do_Table: </span><br><span class="line">       Replicate_Ignore_Table: </span><br><span class="line">      Replicate_Wild_Do_Table: </span><br><span class="line">  Replicate_Wild_Ignore_Table: </span><br><span class="line">                   Last_Errno: 0</span><br><span class="line">                   Last_Error: </span><br><span class="line">                 Skip_Counter: 0</span><br><span class="line">          Exec_Master_Log_Pos: 62528</span><br><span class="line">              Relay_Log_Space: 62858</span><br><span class="line">              Until_Condition: None</span><br><span class="line">               Until_Log_File: </span><br><span class="line">                Until_Log_Pos: 0</span><br><span class="line">           Master_SSL_Allowed: No</span><br><span class="line">           Master_SSL_CA_File: </span><br><span class="line">           Master_SSL_CA_Path: </span><br><span class="line">              Master_SSL_Cert: </span><br><span class="line">            Master_SSL_Cipher: </span><br><span class="line">               Master_SSL_Key: </span><br><span class="line">        Seconds_Behind_Master: 0</span><br><span class="line">Master_SSL_Verify_Server_Cert: No</span><br><span class="line">                Last_IO_Errno: 0</span><br><span class="line">                Last_IO_Error: </span><br><span class="line">               Last_SQL_Errno: 0</span><br><span class="line">               Last_SQL_Error: </span><br><span class="line">  Replicate_Ignore_Server_Ids: </span><br><span class="line">             Master_Server_Id: 1673306</span><br><span class="line">                  Master_UUID: ca479c32-fa0d-11e8-bc0f-246e96136130</span><br><span class="line">             Master_Info_File: /my/data/percona/master.info</span><br><span class="line">                    SQL_Delay: 0</span><br><span class="line">          SQL_Remaining_Delay: NULL</span><br><span class="line">      Slave_SQL_Running_State: Slave has <span class="built_in">read</span> all relay <span class="built_in">log</span>; waiting <span class="keyword">for</span> the slave I/O thread to update it</span><br><span class="line">           Master_Retry_Count: 86400</span><br><span class="line">                  Master_Bind: </span><br><span class="line">      Last_IO_Error_Timestamp: </span><br><span class="line">     Last_SQL_Error_Timestamp: </span><br><span class="line">               Master_SSL_Crl: </span><br><span class="line">           Master_SSL_Crlpath: </span><br><span class="line">           Retrieved_Gtid_Set: </span><br><span class="line">            Executed_Gtid_Set: </span><br><span class="line">                Auto_Position: 0</span><br><span class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt;</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>&#x6B63;&#x5E38; CHANGE MASTER TO NEW_MASTER </p>
+<p>&#x767B;&#x5F55;&#x5230;old_master&#x4E2D;&#x67E5;&#x770B;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show slave status\G</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">               Slave_IO_State: Waiting <span class="keyword">for</span> master to send event</span><br><span class="line">                  Master_Host: 10.25.1.67</span><br><span class="line">                  Master_User: repl</span><br><span class="line">                  Master_Port: 3306</span><br><span class="line">                Connect_Retry: 60</span><br><span class="line">              Master_Log_File: mysql-bin.000001</span><br><span class="line">          Read_Master_Log_Pos: 66875</span><br><span class="line">               Relay_Log_File: relay-log.000002</span><br><span class="line">                Relay_Log_Pos: 67038</span><br><span class="line">        Relay_Master_Log_File: mysql-bin.000001</span><br><span class="line">             Slave_IO_Running: Yes</span><br><span class="line">            Slave_SQL_Running: Yes</span><br><span class="line">              Replicate_Do_DB: </span><br><span class="line">          Replicate_Ignore_DB: </span><br><span class="line">           Replicate_Do_Table: </span><br><span class="line">       Replicate_Ignore_Table: </span><br><span class="line">      Replicate_Wild_Do_Table: </span><br><span class="line">  Replicate_Wild_Ignore_Table: </span><br><span class="line">                   Last_Errno: 0</span><br><span class="line">                   Last_Error: </span><br><span class="line">                 Skip_Counter: 0</span><br><span class="line">          Exec_Master_Log_Pos: 66875</span><br><span class="line">              Relay_Log_Space: 67205</span><br><span class="line">              Until_Condition: None</span><br><span class="line">               Until_Log_File: </span><br><span class="line">                Until_Log_Pos: 0</span><br><span class="line">           Master_SSL_Allowed: No</span><br><span class="line">           Master_SSL_CA_File: </span><br><span class="line">           Master_SSL_CA_Path: </span><br><span class="line">              Master_SSL_Cert: </span><br><span class="line">            Master_SSL_Cipher: </span><br><span class="line">               Master_SSL_Key: </span><br><span class="line">        Seconds_Behind_Master: 0</span><br><span class="line">Master_SSL_Verify_Server_Cert: No</span><br><span class="line">                Last_IO_Errno: 0</span><br><span class="line">                Last_IO_Error: </span><br><span class="line">               Last_SQL_Errno: 0</span><br><span class="line">               Last_SQL_Error: </span><br><span class="line">  Replicate_Ignore_Server_Ids: </span><br><span class="line">             Master_Server_Id: 1673306</span><br><span class="line">                  Master_UUID: ca479c32-fa0d-11e8-bc0f-246e96136130</span><br><span class="line">             Master_Info_File: /my/data/percona/master.info</span><br><span class="line">                    SQL_Delay: 0</span><br><span class="line">          SQL_Remaining_Delay: NULL</span><br><span class="line">      Slave_SQL_Running_State: Slave has <span class="built_in">read</span> all relay <span class="built_in">log</span>; waiting <span class="keyword">for</span> the slave I/O thread to update it</span><br><span class="line">           Master_Retry_Count: 86400</span><br><span class="line">                  Master_Bind: </span><br><span class="line">      Last_IO_Error_Timestamp: </span><br><span class="line">     Last_SQL_Error_Timestamp: </span><br><span class="line">               Master_SSL_Crl: </span><br><span class="line">           Master_SSL_Crlpath: </span><br><span class="line">           Retrieved_Gtid_Set: </span><br><span class="line">            Executed_Gtid_Set: </span><br><span class="line">                Auto_Position: 0</span><br><span class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt;</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>&#x5230;new_master&#x4E0A;&#x67E5;&#x770B;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ ps -ef|grep keepalived</span><br><span class="line">root     37477     1  0 23:41 ?        00:00:00 /usr/sbin/keepalived -D</span><br><span class="line">root     37478 37477  0 23:41 ?        00:00:00 /usr/sbin/keepalived -D</span><br><span class="line">root     37479 37477  0 23:41 ?        00:00:00 /usr/sbin/keepalived -D</span><br><span class="line">dbctl    38747 35598  0 23:49 pts/0    00:00:00 grep --colour=auto keepalived</span><br></pre></td></tr></tbody></table></figure><p></p>
+<h5 id="&#x5728;&#x5207;&#x6362;&#x56DE;&#x6765;&#x5230;old-master&#x63D0;&#x6210;&#x4E3A;master"><a href="#&#x5728;&#x5207;&#x6362;&#x56DE;&#x6765;&#x5230;old-master&#x63D0;&#x6210;&#x4E3A;master" class="headerlink" title="&#x5728;&#x5207;&#x6362;&#x56DE;&#x6765;&#x5230;old_master&#x63D0;&#x6210;&#x4E3A;master"></a>&#x5728;&#x5207;&#x6362;&#x56DE;&#x6765;&#x5230;old_master&#x63D0;&#x6210;&#x4E3A;master</h5><p>&#x6B65;&#x9AA4;&#x6309;&#x7167;&#x4E0A;&#x9762;&#x64CD;&#x4F5C;&#xFF0C;&#x5C31;&#x4E0D;&#x91CD;&#x590D;&#x642C;&#x7816;&#x4E86;&#x3002;</p>
+<h2 id="&#x7ED3;&#x679C;"><a href="#&#x7ED3;&#x679C;" class="headerlink" title="&#x7ED3;&#x679C;"></a>&#x7ED3;&#x679C;</h2><p>MHA &#x9AD8;&#x53EF;&#x7528;&#x96C6;&#x7FA4;&#x5207;&#x6362;&#x6210;&#x529F;&#xFF0C;&#x867D;&#x7136;&#x662F;&#x624B;&#x52A8;MHA failover&#x6D4B;&#x8BD5;&#xFF0C;&#x5E76;&#x4E0D;&#x80FD;&#x4EE3;&#x8868;MHA&#x7684;&#x9AD8;&#x53EF;&#x7528;&#x3002;&#x4EE5;&#x540E;&#x8FD8;&#x4F1A;&#x6309;&#x7167;&#x4E0A;&#x9762;&#x7F29;&#x5199;&#x7684;&#x6B65;&#x9AA4;&#x5728;&#x52A0;&#x4E0A;&#x4E00;&#x5B9A;&#x7684;&#x4E3B;&#x4ECE;&#x6570;&#x636E;&#x540C;&#x6B65;&#x5EF6;&#x8FDF;&#x6765;&#x8FDB;&#x884C;&#x6F14;&#x7EC3;&#x3002;</p>
+<script>
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return; }
+            const img = document.createElement('img');
+            img.style = 'display:none !important;';
+            img.src = el.dataset.src;
+            img.addEventListener('error', () => {
+              img.remove();
+              el.style.color = 'inherit';
+              el.style.backgroundImage = 'none';
+              el.style.background = 'none';
+            });
+            img.addEventListener('load', () => {
+              img.remove();
+            });
+            document.body.appendChild(img);
+          });
+      </script>
+      
+    </div>
+
+    
+
+    
+    
+    
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+
+    <div>
+          
+            
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>本文标题:</span><a href="/2019/03/28/mha-switch/">MHA 故障切换演练 --- masterha_master_switch</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 Wang Jiemin 的个人博客">Wang Jiemin</a></p>
+  <p><span>发布时间:</span>2019年03月28日 - 10:03</p>
+  <p><span>最后更新:</span>2019年03月28日 - 11:03</p>
+  <p><span>原始链接:</span><a href="/2019/03/28/mha-switch/" title="MHA 故障切换演练 --- masterha_master_switch">https://jiemin.wang/2019/03/28/mha-switch/</a>
+    <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://jiemin.wang/2019/03/28/mha-switch/" aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>
+</div>
+<script>
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({
+          title: "",
+          text: '复制成功',
+          icon: "success",
+          showConfirmButton: true
+          });
+    });
+    });
+</script>
+
+
+          
+    </div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpeg" alt="Wang Jiemin Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MySQL/" rel="tag"><i class="fa fa-angellist" aria-hidden="true"></i> MySQL</a>
+          
+            <a href="/tags/MHA/" rel="tag"><i class="fa fa-angellist" aria-hidden="true"></i> MHA</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/25/git-install/" rel="next" title="CentOS Install git Source">
+                <i class="fa fa-chevron-left"></i> CentOS Install git Source
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/XIAOXIN.jpg" alt="Wang Jiemin">
+            
+              <p class="site-author-name" itemprop="name">Wang Jiemin</p>
+              <p class="site-description motion-element" itemprop="description">我从不生产BUG, 我是BUG的搬运工~</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">15</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/WangJiemin" title="GitHub &rarr; https://github.com/WangJiemin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:278667010@qq.com" title="E-Mail &rarr; mailto:278667010@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://zhengshun.wang" title="https://zhengshun.wang" rel="noopener" target="_blank">順子の杂货铺</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.chopmoon.com" title="http://blog.chopmoon.com" rel="noopener" target="_blank">龚义杰BLOG</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#我写了一些步骤："><span class="nav-number">1.0.0.1.</span> <span class="nav-text">我写了一些步骤：</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#故障切换"><span class="nav-number">1.0.0.1.1.</span> <span class="nav-text">故障切换</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#master-数据库恢复"><span class="nav-number">1.0.0.1.2.</span> <span class="nav-text">master 数据库恢复</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#恢复-old-master为-master-角色"><span class="nav-number">1.0.0.1.3.</span> <span class="nav-text">恢复 old_master为 master 角色</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#但是这么操作虽然能更贴近真实灾难-暂时没有把主从数据延迟考虑进入-，需要的时间会更多。领导建议手动操作MHA-failover测试能不能切换。"><span class="nav-number">1.0.0.2.</span> <span class="nav-text">但是这么操作虽然能更贴近真实灾难(暂时没有把主从数据延迟考虑进入)，需要的时间会更多。领导建议手动操作MHA failover测试能不能切换。</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#服务器架构"><span class="nav-number">2.</span> <span class="nav-text">服务器架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#具体操作"><span class="nav-number">3.</span> <span class="nav-text">具体操作</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#在切换回来到old-master提成为master"><span class="nav-number">3.0.0.1.</span> <span class="nav-text">在切换回来到old_master提成为master</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结果"><span class="nav-number">4.</span> <span class="nav-text">结果</span></a></li></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+      <div id="music163player">
+         <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="298" height="52" src="//music.163.com/outchain/player?type=0&id=2162667159&auto=1&height=32"></iframe>
+      </div>
+
+    </div>
+  </aside>
+ 
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart" aria-hidden="true"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wang Jiemin</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  <!-- 雪花特效 -->
+  <script type="text/javascript" src="//libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
+  <script type="text/javascript">
+    var windowWidth = $(window).width();
+    if (windowWidth > 480) {
+      document.write('<script type="text/javascript" src="/js/src/snow.js"><\/script>');
+    }
+  </script>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/three/three.min.js"></script>
+
+  
+  <script src="true"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.7.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.7.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+        // ref: https://github.com/ForbesLindesay/unescape-html
+        var unescapeHtml = function(html) {
+          return String(html)
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, '\'')
+            .replace(/&#x3A;/g, ':')
+            // replace all the other &#x; chars
+            .replace(/&#(\d+);/g, function (m, p) { return String.fromCharCode(p); })
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&amp;/g, '&');
+        };
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                content = unescapeHtml(content);
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script>
+    
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+
+      Counter('get', '/classes/Counter', { where: JSON.stringify({ url }) })
+        .done(function ({ results }) {
+          if (results.length > 0) {
+            var counter = results[0];
+            
+            Counter('put', `/classes/Counter/${counter.objectId}`, JSON.stringify({ time: { "__op":"Increment", "amount":1 } }))
+            
+            .done(function () {
+                  var $element = $(document.getElementById(url));
+                  $element.find('.leancloud-visitors-count').text(counter.time + 1);
+            })
+            
+            .fail(function ({ responseJSON }) {
+                console.log('Failed to save Visitor num, with error message: ' + responseJSON.error);
+            })
+          } else {
+            
+              var $element = $(document.getElementById(url));
+              $element.find('.leancloud-visitors-count').text('Counter not initialized! See more at console err msg.');
+              console.error('ATTENTION! LeanCloud counter has security bug, see here how to solve it: https://github.com/theme-next/hexo-leancloud-counter-security. \n But you also can use LeanCloud without security, by set \'security\' option to \'false\'.');
+            
+          }
+        })
+      .fail(function ({ responseJSON }) {
+        console.log('LeanCloud Counter Error:' + responseJSON.code + " " + responseJSON.error);
+      });
+    }
+    
+
+    $(function() {
+      $.get('https://app-router.leancloud.cn/2/route?appId=' + "JkYmxXIhi14yw96jpzv7c0h2-gzGzoHsz")
+        .done(function ({ api_server }) {
+          var Counter = function (method, url, data) {
+            return $.ajax({
+              method: method,
+              url: `https://${api_server}/1.1${url}`,
+              headers: {
+                'X-LC-Id': "JkYmxXIhi14yw96jpzv7c0h2-gzGzoHsz",
+                'X-LC-Key': "EHRmraDPk6Tzs7qjIgvbbI5G",
+                'Content-Type': 'application/json',
+              },
+              data: data,
+            });
+          };
+          
+          addCount(Counter);
+          
+        })
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <style>
+    .copy-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 20px;
+      color: #333;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      background-color: #eee;
+      background-image: linear-gradient(#fcfcfc, #eee);
+      border: 1px solid #d5d5d5;
+      border-radius: 3px;
+      user-select: none;
+      outline: 0;
+    }
+
+    .highlight-wrap .copy-btn {
+      transition: opacity .3s ease-in-out;
+      opacity: 0;
+      padding: 2px 6px;
+      position: absolute;
+      right: 4px;
+      top: 8px;
+    }
+
+    .highlight-wrap:hover .copy-btn,
+    .highlight-wrap .copy-btn:focus {
+      opacity: 1
+    }
+
+    .highlight-wrap {
+      position: relative;
+    }
+  </style>
+  <script>
+    $('.highlight').each(function (i, e) {
+      var $wrap = $('<div>').addClass('highlight-wrap');
+      $(e).after($wrap);
+      $wrap.append($('<button>').addClass('copy-btn').append('Copy').on('click', function (e) {
+        var code = $(this).parent().find('.code').find('.line').map(function (i, e) {
+          return $(e).text();
+        }).toArray().join('\n');
+        var ta = document.createElement('textarea');
+        var range = document.createRange(); //For Chrome
+        var sel = window.getSelection(); //For Chrome
+        var yPosition = window.pageYOffset || document.documentElement.scrollTop;
+        ta.style.top = yPosition + 'px'; //Prevent page scroll
+        ta.style.position = 'absolute';
+        ta.style.opacity = '0';
+        ta.value = code;
+        ta.textContent = code; //For FireFox
+        ta.contentEditable = true;
+        ta.readOnly = false;
+        document.body.appendChild(ta);
+        range.selectNode(ta);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        ta.setSelectionRange(0, code.length);
+        var result = document.execCommand('copy');
+        
+          if (result) $(this).text('Copied');
+          else $(this).text('Copy failed');
+        
+        ta.blur(); //For iOS
+        $(this).blur();
+      })).on('mouseleave', function (e) {
+        var $b = $(this).find('.copy-btn');
+        setTimeout(function () {
+          $b.text('Copy');
+        }, 300);
+      }).append(e);
+    })
+  </script>
+
+
+  
+
+</body>
+</html>
