@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://jiemin.wang/2019/03/29/CoveringIndex/</loc>
+    
+    <lastmod>2019-03-29T09:56:55.835Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/03/29/mysql-optimization-principle-2/</loc>
+    
+    <lastmod>2019-03-29T09:52:11.444Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://jiemin.wang/2019/03/29/mysql-optimization-principle-3/</loc>
     
     <lastmod>2019-03-29T08:33:32.356Z</lastmod>
@@ -9,23 +23,9 @@
   </url>
   
   <url>
-    <loc>https://jiemin.wang/2019/03/29/mysql-optimization-principle-2/</loc>
-    
-    <lastmod>2019-03-29T08:04:53.912Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://jiemin.wang/2019/03/29/mysql-optimization-principle-1/</loc>
     
     <lastmod>2019-03-29T07:42:23.911Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://jiemin.wang/2019/03/29/CoveringIndex/</loc>
-    
-    <lastmod>2019-03-29T06:42:37.257Z</lastmod>
     
   </url>
   
