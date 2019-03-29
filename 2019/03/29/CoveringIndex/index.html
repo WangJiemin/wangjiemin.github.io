@@ -129,7 +129,7 @@ tpwidget("show");</script>
 <meta property="og:image" content="https://jiemin.wang/2019/03/29/CoveringIndex/hehe.jpg">
 <meta property="og:image" content="https://jiemin.wang/2019/03/29/CoveringIndex/Primary_key.jpg">
 <meta property="og:image" content="https://jiemin.wang/2019/03/29/CoveringIndex/Secoudary_key.jpg">
-<meta property="og:updated_time" content="2019-03-29T09:56:55.835Z">
+<meta property="og:updated_time" content="2019-03-29T09:59:50.159Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL 优化之 Covering Index">
 <meta name="twitter:description" content="&amp;#x4E3A;&amp;#x4EC0;&amp;#x4E48;&amp;#x6211;&amp;#x8001;&amp;#x7238;&amp;#x4E0D;&amp;#x662F;&amp;#x674E;&amp;#x5609;&amp;#x8BDA;&amp;#xFF0C;&amp;#x4E3A;&amp;#x4EC0;&amp;#x4E48;&amp;#x6211;&amp;#x957F;&amp;#x7684;&amp;#x8FD9;&amp;#x4E48;&amp;#x5E05;&amp;#xFF0C;&amp;#x4F46;&amp;#x662F;&amp;#x8981">
@@ -459,7 +459,7 @@ tpwidget("show");</script>
                 
               
 
-              <time title="Created: 2019-03-29 13:22:16 / Modified: 17:56:55" itemprop="dateCreated datePublished" datetime="2019-03-29T13:22:16+08:00">2019-03-29</time>
+              <time title="Created: 2019-03-29 13:22:16 / Modified: 17:59:50" itemprop="dateCreated datePublished" datetime="2019-03-29T13:22:16+08:00">2019-03-29</time>
             
 
             
@@ -528,7 +528,7 @@ tpwidget("show");</script>
 
       
         <span itemprop="image" itemscope itemtype="http://schema.org/ImageObject"><img itemprop="url image" src="hehe.jpg" class="full-image" alt="alt" title="title"><meta itemprop="width" content="auto"><meta itemprop="height" content="auto"></span>
-<blockquote class="blockquote-center"><p><strong>&#x4E3A;&#x4EC0;&#x4E48;&#x6211;&#x8001;&#x7238;&#x4E0D;&#x662F;&#x674E;&#x5609;&#x8BDA;&#xFF0C;&#x4E3A;&#x4EC0;&#x4E48;&#x6211;&#x957F;&#x7684;&#x8FD9;&#x4E48;&#x5E05;&#xFF0C;&#x4F46;&#x662F;&#x8981;&#x6389;&#x5934;&#x53D1;&#x5462;&#xFF0C;&#x4F60;&#x4EEC;&#x4E24;&#x957F;&#x8FD9;&#x4E48;&#x4E11;&#xFF0C;&#x5374;&#x4E0D;&#x6389;&#x5934;&#x53D1;&#x5462;&#xFF1F;</strong></p>
+<blockquote class="blockquote-center"><p><strong>&#x4E3A;&#x4EC0;&#x4E48;&#x6211;&#x8001;&#x7238;&#x4E0D;&#x662F;&#x674E;&#x5609;&#x8BDA;&#xFF0C;&#x4E3A;&#x4EC0;&#x4E48;&#x6211;&#x957F;&#x7684;&#x8FD9;&#x4E48;&#x5E05;&#xFF0C;&#x4F46;&#x662F;&#x8981;&#x6389;&#x5934;&#x53D1;&#x5462;&#xFF0C;&#x4F60;&#x4EEC;&#x957F;&#x8FD9;&#x4E48;&#x4E11;&#xFF0C;&#x5374;&#x4E0D;&#x6389;&#x5934;&#x53D1;&#x5462;&#xFF1F;</strong></p>
 </blockquote>
 <h2 id="&#x524D;&#x8A00;"><a href="#&#x524D;&#x8A00;" class="headerlink" title="&#x524D;&#x8A00;"></a>&#x524D;&#x8A00;</h2><p>&#x5728;&#x7F51;&#x4E0A;&#x968F;&#x4FBF;&#x641C;&#x641C;&#xFF0C;&#x5C31;&#x80FD;&#x627E;&#x5230;&#x5927;&#x628A;&#x7684;&#x5173;&#x4E8E; MySQL &#x4F18;&#x5316;&#x7684;&#x6587;&#x7AE0;&#xFF0C;&#x4E0D;&#x8FC7;&#x91CC;&#x9762;&#x5F88;&#x591A;&#x90FD;&#x4E0D;&#x51C6;&#x786E;&#xFF0C;&#x8BF4;&#x4E2A;&#x5E38;&#x89C1;&#x7684;&#xFF1A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT a FROM ... WHERE b = ...</span><br></pre></td></tr></tbody></table></figure><p></p>
 <p>&#x4E00;&#x822C;&#x6765;&#x8BF4;&#xFF0C;&#x5F88;&#x591A;&#x6587;&#x7AE0;&#x4F1A;&#x544A;&#x8BEB;&#x4F60;&#x7C7B;&#x4F3C;&#x8FD9;&#x6837;&#x7684;&#x67E5;&#x8BE2;&#xFF0C;&#x4E0D;&#x8981;&#x5728; &#x201C;a&#x201D; &#x5B57;&#x6BB5;&#x4E0A;&#x5EFA;&#x7ACB;&#x7D22;&#x5F15;&#xFF0C;&#x800C;&#x5E94;&#x8BE5;&#x5728; &#x201C;b&#x201D; &#x4E0A;&#x5EFA;&#x7ACB;&#x7D22;&#x5F15;&#x3002;&#x8FD9;&#x6837;&#x505A;&#x786E;&#x5B9E;&#x4E0D;&#x9519;&#xFF0C;&#x4F46;&#x662F;&#x5F88;&#x591A;&#x65F6;&#x5019;&#x8FD9;&#x5E76;&#x4E0D;&#x662F;&#x6700;&#x4F73;&#x7ED3;&#x679C;&#x3002;&#x4E3A;&#x4EC0;&#x4E48;&#x8FD9;&#x6837;&#x8BF4;&#xFF1F;&#x8FD9;&#x8FD8;&#x5F97;&#x5148;&#x4ECE;&#x7D22;&#x5F15;&#x6765;&#x8BF4;&#x8D77;&#x3002;</p>
