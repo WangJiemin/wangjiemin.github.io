@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-center-simple.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/xiaoxin-01.png?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+<script>(function(T,h,i,n,k,P,a,g,e){g=function(){P=h.createElement(i);a=h.getElementsByTagName(i)[0];P.src=k;P.charset="utf-8";P.async=1;a.parentNode.insertBefore(P,a)};T["ThinkPageWeatherWidgetObject"]=n;T[n]||(T[n]=function(){(T[n].q=T[n].q||[]).push(arguments)});T[n].l=+new Date();if(T.attachEvent){T.attachEvent("onload",g)}else{T.addEventListener("load",g,false)}}(window,document,"script","tpwidget","//widget.seniverse.com/widget/chameleon.js"))</script>
+<script>tpwidget("init", {
+    "flavor": "bubble",
+    "location": "WX4FBXXFKE4F",
+    "geolocation": "enabled",
+    "position": "top-right",
+    "margin": "10px 10px",
+    "language": "auto",
+    "unit": "c",
+    "theme": "chameleon",
+    "uid": "U6899A955F",
+    "hash": "3537a35c8bfe0f65e5d773944596793a"
+});
+tpwidget("show");</script>
+
+  <meta name="description" content="&amp;#x4EC0;&amp;#x4E48;&amp;#x662F; RsyncRsync&amp;#xFF08;remote synchronize&amp;#xFF09;&amp;#x662F;&amp;#x4E00;&amp;#x4E2A;&amp;#x8FDC;&amp;#x7A0B;&amp;#x6570;&amp;#x636E;&amp;#x540C;&amp;#x6B65;&amp;#x5DE5;&amp;#x5177;&amp;#xFF0C;&amp;#x53EF;&amp;#x901A;&amp;#x8FC7; LAN/WAN &amp;#">
+<meta name="keywords" content="Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="rsync 命令详解">
+<meta property="og:url" content="https://jiemin.wang/2019/03/29/rsync/index.html">
+<meta property="og:site_name" content="Jamin Blog">
+<meta property="og:description" content="&amp;#x4EC0;&amp;#x4E48;&amp;#x662F; RsyncRsync&amp;#xFF08;remote synchronize&amp;#xFF09;&amp;#x662F;&amp;#x4E00;&amp;#x4E2A;&amp;#x8FDC;&amp;#x7A0B;&amp;#x6570;&amp;#x636E;&amp;#x540C;&amp;#x6B65;&amp;#x5DE5;&amp;#x5177;&amp;#xFF0C;&amp;#x53EF;&amp;#x901A;&amp;#x8FC7; LAN/WAN &amp;#">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-29T05:18:58.858Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="rsync 命令详解">
+<meta name="twitter:description" content="&amp;#x4EC0;&amp;#x4E48;&amp;#x662F; RsyncRsync&amp;#xFF08;remote synchronize&amp;#xFF09;&amp;#x662F;&amp;#x4E00;&amp;#x4E2A;&amp;#x8FDC;&amp;#x7A0B;&amp;#x6570;&amp;#x636E;&amp;#x540C;&amp;#x6B65;&amp;#x5DE5;&amp;#x5177;&amp;#xFF0C;&amp;#x53EF;&amp;#x901A;&amp;#x8FC7; LAN/WAN &amp;#">
+
+
+
+
+
+
+  <link rel="canonical" href="https://jiemin.wang/2019/03/29/rsync/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>rsync 命令详解 | Jamin Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jamin Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">一个不聊技术的 DBA 不是一个好厨子...</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-life">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/coffee" rel="section"><i class="menu-item-icon fa fa-fw fa-coffee"></i> <br>生活中的美好</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>Search</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="Searching..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://jiemin.wang/2019/03/29/rsync/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Wang Jiemin">
+      <meta itemprop="description" content="我从不生产BUG, 我是BUG的搬运工~">
+      <meta itemprop="image" content="/images/XIAOXIN.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jamin Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">rsync 命令详解
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-03-29 12:53:22 / Modified: 13:18:58" itemprop="dateCreated datePublished" datetime="2019-03-29T12:53:22+08:00">2019-03-29</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/03/29/rsync/" class="leancloud_visitors" data-flag-title="rsync 命令详解">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Views: </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+                 <span>℃</span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="&#x4EC0;&#x4E48;&#x662F;-Rsync"><a href="#&#x4EC0;&#x4E48;&#x662F;-Rsync" class="headerlink" title="&#x4EC0;&#x4E48;&#x662F; Rsync"></a>&#x4EC0;&#x4E48;&#x662F; Rsync</h2><p>Rsync&#xFF08;remote synchronize&#xFF09;&#x662F;&#x4E00;&#x4E2A;&#x8FDC;&#x7A0B;&#x6570;&#x636E;&#x540C;&#x6B65;&#x5DE5;&#x5177;&#xFF0C;&#x53EF;&#x901A;&#x8FC7; LAN/WAN &#x5FEB;&#x901F;&#x540C;&#x6B65;&#x591A;&#x53F0;&#x4E3B;&#x673A;&#x95F4;&#x7684;&#x6587;&#x4EF6;&#x3002;Rsync &#x4F7F;&#x7528;&#x6240;&#x8C13;&#x7684; &#x201C;Rsync &#x7B97;&#x6CD5;&#x201D; &#x6765;&#x4F7F;&#x672C;&#x5730;&#x548C;&#x8FDC; &#x7A0B;&#x4E24;&#x4E2A;&#x4E3B;&#x673A;&#x4E4B;&#x95F4;&#x7684;&#x6587;&#x4EF6;&#x8FBE;&#x5230;&#x540C;&#x6B65;&#xFF0C;&#x8FD9;&#x4E2A;&#x7B97;&#x6CD5;&#x53EA;&#x4F20;&#x9001;&#x4E24;&#x4E2A;&#x6587;&#x4EF6;&#x7684;&#x4E0D;&#x540C;&#x90E8;&#x5206;&#xFF0C;&#x800C;&#x4E0D;&#x662F;&#x6BCF;&#x6B21;&#x90FD;&#x6574;&#x4EFD;&#x4F20;&#x9001;&#xFF0C;&#x56E0;&#x6B64;&#x901F;&#x5EA6;&#x76F8;&#x5F53;&#x5FEB;&#x3002;</p>
+<p>Rsync &#x672C;&#x6765;&#x662F;&#x7528;&#x4E8E;&#x66FF;&#x4EE3; rcp &#x7684;&#x4E00;&#x4E2A;&#x5DE5;&#x5177;&#xFF0C;&#x76EE;&#x524D;&#x7531; <a href="https://rsync.samba.org/" target="_blank" rel="noopener">samba</a> &#x7EF4;&#x62A4;&#xFF0C;&#x6240;&#x4EE5; rsync.conf &#x6587;&#x4EF6;&#x7684;&#x683C;&#x5F0F;&#x7C7B;&#x4F3C;&#x4E8E; Samba &#x7684; &#x4E3B;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x3002;Rsync &#x53EF;&#x4EE5;&#x901A;&#x8FC7; rsh &#x6216; ssh &#x4F7F;&#x7528;&#xFF0C;&#x4E5F;&#x80FD;&#x4EE5; daemon &#x6A21;&#x5F0F;&#x53BB;&#x8FD0;&#x884C;&#xFF0C;&#x5728;&#x4EE5; daemon &#x65B9;&#x5F0F;&#x8FD0;&#x884C;&#x65F6; Rsync server &#x4F1A;&#x6253;&#x5F00;&#x4E00;&#x4E2A; 873 &#x7AEF;&#x53E3;&#xFF0C;&#x7B49;&#x5F85;&#x5BA2;&#x6237;&#x7AEF;&#x53BB;&#x8FDE;&#x63A5;&#x3002;&#x8FDE;&#x63A5;&#x65F6;&#xFF0C;Rsync server &#x4F1A;&#x68C0;&#x67E5;&#x53E3;&#x4EE4;&#x662F;&#x5426;&#x76F8;&#x7B26;&#xFF0C;&#x82E5;&#x901A;&#x8FC7;&#x53E3;&#x4EE4;&#x67E5;&#x6838;&#xFF0C;&#x5219;&#x53EF;&#x4EE5;&#x5F00;&#x59CB;&#x8FDB;&#x884C;&#x6587;&#x4EF6;&#x4F20;&#x8F93;&#x3002;&#x7B2C;&#x4E00;&#x6B21;&#x8FDE;&#x901A;&#x5B8C;&#x6210;&#x65F6;&#xFF0C;&#x4F1A;&#x628A;&#x6574;&#x4EFD;&#x6587;&#x4EF6;&#x4F20;&#x8F93;&#x4E00;&#x6B21;&#xFF0C;&#x4EE5;&#x540E;&#x5219;&#x5C31;&#x53EA;&#x9700;&#x8FDB;&#x884C;&#x589E;&#x91CF;&#x5907;&#x4EFD;&#x3002;</p>
+<p>Rsync &#x652F;&#x6301;&#x5927;&#x591A;&#x6570;&#x7684;&#x7C7B; Unix &#x7CFB;&#x7EDF;&#xFF0C;&#x65E0;&#x8BBA;&#x662F; Linux&#x3001;Solaris &#x8FD8;&#x662F; BSD &#x4E0A;&#x90FD;&#x7ECF;&#x8FC7;&#x4E86;&#x826F;&#x597D;&#x7684;&#x6D4B;&#x8BD5;&#x3002;&#x6B64;&#x5916;&#xFF0C;&#x5B83;&#x5728; windows &#x5E73;&#x53F0;&#x4E0B;&#x4E5F;&#x6709;&#x76F8;&#x5E94;&#x7684;&#x7248;&#x672C;&#xFF0C;&#x5982; cwRsync &#x548C; Sync2NAS &#x7B49;&#x5DE5;&#x5177;&#x3002;</p>
+<p>Rsync &#x7684;&#x57FA;&#x672C;&#x7279;&#x70B9;&#x5982;&#x4E0B;&#xFF1A;</p>
+<ol>
+<li>&#x53EF;&#x4EE5;&#x955C;&#x50CF;&#x4FDD;&#x5B58;&#x6574;&#x4E2A;&#x76EE;&#x5F55;&#x6811;&#x548C;&#x6587;&#x4EF6;&#x7CFB;&#x7EDF;&#xFF1B;</li>
+<li>&#x53EF;&#x4EE5;&#x5F88;&#x5BB9;&#x6613;&#x505A;&#x5230;&#x4FDD;&#x6301;&#x539F;&#x6765;&#x6587;&#x4EF6;&#x7684;&#x6743;&#x9650;&#x3001;&#x65F6;&#x95F4;&#x3001;&#x8F6F;&#x786C;&#x94FE;&#x63A5;&#x7B49;&#xFF1B;</li>
+<li>&#x65E0;&#x987B;&#x7279;&#x6B8A;&#x6743;&#x9650;&#x5373;&#x53EF;&#x5B89;&#x88C5;&#xFF1B;</li>
+<li>&#x4F18;&#x5316;&#x7684;&#x6D41;&#x7A0B;&#xFF0C;&#x6587;&#x4EF6;&#x4F20;&#x8F93;&#x6548;&#x7387;&#x9AD8;&#xFF1B;</li>
+<li>&#x53EF;&#x4EE5;&#x4F7F;&#x7528; rsh&#x3001;ssh &#x7B49;&#x65B9;&#x5F0F;&#x6765;&#x4F20;&#x8F93;&#x6587;&#x4EF6;&#xFF0C;&#x5F53;&#x7136;&#x4E5F;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x76F4;&#x63A5;&#x7684; socket &#x8FDE;&#x63A5;&#xFF1B;</li>
+<li>&#x652F;&#x6301;&#x533F;&#x540D;&#x4F20;&#x8F93;&#x3002;</li>
+</ol>
+<h2 id="Rsync-&#x540C;&#x6B65;&#x7B97;&#x6CD5;"><a href="#Rsync-&#x540C;&#x6B65;&#x7B97;&#x6CD5;" class="headerlink" title="Rsync &#x540C;&#x6B65;&#x7B97;&#x6CD5;"></a>Rsync &#x540C;&#x6B65;&#x7B97;&#x6CD5;</h2><p>Rsync &#x53EA;&#x6240;&#x4EE5;&#x540C;&#x6B65;&#x6587;&#x4EF6;&#x7684;&#x901F;&#x5EA6;&#x76F8;&#x5F53;&#x5FEB;&#xFF0C;&#x662F;&#x56E0;&#x4E3A; &#x201C;Rsync &#x540C;&#x6B65;&#x7B97;&#x6CD5;&#x201D; &#x80FD;&#x5728;&#x5F88;&#x77ED;&#x7684;&#x65F6;&#x95F4;&#x5185;&#x8BA1;&#x7B97;&#x51FA;&#x9700;&#x8981;&#x5907;&#x4EFD;&#x7684;&#x6570;&#x636E;&#xFF0C;&#x5173;&#x4E8E; Rsync &#x7684;&#x540C;&#x6B65;&#x7B97;&#x6CD5;&#x63CF;&#x8FF0;&#x5982;&#x4E0B;&#xFF1A;</p>
+<p>&#x5047;&#x5B9A;&#x5728; 1 &#x53F7;&#x548C; 2 &#x53F7;&#x4E24;&#x53F0;&#x8BA1;&#x7B97;&#x673A;&#x4E4B;&#x95F4;&#x540C;&#x6B65;&#x76F8;&#x4F3C;&#x7684;&#x6587;&#x4EF6; A &#x4E0E; B&#xFF0C;&#x5176;&#x4E2D; 1 &#x53F7;&#x5BF9;&#x6587;&#x4EF6; A &#x62E5;&#x6709;&#x8BBF;&#x95EE;&#x6743;&#xFF0C;2 &#x53F7;&#x5BF9;&#x6587;&#x4EF6; B &#x62E5;&#x6709;&#x8BBF;&#x95EE;&#x6743;&#x3002;&#x5E76;&#x4E14;&#x5047;&#x5B9A;&#x4E3B;&#x673A; 1 &#x53F7;&#x4E0E; 2 &#x53F7;&#x4E4B;&#x95F4;&#x7684;&#x7F51;&#x7EDC;&#x5E26;&#x5BBD;&#x5F88;&#x5C0F;&#x3002;&#x90A3;&#x4E48; rsync &#x7B97;&#x6CD5;&#x5C06;&#x901A;&#x8FC7;&#x4E0B;&#x9762;&#x7684;&#x4E94;&#x4E2A;&#x6B65;&#x9AA4;&#x6765;&#x5B8C;&#x6210;&#xFF1A;</p>
+<ol>
+<li>2 &#x53F7;&#x5C06;&#x6587;&#x4EF6; B &#x5206;&#x5272;&#x6210;&#x4E00;&#x7EC4;&#x4E0D;&#x91CD;&#x53E0;&#x7684;&#x56FA;&#x5B9A;&#x5927;&#x5C0F;&#x4E3A; S &#x5B57;&#x8282;&#x7684;&#x6570;&#x636E;&#x5757;&#xFF0C;&#x6700;&#x540E;&#x4E00;&#x5757;&#x53EF;&#x80FD;&#x4F1A;&#x6BD4; S &#x5C0F;&#x3002;</li>
+<li>2 &#x53F7;&#x5BF9;&#x6BCF;&#x4E00;&#x4E2A;&#x5206;&#x5272;&#x597D;&#x7684;&#x6570;&#x636E;&#x5757;&#x6267;&#x884C;&#x4E24;&#x79CD;&#x6821;&#x9A8C;&#xFF1A;&#x4E00;&#x79CD;&#x662F; 32 &#x4F4D;&#x7684;&#x6EDA;&#x52A8;&#x5F31;&#x6821;&#x9A8C;&#xFF0C;&#x53E6;&#x4E00;&#x79CD;&#x662F; 128 &#x4F4D;&#x7684; MD4 &#x5F3A;&#x6821;&#x9A8C;</li>
+<li>2 &#x53F7;&#x5C06;&#x8FD9;&#x4E9B;&#x6821;&#x9A8C;&#x7ED3;&#x679C;&#x53D1;&#x7ED9; 1 &#x53F7;&#x3002;</li>
+<li>1 &#x53F7;&#x901A;&#x8FC7;&#x641C;&#x7D22;&#x6587;&#x4EF6; A &#x7684;&#x6240;&#x6709;&#x5927;&#x5C0F;&#x4E3A; S &#x7684;&#x6570;&#x636E;&#x5757; (&#x504F;&#x79FB;&#x91CF;&#x53EF;&#x4EE5;&#x4EFB;&#x9009;&#xFF0C;&#x4E0D;&#x4E00;&#x5B9A;&#x975E;&#x8981;&#x662F; S &#x7684;&#x500D;&#x6570;)&#xFF0C;&#x6765;&#x5BFB;&#x627E;&#x4E0E;&#x6587;&#x4EF6; B &#x7684;&#x67D0;&#x4E00;&#x5757;&#x6709;&#x7740;&#x76F8;&#x540C;&#x7684;&#x5F31;&#x6821;&#x9A8C;&#x7801;&#x548C;&#x5F3A;&#x6821;&#x9A8C;&#x7801;&#x7684;&#x6570;&#x636E;&#x5757;&#x3002;&#x8FD9;&#x9879;&#x5DE5;&#x4F5C;&#x53EF;&#x4EE5;&#x501F;&#x52A9;&#x6EDA;&#x52A8;&#x6821;&#x9A8C;&#x7684;&#x7279;&#x6027;&#x5F88;&#x5FEB;&#x5B8C;&#x6210;&#x3002;</li>
+<li>1 &#x53F7;&#x53D1;&#x7ED9; 2 &#x53F7;&#x4E00;&#x4E32;&#x6307;&#x4EE4;&#x6765;&#x751F;&#x6210;&#x6587;&#x4EF6; A &#x5728; 2 &#x53F7;&#x4E0A;&#x7684;&#x5907;&#x4EFD;&#x3002;&#x8FD9;&#x91CC;&#x7684;&#x6BCF;&#x4E00;&#x6761;&#x6307;&#x4EE4;&#x8981;&#x4E48;&#x662F;&#x5BF9;&#x6587;&#x4EF6; B &#x7ECF;&#x62E5;&#x6709;&#x67D0;&#x4E00;&#x4E2A;&#x6570;&#x636E;&#x5757;&#x800C;&#x4E0D;&#x987B;&#x91CD;&#x4F20;&#x7684;&#x8BC1;&#x660E;&#xFF0C;&#x8981;&#x4E48;&#x662F;&#x4E00;&#x4E2A;&#x6570;&#x636E;&#x5757;&#xFF0C;&#x8FD9;&#x4E2A;&#x6570;&#x636E;&#x5757;&#x80AF;&#x5B9A;&#x662F;&#x6CA1;&#x6709;&#x4E0E;&#x6587;&#x4EF6; B &#x7684;&#x4EFB;&#x4F55;&#x4E00;&#x4E2A;&#x6570;&#x636E;&#x5757;&#x5339;&#x914D;&#x4E0A;&#x7684;&#x3002;</li>
+</ol>
+<h2 id="Rsync-&#x53C2;&#x6570;&#x8BF4;&#x660E;"><a href="#Rsync-&#x53C2;&#x6570;&#x8BF4;&#x660E;" class="headerlink" title="Rsync &#x53C2;&#x6570;&#x8BF4;&#x660E;"></a>Rsync &#x53C2;&#x6570;&#x8BF4;&#x660E;</h2><p>&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#xFF1A;<code>rsyncd.conf</code></p>
+<h4 id="&#x5168;&#x5C40;&#x53C2;&#x6570;"><a href="#&#x5168;&#x5C40;&#x53C2;&#x6570;" class="headerlink" title="&#x5168;&#x5C40;&#x53C2;&#x6570;"></a>&#x5168;&#x5C40;&#x53C2;&#x6570;</h4><p>&#x5728;&#x6587;&#x4EF6;&#x4E2D;&#xFF0C;<code>[module]</code>&#x4E4B;&#x524D;&#x7684;&#x6240;&#x6709;&#x53C2;&#x6570;&#x90FD;&#x662F;&#x5168;&#x5C40;&#x53C2;&#x6570;&#xFF0C;&#x5F53;&#x7136;&#x4E5F;&#x53EF;&#x4EE5;&#x5728;&#x5168;&#x5C40;&#x53C2;&#x6570;&#x90E8;&#x5206;&#x5B9A;&#x4E49;&#x6A21;&#x5757;&#x53C2;&#x6570;&#xFF0C;&#x8FD9;&#x65F6;&#x5019;&#x8BE5;&#x53C2;&#x6570;&#x7684;&#x503C;&#x5C31;&#x662F;&#x6240;&#x6709;&#x6A21;&#x5757;&#x7684;&#x9ED8;&#x8BA4;&#x503C;&#x3002;</p>
+<p><code>port</code>&#x6307;&#x5B9A;&#x540E;&#x53F0;&#x7A0B;&#x5E8F;&#x4F7F;&#x7528;&#x7684;&#x7AEF;&#x53E3;&#x53F7;&#xFF0C;&#x9ED8;&#x8BA4;&#x4E3A; <code>873</code>&#x3002;</p>
+<p><code>motd file</code>&#x7528;&#x6765;&#x6307;&#x5B9A;&#x4E00;&#x4E2A;&#x6D88;&#x606F;&#x6587;&#x4EF6;&#xFF0C;&#x5F53;&#x5BA2;&#x6237;&#x8FDE;&#x63A5;&#x670D;&#x52A1;&#x5668;&#x65F6;&#x8BE5;&#x6587;&#x4EF6;&#x7684;&#x5185;&#x5BB9;&#x663E;&#x793A;&#x7ED9;&#x5BA2;&#x6237;&#xFF0C;&#x9ED8;&#x8BA4;&#x662F;&#x6CA1;&#x6709; <code>motd</code> &#x6587;&#x4EF6;&#x7684;&#x3002;</p>
+<p><code>log file</code>&#x6307;&#x5B9A; <code>rsync</code> &#x7684;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#xFF0C;&#x800C;&#x4E0D;&#x5C06;&#x65E5;&#x5FD7;&#x53D1;&#x9001;&#x7ED9; <code>syslog</code>&#x3002;&#x6BD4;&#x5982;&#x53EF;&#x6307;&#x5B9A;&#x4E3A; <code>/var/log/rsyncd.log</code>&#x3002;</p>
+<p><code>pid file</code>&#x6307;&#x5B9A; <code>rsync</code> &#x7684; <code>pid</code> &#x6587;&#x4EF6;&#xFF0C;&#x901A;&#x5E38;&#x6307;&#x5B9A;&#x4E3A; <code>/var/run/rsyncd.pid</code>&#x3002;</p>
+<p><code>syslog facility</code>&#x6307;&#x5B9A; <code>rsync</code> &#x53D1;&#x9001;&#x65E5;&#x5FD7;&#x6D88;&#x606F;&#x7ED9; <code>syslog</code> &#x65F6;&#x7684;&#x6D88;&#x606F;&#x7EA7;&#x522B;&#xFF0C;&#x5E38;&#x89C1;&#x7684;&#x6D88;&#x606F;&#x7EA7;&#x522B;&#x662F;&#xFF1A;</p>
+<ul>
+<li>daemon &#x9ED8;&#x8BA4;&#x503C;</li>
+<li>uth</li>
+<li>authpriv</li>
+<li>cron</li>
+<li>daemon</li>
+<li>ftp</li>
+<li>kern</li>
+<li>lpr</li>
+<li>mail</li>
+<li>news</li>
+<li>security</li>
+<li>sys-log</li>
+<li>user</li>
+<li>uucp</li>
+<li>local0</li>
+<li>local1</li>
+<li>local2</li>
+<li>local3</li>
+<li>local4</li>
+<li>local5</li>
+<li>local6</li>
+<li>local7</li>
+</ul>
+<h4 id="&#x6A21;&#x5757;&#x53C2;&#x6570;"><a href="#&#x6A21;&#x5757;&#x53C2;&#x6570;" class="headerlink" title="&#x6A21;&#x5757;&#x53C2;&#x6570;"></a>&#x6A21;&#x5757;&#x53C2;&#x6570;</h4><p>&#x4E3B;&#x8981;&#x662F;&#x5B9A;&#x4E49;&#x670D;&#x52A1;&#x5668;&#x54EA;&#x4E2A;&#x76EE;&#x5F55;&#x8981;&#x88AB;&#x540C;&#x6B65;&#x3002;&#x5176;&#x683C;&#x5F0F;&#x5FC5;&#x987B;&#x4E3A;<code>&#x201C;[module]&#x201D;</code>&#x5F62;&#x5F0F;&#xFF0C;&#x8FD9;&#x4E2A;&#x540D;&#x5B57;&#x5C31;&#x662F;&#x5728; <code>rsync</code> &#x5BA2;&#x6237;&#x7AEF;&#x770B;&#x5230;&#x7684;&#x540D;&#x5B57;&#xFF0C;&#x5176;&#x5B9E;&#x6709;&#x70B9;&#x8C61; <code>Samba</code> &#x670D;&#x52A1;&#x5668;&#x63D0;&#x4F9B;&#x7684;&#x5171;&#x4EAB;&#x540D;&#x3002;&#x800C;&#x670D;&#x52A1;&#x5668;&#x771F;&#x6B63;&#x540C;&#x6B65;&#x7684;&#x6570;&#x636E;&#x662F;&#x901A;&#x8FC7; <code>path</code> &#x6765;&#x6307;&#x5B9A;&#x7684;&#x3002;&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x6839;&#x636E;&#x81EA;&#x5DF1;&#x7684;&#x9700;&#x8981;&#xFF0C;&#x6765;&#x6307;&#x5B9A;&#x591A;&#x4E2A;&#x6A21;&#x5757;&#xFF0C;&#x6A21;&#x5757;&#x4E2D;&#x53EF;&#x4EE5;&#x5B9A;&#x4E49;&#x4EE5;&#x4E0B;&#x53C2;&#x6570;&#xFF1A;</p>
+<p><code>comment</code>&#x7ED9;&#x6A21;&#x5757;&#x6307;&#x5B9A;&#x4E00;&#x4E2A;&#x63CF;&#x8FF0;&#xFF0C;&#x8BE5;&#x63CF;&#x8FF0;&#x8FDE;&#x540C;&#x6A21;&#x5757;&#x540D;&#x5728;&#x5BA2;&#x6237;&#x8FDE;&#x63A5;&#x5F97;&#x5230;&#x6A21;&#x5757;&#x5217;&#x8868;&#x65F6;&#x663E;&#x793A;&#x7ED9;&#x5BA2;&#x6237;&#x3002;&#x9ED8;&#x8BA4;&#x6CA1;&#x6709;&#x63CF;&#x8FF0;&#x5B9A;&#x4E49;&#x3002;</p>
+<p><code>path</code>&#x6307;&#x5B9A;&#x8BE5;&#x6A21;&#x5757;&#x7684;&#x4F9B;&#x5907;&#x4EFD;&#x7684;&#x76EE;&#x5F55;&#x6811;&#x8DEF;&#x5F84;&#xFF0C;&#x8BE5;&#x53C2;&#x6570;&#x662F;&#x5FC5;&#x987B;&#x6307;&#x5B9A;&#x7684;&#x3002;</p>
+<p><code>use chroot</code>&#x5982;&#x679C;&#x6307;&#x5B9A;&#x4E3A; <code>true</code>&#xFF0C;&#x90A3;&#x4E48; <code>rsync</code> &#x5728;&#x4F20;&#x8F93;&#x6587;&#x4EF6;&#x4EE5;&#x524D;&#x9996;&#x5148; <code>chroot</code> &#x5230; <code>path</code> &#x53C2;&#x6570;&#x6240;&#x6307;&#x5B9A;&#x7684;&#x76EE;&#x5F55;&#x4E0B;&#x3002;&#x8FD9;&#x6837;&#x505A;&#x7684;&#x539F;&#x56E0;&#x662F;&#x5B9E;&#x73B0;&#x989D;&#x5916;&#x7684;&#x5B89;&#x5168;&#x9632;&#x62A4;&#xFF0C;&#x4F46;&#x662F;&#x7F3A;&#x70B9;&#x662F;&#x9700;&#x8981;&#x4EE5; <code>root</code> &#x6743;&#x9650;&#xFF0C;&#x5E76;&#x4E14;&#x4E0D;&#x80FD;&#x5907;&#x4EFD;&#x6307;&#x5411;&#x5916;&#x90E8;&#x7684;&#x7B26;&#x53F7;&#x8FDE;&#x63A5;&#x6240;&#x6307;&#x5411;&#x7684;&#x76EE;&#x5F55;&#x6587;&#x4EF6;&#x3002;&#x9ED8;&#x8BA4;&#x503C;&#x4E3A; <code>true</code>&#x3002;</p>
+<p><code>uid</code>&#x6307;&#x5B9A;&#x5F53;&#x8BE5;&#x6A21;&#x5757;&#x4F20;&#x8F93;&#x6587;&#x4EF6;&#x65F6;&#x5B88;&#x62A4;&#x8FDB;&#x7A0B;&#x5E94;&#x8BE5;&#x5177;&#x6709;&#x7684; <code>uid</code>&#xFF0C;&#x914D;&#x5408; <code>gid</code>&#x9009;&#x9879;&#x4F7F;&#x7528;&#x53EF;&#x4EE5;&#x786E;&#x5B9A;&#x54EA;&#x4E9B;&#x53EF;&#x4EE5;&#x8BBF;&#x95EE;&#x600E;&#x4E48;&#x6837;&#x7684;&#x6587;&#x4EF6;&#x6743;&#x9650;&#xFF0C;&#x9ED8;&#x8BA4;&#x503C;&#x662F;<code>&#x201D;nobody&#x201D;</code>&#x3002;</p>
+<p><code>gid</code>&#x6307;&#x5B9A;&#x5F53;&#x8BE5;&#x6A21;&#x5757;&#x4F20;&#x8F93;&#x6587;&#x4EF6;&#x65F6;&#x5B88;&#x62A4;&#x8FDB;&#x7A0B;&#x5E94;&#x8BE5;&#x5177;&#x6709;&#x7684; <code>gid</code>&#x3002;&#x9ED8;&#x8BA4;&#x503C;&#x4E3A;<code>&#x201D;nobody&#x201D;</code>&#x3002;</p>
+<p><code>max connections</code>&#x6307;&#x5B9A;&#x8BE5;&#x6A21;&#x5757;&#x7684;&#x6700;&#x5927;&#x5E76;&#x53D1;&#x8FDE;&#x63A5;&#x6570;&#x91CF;&#x4EE5;&#x4FDD;&#x62A4;&#x670D;&#x52A1;&#x5668;&#xFF0C;&#x8D85;&#x8FC7;&#x9650;&#x5236;&#x7684;&#x8FDE;&#x63A5;&#x8BF7;&#x6C42;&#x5C06;&#x88AB;&#x544A;&#x77E5;&#x968F;&#x540E;&#x518D;&#x8BD5;&#x3002;&#x9ED8;&#x8BA4;&#x503C;&#x662F; <code>0</code>&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x6CA1;&#x6709;&#x9650;&#x5236;&#x3002;</p>
+<p><code>list</code>&#x8BE5;&#x9009;&#x9879;&#x8BBE;&#x5B9A;&#x5F53;&#x5BA2;&#x6237;&#x8BF7;&#x6C42;&#x53EF;&#x4EE5;&#x4F7F;&#x7528;&#x7684;&#x6A21;&#x5757;&#x5217;&#x8868;&#x65F6;&#xFF0C;&#x8BE5;&#x6A21;&#x5757;&#x662F;&#x5426;&#x5E94;&#x8BE5;&#x88AB;&#x5217;&#x51FA;&#x3002;&#x5982;&#x679C;&#x8BBE;&#x7F6E;&#x8BE5;&#x9009;&#x9879;&#x4E3A; <code>false</code>&#xFF0C;&#x53EF;&#x4EE5;&#x521B;&#x5EFA;&#x9690;&#x85CF;&#x7684;&#x6A21;&#x5757;&#x3002;&#x9ED8;&#x8BA4;&#x503C;&#x662F; <code>true</code>&#x3002;</p>
+<p><code>read only</code>&#x8BBE;&#x5B9A;&#x662F;&#x5426;&#x5141;&#x8BB8;&#x5BA2;&#x6237;&#x4E0A;&#x8F7D;&#x6587;&#x4EF6;&#x3002;&#x5982;&#x679C;&#x4E3A; <code>true</code> &#x90A3;&#x4E48;&#x4EFB;&#x4F55;&#x4E0A;&#x8F7D;&#x8BF7;&#x6C42;&#x90FD;&#x4F1A;&#x5931;&#x8D25;&#xFF0C;&#x5982;&#x679C;&#x4E3A; <code>false</code> &#x5E76;&#x4E14;&#x670D;&#x52A1;&#x5668;&#x76EE;&#x5F55;&#x8BFB;&#x5199;&#x6743;&#x9650;&#x5141;&#x8BB8;&#x90A3;&#x4E48;&#x4E0A;&#x8F7D;&#x662F;&#x5141;&#x8BB8;&#x7684;&#x3002;&#x9ED8;&#x8BA4;&#x503C;&#x4E3A; <code>true</code>&#x3002;</p>
+<p><code>exclude</code>&#x7528;&#x6765;&#x6307;&#x5B9A;&#x591A;&#x4E2A;&#x7531;&#x7A7A;&#x683C;&#x9694;&#x5F00;&#x7684;&#x591A;&#x4E2A;&#x6587;&#x4EF6;&#x6216;&#x76EE;&#x5F55; (&#x76F8;&#x5BF9;&#x8DEF;&#x5F84;)&#xFF0C;&#x5E76;&#x5C06;&#x5176;&#x6DFB;&#x52A0;&#x5230; <code>exclude</code> &#x5217;&#x8868;&#x4E2D;&#x3002;&#x8FD9;&#x7B49;&#x540C;&#x4E8E;&#x5728;&#x5BA2;&#x6237;&#x7AEF;&#x547D;&#x4EE4;&#x4E2D;&#x4F7F;&#x7528;<code>--exclude</code>&#x6765;&#x6307;&#x5B9A; &#x6A21;&#x5F0F;&#xFF0C;&#x4E00;&#x4E2A;&#x6A21;&#x5757;&#x53EA;&#x80FD;&#x6307;&#x5B9A;&#x4E00;&#x4E2A; <code>exclude</code> &#x9009;&#x9879;&#x3002;&#x4F46;&#x662F;&#x9700;&#x8981;&#x6CE8;&#x610F;&#x7684;&#x4E00;&#x70B9;&#x662F;&#x8BE5;&#x9009;&#x9879;&#x6709;&#x4E00;&#x5B9A;&#x7684;&#x5B89;&#x5168;&#x6027;&#x95EE;&#x9898;&#xFF0C;&#x5BA2;&#x6237;&#x5F88;&#x6709;&#x53EF;&#x80FD;&#x7ED5;&#x8FC7; <code>exclude</code> &#x5217;&#x8868;&#xFF0C;&#x5982;&#x679C;&#x5E0C;&#x671B;&#x786E;&#x4FDD;&#x7279;&#x5B9A; &#x7684;&#x6587;&#x4EF6;&#x4E0D;&#x80FD;&#x88AB;&#x8BBF;&#x95EE;&#xFF0C;&#x90A3;&#x5C31;&#x6700;&#x597D;&#x7ED3;&#x5408; <code>uid/gid</code> &#x9009;&#x9879;&#x4E00;&#x8D77;&#x4F7F;&#x7528;&#x3002;</p>
+<p><code>exclude from</code>&#x6307;&#x5B9A;&#x4E00;&#x4E2A;&#x5305;&#x542B; <code>exclude</code> &#x6A21;&#x5F0F;&#x7684;&#x5B9A;&#x4E49;&#x7684;&#x6587;&#x4EF6;&#x540D;&#xFF0C;&#x670D;&#x52A1;&#x5668;&#x4ECE;&#x8BE5;&#x6587;&#x4EF6;&#x4E2D;&#x8BFB;&#x53D6; <code>exclude</code> &#x5217;&#x8868;&#x5B9A;&#x4E49;&#x3002;</p>
+<p><code>include</code>&#x7528;&#x6765;&#x6307;&#x5B9A;&#x4E0D;&#x6392;&#x9664;&#x7B26;&#x5408;&#x8981;&#x6C42;&#x7684;&#x6587;&#x4EF6;&#x6216;&#x76EE;&#x5F55;&#x3002;&#x8FD9;&#x7B49;&#x540C;&#x4E8E;&#x5728;&#x5BA2;&#x6237;&#x7AEF;&#x547D;&#x4EE4;&#x4E2D;&#x4F7F;&#x7528;<code>&#x2013;include</code> &#x6765;&#x6307;&#x5B9A;&#x6A21;&#x5F0F;&#xFF0C;&#x7ED3;&#x5408; <code>include</code> &#x548C; <code>exclude</code> &#x53EF;&#x4EE5;&#x5B9A;&#x4E49;&#x590D;&#x6742;&#x7684; <code>exclude/include</code> &#x89C4;&#x5219;&#x3002;</p>
+<p><code>include from</code>&#x6307;&#x5B9A;&#x4E00;&#x4E2A;&#x5305;&#x542B; <code>include</code> &#x6A21;&#x5F0F;&#x7684;&#x5B9A;&#x4E49;&#x7684;&#x6587;&#x4EF6;&#x540D;&#xFF0C;&#x670D;&#x52A1;&#x5668;&#x4ECE;&#x8BE5;&#x6587;&#x4EF6;&#x4E2D;&#x8BFB;&#x53D6; <code>include</code> &#x5217;&#x8868;&#x5B9A;&#x4E49;&#x3002;</p>
+<p><code>auth users</code>&#x6307;&#x5B9A;&#x7531;&#x7A7A;&#x683C;&#x6216;&#x9017;&#x53F7;&#x5206;&#x9694;&#x7684;&#x7528;&#x6237;&#x540D;&#x5217;&#x8868;&#xFF0C;&#x53EA;&#x6709;&#x8FD9;&#x4E9B;&#x7528;&#x6237;&#x624D;&#x5141;&#x8BB8;&#x8FDE;&#x63A5;&#x8BE5;&#x6A21;&#x5757;&#x3002;&#x8FD9;&#x91CC;&#x7684;&#x7528;&#x6237;&#x548C;&#x7CFB;&#x7EDF;&#x7528;&#x6237;&#x6CA1;&#x6709;&#x4EFB;&#x4F55;&#x5173;&#x7CFB;&#x3002;&#x5982;&#x679C;&#x201D;auth users&#x201D; &#x88AB;&#x8BBE;&#x7F6E;&#xFF0C;&#x90A3;&#x4E48;&#x5BA2;&#x6237;&#x7AEF;&#x53D1;&#x51FA;&#x5BF9;&#x8BE5;&#x6A21;&#x5757;&#x7684;&#x8FDE;&#x63A5;&#x8BF7;&#x6C42;&#x4EE5;&#x540E;&#x4F1A;&#x88AB; <code>rsync</code> &#x8BF7;&#x6C42; <code>challenged</code> &#x8FDB;&#x884C;&#x9A8C;&#x8BC1;&#x8EAB;&#x4EFD;&#x8FD9;&#x91CC;&#x4F7F;&#x7528;&#x7684; <code>challenge/response</code> &#x8BA4;&#x8BC1;&#x534F;&#x8BAE;&#x3002;&#x7528;&#x6237;&#x7684;&#x540D;&#x548C;&#x5BC6;&#x7801;&#x4EE5;&#x660E;&#x6587;&#x65B9;&#x5F0F;&#x5B58;&#x653E;&#x5728;<code>&#x201D;secrets file&#x201D;</code> &#x9009;&#x9879;&#x6307;&#x5B9A;&#x7684;&#x6587;&#x4EF6;&#x4E2D;&#x3002;&#x9ED8;&#x8BA4;&#x60C5;&#x51B5;&#x4E0B;&#x65E0;&#x9700;&#x5BC6;&#x7801;&#x5C31;&#x53EF;&#x4EE5;&#x8FDE;&#x63A5;&#x6A21;&#x5757; (&#x4E5F;&#x5C31;&#x662F;&#x533F;&#x540D;&#x65B9;&#x5F0F;)&#x3002;</p>
+<p><code>secrets file</code>&#x6307;&#x5B9A;&#x4E00;&#x4E2A;&#x5305;&#x542B;&#x5B9A;&#x4E49;&#x7528;&#x6237;&#x540D;: &#x5BC6;&#x7801;&#x5BF9;&#x7684;&#x6587;&#x4EF6;&#x3002;&#x53EA;&#x6709;&#x5728;<code>&#x201D;auth users&#x201D;</code> &#x88AB;&#x5B9A;&#x4E49;&#x65F6;&#xFF0C;&#x8BE5;&#x6587;&#x4EF6;&#x624D;&#x6709;&#x4F5C;&#x7528;&#x3002;&#x6587;&#x4EF6;&#x6BCF;&#x884C;&#x5305;&#x542B;&#x4E00;&#x4E2A; <code>username:passwd</code> &#x5BF9;&#x3002;&#x4E00;&#x822C;&#x6765;&#x8BF4;&#x5BC6;&#x7801;&#x6700;&#x597D;&#x4E0D;&#x8981;&#x8D85;&#x8FC7; <code>8</code> &#x4E2A;&#x5B57;&#x7B26;&#x3002;&#x6CA1;&#x6709;&#x9ED8;&#x8BA4;&#x7684; <code>secures file</code>&#xFF0C;&#x9700;&#x8981;&#x9650;&#x5F0F;&#x6307;&#x5B9A;&#x4E00;&#x4E2A; (&#x4F8B;&#x5982;&#xFF1A;<code>/etc/rsyncd.passwd</code>)&#x3002;&#x6CE8;&#x610F;&#xFF1A;&#x8BE5;&#x6587;&#x4EF6;&#x7684;&#x6743;&#x9650;&#x4E00;&#x5B9A;&#x8981;&#x662F; <code>600</code>&#xFF0C;&#x5426;&#x5219;&#x5BA2;&#x6237;&#x7AEF;&#x5C06;&#x4E0D;&#x80FD;&#x8FDE;&#x63A5;&#x670D;&#x52A1;&#x5668;&#x3002;</p>
+<p><code>strict modes</code>&#x6307;&#x5B9A;&#x662F;&#x5426;&#x76D1;&#x6D4B;&#x5BC6;&#x7801;&#x6587;&#x4EF6;&#x7684;&#x6743;&#x9650;&#xFF0C;&#x5982;&#x679C;&#x8BE5;&#x9009;&#x9879;&#x503C;&#x4E3A; <code>true</code> &#x90A3;&#x4E48;&#x5BC6;&#x7801;&#x6587;&#x4EF6;&#x53EA;&#x80FD;&#x88AB; <code>rsync</code> &#x670D;&#x52A1;&#x5668;&#x8FD0;&#x884C;&#x8EAB;&#x4EFD;&#x7684;&#x7528;&#x6237;&#x8BBF;&#x95EE;&#xFF0C;&#x5176;&#x4ED6;&#x4EFB;&#x4F55;&#x7528;&#x6237;&#x4E0D;&#x53EF;&#x4EE5;&#x8BBF;&#x95EE;&#x8BE5;&#x6587;&#x4EF6;&#x3002;&#x9ED8;&#x8BA4;&#x503C;&#x4E3A; <code>true</code>&#x3002;</p>
+<p><code>hosts allow</code>&#x6307;&#x5B9A;&#x54EA;&#x4E9B; <code>IP</code> &#x7684;&#x5BA2;&#x6237;&#x5141;&#x8BB8;&#x8FDE;&#x63A5;&#x8BE5;&#x6A21;&#x5757;&#x3002;&#x5BA2;&#x6237;&#x6A21;&#x5F0F;&#x5B9A;&#x4E49;&#x53EF;&#x4EE5;&#x662F;&#x4EE5;&#x4E0B;&#x5F62;&#x5F0F;&#xFF1A;</p>
+<ul>
+<li>&#x5355;&#x4E2A; IP &#x5730;&#x5740;&#xFF0C;&#x4F8B;&#x5982;&#xFF1A;192.167.0.1</li>
+<li>&#x6574;&#x4E2A;&#x7F51;&#x6BB5;&#xFF0C;&#x4F8B;&#x5982;&#xFF1A;192.168.0.0/24&#xFF0C;&#x4E5F;&#x53EF;&#x4EE5;&#x662F; 192.168.0.0/255.255.255.0</li>
+<li>&#x591A;&#x4E2A; IP &#x6216;&#x7F51;&#x6BB5;&#x9700;&#x8981;&#x7528;&#x7A7A;&#x683C;&#x9694;&#x5F00;&#xFF0C;<code>&#x201C;*&#x201D;</code> &#x5219;&#x8868;&#x793A;&#x6240;&#x6709;&#xFF0C;&#x9ED8;&#x8BA4;&#x662F;&#x5141;&#x8BB8;&#x6240;&#x6709;&#x4E3B;&#x673A;&#x8FDE;&#x63A5;&#x3002;</li>
+</ul>
+<p><code>hosts deny</code>&#x6307;&#x5B9A;&#x4E0D;&#x5141;&#x8BB8;&#x8FDE;&#x63A5; <code>rsync</code> &#x670D;&#x52A1;&#x5668;&#x7684;&#x673A;&#x5668;&#xFF0C;&#x53EF;&#x4EE5;&#x4F7F;&#x7528; <code>hosts allow</code> &#x7684;&#x5B9A;&#x4E49;&#x65B9;&#x5F0F;&#x6765;&#x8FDB;&#x884C;&#x5B9A;&#x4E49;&#x3002;&#x9ED8;&#x8BA4;&#x662F;&#x6CA1;&#x6709; <code>hosts deny</code> &#x5B9A;&#x4E49;&#x3002;</p>
+<p><code>ignore errors</code>&#x6307;&#x5B9A; <code>rsyncd</code> &#x5728;&#x5224;&#x65AD;&#x662F;&#x5426;&#x8FD0;&#x884C;&#x4F20;&#x8F93;&#x65F6;&#x7684;&#x5220;&#x9664;&#x64CD;&#x4F5C;&#x65F6;&#x5FFD;&#x7565; <code>server</code> &#x4E0A;&#x7684; <code>IO</code> &#x9519;&#x8BEF;&#xFF0C;&#x4E00;&#x822C;&#x6765;&#x8BF4; <code>rsync</code> &#x5728;&#x51FA;&#x73B0; <code>IO</code> &#x9519;&#x8BEF;&#x65F6;&#x5C06;&#x5C06;&#x8DF3;&#x8FC7;<code>--delete</code>&#x64CD;&#x4F5C;&#xFF0C;&#x4EE5;&#x9632;&#x6B62;&#x56E0;&#x4E3A;&#x6682;&#x65F6;&#x7684;&#x8D44;&#x6E90;&#x4E0D;&#x8DB3;&#x6216;&#x5176;&#x5B83; <code>IO</code> &#x9519;&#x8BEF;&#x5BFC;&#x81F4;&#x7684;&#x4E25;&#x91CD;&#x95EE;&#x9898;&#x3002;</p>
+<p><code>ignore nonreadable</code>&#x6307;&#x5B9A; <code>rysnc</code> &#x670D;&#x52A1;&#x5668;&#x5B8C;&#x5168;&#x5FFD;&#x7565;&#x90A3;&#x4E9B;&#x7528;&#x6237;&#x6CA1;&#x6709;&#x8BBF;&#x95EE;&#x6743;&#x9650;&#x7684;&#x6587;&#x4EF6;&#x3002;&#x8FD9;&#x5BF9;&#x4E8E;&#x5728;&#x9700;&#x8981;&#x5907;&#x4EFD;&#x7684;&#x76EE;&#x5F55;&#x4E2D;&#x6709;&#x4E9B;&#x6587;&#x4EF6;&#x662F;&#x4E0D;&#x5E94;&#x8BE5;&#x88AB;&#x5907;&#x4EFD;&#x8005;&#x5F97;&#x5230;&#x7684;&#x60C5;&#x51B5;&#x662F;&#x6709;&#x610F;&#x4E49;&#x7684;&#x3002;</p>
+<p><code>lock file</code>&#x6307;&#x5B9A;&#x652F;&#x6301; <code>max connections</code> &#x53C2;&#x6570;&#x7684;&#x9501;&#x6587;&#x4EF6;&#xFF0C;&#x9ED8;&#x8BA4;&#x503C;&#x662F; <code>/var/run/rsyncd.lock</code>&#x3002;</p>
+<p><code>transfer logging</code>&#x4F7F; <code>rsync</code> &#x670D;&#x52A1;&#x5668;&#x4F7F;&#x7528; <code>ftp</code> &#x683C;&#x5F0F;&#x7684;&#x6587;&#x4EF6;&#x6765;&#x8BB0;&#x5F55;&#x4E0B;&#x8F7D;&#x548C;&#x4E0A;&#x8F7D;&#x64CD;&#x4F5C;&#x5728;&#x81EA;&#x5DF1;&#x5355;&#x72EC;&#x7684;&#x65E5;&#x5FD7;&#x4E2D;&#x3002;</p>
+<p><code>log format</code>&#x901A;&#x8FC7;&#x8BE5;&#x9009;&#x9879;&#x7528;&#x6237;&#x5728;&#x4F7F;&#x7528; <code>transfer logging</code> &#x53EF;&#x4EE5;&#x81EA;&#x5DF1;&#x5B9A;&#x5236;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x7684;&#x5B57;&#x6BB5;&#x3002;&#x5176;&#x683C;&#x5F0F;&#x662F;&#x4E00;&#x4E2A;&#x5305;&#x542B;&#x683C;&#x5F0F;&#x5B9A;&#x4E49;&#x7B26;&#x7684;&#x5B57;&#x7B26;&#x4E32;&#xFF0C;&#x53EF;&#x4EE5;&#x4F7F;&#x7528;&#x7684;&#x683C;&#x5F0F;&#x5B9A;&#x4E49;&#x7B26;&#x5982;&#x4E0B;&#xFF1A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">%h &#x8FDC;&#x7A0B;&#x4E3B;&#x673A;&#x540D;</span><br><span class="line">%a &#x8FDC;&#x7A0B;IP&#x5730;&#x5740;</span><br><span class="line">%l &#x6587;&#x4EF6;&#x957F;&#x5EA6;&#x5B57;&#x7B26;&#x6570;</span><br><span class="line">%p &#x8BE5;&#x6B21;rsync&#x4F1A;&#x8BDD;&#x7684;&#x8FDB;&#x7A0B;id</span><br><span class="line">%o &#x64CD;&#x4F5C;&#x7C7B;&#x578B;&#xFF1A;<span class="string">&quot;send&quot;</span>&#x6216;<span class="string">&quot;recv&quot;</span></span><br><span class="line">%f &#x6587;&#x4EF6;&#x540D;</span><br><span class="line">%P &#x6A21;&#x5757;&#x8DEF;&#x5F84;</span><br><span class="line">%m &#x6A21;&#x5757;&#x540D;</span><br><span class="line">%t &#x5F53;&#x524D;&#x65F6;&#x95F4;</span><br><span class="line">%u &#x8BA4;&#x8BC1;&#x7684;&#x7528;&#x6237;&#x540D;(&#x533F;&#x540D;&#x65F6;&#x662F;null)</span><br><span class="line">%b &#x5B9E;&#x9645;&#x4F20;&#x8F93;&#x7684;&#x5B57;&#x8282;&#x6570;</span><br><span class="line">%c &#x5F53;&#x53D1;&#x9001;&#x6587;&#x4EF6;&#x65F6;&#xFF0C;&#x8BE5;&#x5B57;&#x6BB5;&#x8BB0;&#x5F55;&#x8BE5;&#x6587;&#x4EF6;&#x7684;&#x6821;&#x9A8C;&#x7801;</span><br><span class="line">&#x9ED8;&#x8BA4;<span class="built_in">log</span>&#x683C;&#x5F0F;&#x4E3A;&#xFF1A;`%o %h [%a] %m (%u) %f %l`&#xFF0C;&#x4E00;&#x822C;&#x6765;&#x8BF4;,&#x5728;&#x6BCF;&#x884C;&#x7684;&#x5934;&#x4E0A;&#x4F1A;&#x6DFB;&#x52A0;`%t [%p]`&#x3002;&#x5728;&#x6E90;&#x4EE3;&#x7801;&#x4E2D;&#x540C;&#x65F6;&#x53D1;&#x5E03;&#x6709;&#x4E00;&#x4E2A;&#x53EB;rsyncstats&#x7684;perl&#x811A;&#x672C;&#x7A0B;&#x5E8F;&#x6765;&#x7EDF;&#x8BA1;&#x8FD9;&#x79CD;&#x683C;&#x5F0F;&#x7684;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x3002;</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p><code>timeout</code>&#x901A;&#x8FC7;&#x8BE5;&#x9009;&#x9879;&#x53EF;&#x4EE5;&#x8986;&#x76D6;&#x5BA2;&#x6237;&#x6307;&#x5B9A;&#x7684; <code>IP</code> &#x8D85;&#x65F6;&#x65F6;&#x95F4;&#x3002;&#x901A;&#x8FC7;&#x8BE5;&#x9009;&#x9879;&#x53EF;&#x4EE5;&#x786E;&#x4FDD; <code>rsync</code> &#x670D;&#x52A1;&#x5668;&#x4E0D;&#x4F1A;&#x6C38;&#x8FDC;&#x7B49;&#x5F85;&#x4E00;&#x4E2A;&#x5D29;&#x6E83;&#x7684;&#x5BA2;&#x6237;&#x7AEF;&#x3002;&#x8D85;&#x65F6;&#x5355;&#x4F4D;&#x4E3A;&#x79D2;&#x949F;&#xFF0C;<code>0</code> &#x8868;&#x793A;&#x6CA1;&#x6709;&#x8D85;&#x65F6;&#x5B9A;&#x4E49;&#xFF0C;&#x8FD9;&#x4E5F;&#x662F;&#x9ED8;&#x8BA4;&#x503C;&#x3002;&#x5BF9;&#x4E8E;&#x533F;&#x540D; <code>rsync</code> &#x670D;&#x52A1;&#x5668;&#x6765;&#x8BF4;&#xFF0C;&#x4E00;&#x4E2A;&#x7406;&#x60F3;&#x7684;&#x6570;&#x5B57;&#x662F; <code>600</code>&#x3002;</p>
+<p><code>refuse options</code>&#x901A;&#x8FC7;&#x8BE5;&#x9009;&#x9879;&#x53EF;&#x4EE5;&#x5B9A;&#x4E49;&#x4E00;&#x4E9B;&#x4E0D;&#x5141;&#x8BB8;&#x5BA2;&#x6237;&#x5BF9;&#x8BE5;&#x6A21;&#x5757;&#x4F7F;&#x7528;&#x7684;&#x547D;&#x4EE4;&#x53C2;&#x6570;&#x5217;&#x8868;&#x3002;&#x8FD9;&#x91CC;&#x5FC5;&#x987B;&#x4F7F;&#x7528;&#x547D;&#x4EE4;&#x5168;&#x540D;&#xFF0C;&#x800C;&#x4E0D;&#x80FD;&#x662F;&#x7B80;&#x79F0;&#x3002;&#x4F46;&#x53D1;&#x751F;&#x62D2;&#x7EDD;&#x67D0;&#x4E2A;&#x547D;&#x4EE4;&#x7684;&#x60C5;&#x51B5;&#x65F6;&#x670D;&#x52A1;&#x5668;&#x5C06;&#x62A5;&#x544A;&#x9519;&#x8BEF;&#x4FE1;&#x606F;&#x7136;&#x540E;&#x9000;&#x51FA;&#x3002;&#x5982;&#x679C;&#x8981;&#x9632;&#x6B62;&#x4F7F;&#x7528;&#x538B;&#x7F29;&#xFF0C;&#x5E94;&#x8BE5;&#x662F;&#xFF1A;<code>dont compress = *</code>&#x3002;</p>
+<p><code>dont compress</code>&#x7528;&#x6765;&#x6307;&#x5B9A;&#x90A3;&#x4E9B;&#x4E0D;&#x8FDB;&#x884C;&#x538B;&#x7F29;&#x5904;&#x7406;&#x518D;&#x4F20;&#x8F93;&#x7684;&#x6587;&#x4EF6;&#xFF0C;&#x9ED8;&#x8BA4;&#x503C;&#x662F; <code>*.gz</code> <code>*.tgz</code> <code>*.zip</code> <code>*.z</code> <code>*.rpm</code> <code>*.deb</code> <code>*.iso</code> <code>*.bz2</code> <code>*.tbz</code></p>
+<h2 id="Rsync-&#x547D;&#x4EE4;"><a href="#Rsync-&#x547D;&#x4EE4;" class="headerlink" title="Rsync &#x547D;&#x4EE4;"></a>Rsync &#x547D;&#x4EE4;</h2><p>&#x5728;&#x5BF9; rsync &#x670D;&#x52A1;&#x5668;&#x914D;&#x7F6E;&#x7ED3;&#x675F;&#x4EE5;&#x540E;&#xFF0C;&#x4E0B;&#x4E00;&#x6B65;&#x5C31;&#x9700;&#x8981;&#x5728;&#x5BA2;&#x6237;&#x7AEF;&#x53D1;&#x51FA; rsync &#x547D;&#x4EE4;&#x6765;&#x5B9E;&#x73B0;&#x5C06;&#x670D;&#x52A1;&#x5668;&#x7AEF;&#x7684;&#x6587;&#x4EF6;&#x5907;&#x4EFD;&#x5230;&#x5BA2;&#x6237;&#x7AEF;&#x6765;&#x3002;rsync &#x662F;&#x4E00;&#x4E2A;&#x529F;&#x80FD;&#x975E;&#x5E38;&#x5F3A;&#x5927;&#x7684;&#x5DE5;&#x5177;&#xFF0C;&#x5176;&#x547D;&#x4EE4;&#x4E5F;&#x6709;&#x5F88;&#x591A;&#x529F;&#x80FD;&#x7279;&#x8272;&#x9009;&#x9879;&#xFF0C;&#x4E0B;&#x9762;&#x5C31;&#x5BF9;&#x5B83;&#x7684;&#x9009;&#x9879;&#x4E00;&#x4E00;&#x8FDB;&#x884C;&#x5206;&#x6790;&#x8BF4;&#x660E;&#x3002;<br>Rsync &#x7684;&#x547D;&#x4EE4;&#x683C;&#x5F0F;&#x53EF;&#x4EE5;&#x4E3A;&#x4EE5;&#x4E0B;&#x516D;&#x79CD;&#xFF1A;</p>
+<ol>
+<li><code>rsync [OPTION]... SRC DEST</code></li>
+<li><code>rsync [OPTION]... SRC [USER@]HOST:DEST</code></li>
+<li><code>rsync [OPTION]... [USER@]HOST:SRC DEST</code></li>
+<li><code>rsync [OPTION]... [USER@]HOST::SRC DEST</code></li>
+<li><code>rsync [OPTION]... SRC [USER@]HOST::DEST</code></li>
+<li><code>rsync [OPTION]... rsync://[USER@]HOST[:PORT]/SRC [DEST]</code></li>
+</ol>
+<p>&#x5BF9;&#x5E94;&#x4E8E;&#x4EE5;&#x4E0A;&#x516D;&#x79CD;&#x547D;&#x4EE4;&#x683C;&#x5F0F;&#xFF0C;rsync &#x6709;&#x516D;&#x79CD;&#x4E0D;&#x540C;&#x7684;&#x5DE5;&#x4F5C;&#x6A21;&#x5F0F;&#xFF1A;</p>
+<ol>
+<li>&#x62F7;&#x8D1D;&#x672C;&#x5730;&#x6587;&#x4EF6;&#x3002;&#x5F53; SRC &#x548C; DES &#x8DEF;&#x5F84;&#x4FE1;&#x606F;&#x90FD;&#x4E0D;&#x5305;&#x542B;&#x6709;&#x5355;&#x4E2A;&#x5192;&#x53F7;&#x201D;:&#x201D; &#x5206;&#x9694;&#x7B26;&#x65F6;&#x5C31;&#x542F;&#x52A8;&#x8FD9;&#x79CD;&#x5DE5;&#x4F5C;&#x6A21;&#x5F0F;&#x3002;&#x5982;&#xFF1A;rsync -a /data /backup</li>
+<li>&#x4F7F;&#x7528;&#x4E00;&#x4E2A;&#x8FDC;&#x7A0B; shell &#x7A0B;&#x5E8F; (&#x5982; rsh&#x3001;ssh) &#x6765;&#x5B9E;&#x73B0;&#x5C06;&#x672C;&#x5730;&#x673A;&#x5668;&#x7684;&#x5185;&#x5BB9;&#x62F7;&#x8D1D;&#x5230;&#x8FDC;&#x7A0B;&#x673A;&#x5668;&#x3002;&#x5F53; DST &#x8DEF;&#x5F84;&#x5730;&#x5740;&#x5305;&#x542B;&#x5355;&#x4E2A;&#x5192;&#x53F7;&#x201D;:&#x201D;&#x5206;&#x9694;&#x7B26;&#x65F6;&#x542F;&#x52A8;&#x8BE5;&#x6A21;&#x5F0F;&#x3002;&#x5982;&#xFF1A;rsync -avz *.c foo:src</li>
+<li>&#x4F7F;&#x7528;&#x4E00;&#x4E2A;&#x8FDC;&#x7A0B; shell &#x7A0B;&#x5E8F; (&#x5982; rsh&#x3001;ssh) &#x6765;&#x5B9E;&#x73B0;&#x5C06;&#x8FDC;&#x7A0B;&#x673A;&#x5668;&#x7684;&#x5185;&#x5BB9;&#x62F7;&#x8D1D;&#x5230;&#x672C;&#x5730;&#x673A;&#x5668;&#x3002;&#x5F53; SRC &#x5730;&#x5740;&#x8DEF;&#x5F84;&#x5305;&#x542B;&#x5355;&#x4E2A;&#x5192;&#x53F7;&#x201D;:&#x201D;&#x5206;&#x9694;&#x7B26;&#x65F6;&#x542F;&#x52A8;&#x8BE5;&#x6A21;&#x5F0F;&#x3002;&#x5982;&#xFF1A;rsync -avz foo:src/bar /data</li>
+<li>&#x4ECE;&#x8FDC;&#x7A0B; rsync &#x670D;&#x52A1;&#x5668;&#x4E2D;&#x62F7;&#x8D1D;&#x6587;&#x4EF6;&#x5230;&#x672C;&#x5730;&#x673A;&#x3002;&#x5F53; SRC &#x8DEF;&#x5F84;&#x4FE1;&#x606F;&#x5305;&#x542B;&#x201D;::&#x201D; &#x5206;&#x9694;&#x7B26;&#x65F6;&#x542F;&#x52A8;&#x8BE5;&#x6A21;&#x5F0F;&#x3002;&#x5982;&#xFF1A;rsync -av <a href="mailto:root@172.16.78.192" target="_blank" rel="noopener">root@172.16.78.192</a>::www /databack</li>
+<li>&#x4ECE;&#x672C;&#x5730;&#x673A;&#x5668;&#x62F7;&#x8D1D;&#x6587;&#x4EF6;&#x5230;&#x8FDC;&#x7A0B; rsync &#x670D;&#x52A1;&#x5668;&#x4E2D;&#x3002;&#x5F53; DST &#x8DEF;&#x5F84;&#x4FE1;&#x606F;&#x5305;&#x542B;&#x201D;::&#x201D; &#x5206;&#x9694;&#x7B26;&#x65F6;&#x542F;&#x52A8;&#x8BE5;&#x6A21;&#x5F0F;&#x3002;&#x5982;&#xFF1A;rsync -av /databack <a href="mailto:root@172.16.78.192" target="_blank" rel="noopener">root@172.16.78.192</a>::www</li>
+<li>&#x5217;&#x8FDC;&#x7A0B;&#x673A;&#x7684;&#x6587;&#x4EF6;&#x5217;&#x8868;&#x3002;&#x8FD9;&#x7C7B;&#x4F3C;&#x4E8E; rsync &#x4F20;&#x8F93;&#xFF0C;&#x4E0D;&#x8FC7;&#x53EA;&#x8981;&#x5728;&#x547D;&#x4EE4;&#x4E2D;&#x7701;&#x7565;&#x6389;&#x672C;&#x5730;&#x673A;&#x4FE1;&#x606F;&#x5373;&#x53EF;&#x3002;&#x5982;&#xFF1A;rsync -v rsync://172.16.78.192/www</li>
+</ol>
+<p>rsync &#x53C2;&#x6570;&#x7684;&#x5177;&#x4F53;&#x89E3;&#x91CA;&#x5982;&#x4E0B;&#xFF1A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">-v, --verbose &#x8BE6;&#x7EC6;&#x6A21;&#x5F0F;&#x8F93;&#x51FA;</span><br><span class="line">-q, --quiet &#x7CBE;&#x7B80;&#x8F93;&#x51FA;&#x6A21;&#x5F0F;</span><br><span class="line">-c, --checksum &#x6253;&#x5F00;&#x6821;&#x9A8C;&#x5F00;&#x5173;&#xFF0C;&#x5F3A;&#x5236;&#x5BF9;&#x6587;&#x4EF6;&#x4F20;&#x8F93;&#x8FDB;&#x884C;&#x6821;&#x9A8C;</span><br><span class="line">-a, --archive &#x5F52;&#x6863;&#x6A21;&#x5F0F;&#xFF0C;&#x8868;&#x793A;&#x4EE5;&#x9012;&#x5F52;&#x65B9;&#x5F0F;&#x4F20;&#x8F93;&#x6587;&#x4EF6;&#xFF0C;&#x5E76;&#x4FDD;&#x6301;&#x6240;&#x6709;&#x6587;&#x4EF6;&#x5C5E;&#x6027;&#xFF0C;&#x7B49;&#x4E8E;-rlptgoD</span><br><span class="line">-r, --recursive &#x5BF9;&#x5B50;&#x76EE;&#x5F55;&#x4EE5;&#x9012;&#x5F52;&#x6A21;&#x5F0F;&#x5904;&#x7406;</span><br><span class="line">-R, --relative &#x4F7F;&#x7528;&#x76F8;&#x5BF9;&#x8DEF;&#x5F84;&#x4FE1;&#x606F;</span><br><span class="line">-b, --backup &#x521B;&#x5EFA;&#x5907;&#x4EFD;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x5BF9;&#x4E8E;&#x76EE;&#x7684;&#x5DF2;&#x7ECF;&#x5B58;&#x5728;&#x6709;&#x540C;&#x6837;&#x7684;&#x6587;&#x4EF6;&#x540D;&#x65F6;&#xFF0C;&#x5C06;&#x8001;&#x7684;&#x6587;&#x4EF6;&#x91CD;&#x65B0;&#x547D;&#x540D;&#x4E3A;~filename&#x3002;&#x53EF;&#x4EE5;&#x4F7F;&#x7528;--suffix&#x9009;&#x9879;&#x6765;&#x6307;&#x5B9A;&#x4E0D;&#x540C;&#x7684;&#x5907;&#x4EFD;&#x6587;&#x4EF6;&#x524D;&#x7F00;&#x3002;</span><br><span class="line">--backup-dir &#x5C06;&#x5907;&#x4EFD;&#x6587;&#x4EF6;(&#x5982;~filename)&#x5B58;&#x653E;&#x5728;&#x5728;&#x76EE;&#x5F55;&#x4E0B;&#x3002;</span><br><span class="line">-suffix=SUFFIX &#x5B9A;&#x4E49;&#x5907;&#x4EFD;&#x6587;&#x4EF6;&#x524D;&#x7F00;</span><br><span class="line">-u, --update &#x4EC5;&#x4EC5;&#x8FDB;&#x884C;&#x66F4;&#x65B0;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x8DF3;&#x8FC7;&#x6240;&#x6709;&#x5DF2;&#x7ECF;&#x5B58;&#x5728;&#x4E8E;DST&#xFF0C;&#x5E76;&#x4E14;&#x6587;&#x4EF6;&#x65F6;&#x95F4;&#x665A;&#x4E8E;&#x8981;&#x5907;&#x4EFD;&#x7684;&#x6587;&#x4EF6;&#x3002;(&#x4E0D;&#x8986;&#x76D6;&#x66F4;&#x65B0;&#x7684;&#x6587;&#x4EF6;)</span><br><span class="line">-l, --links &#x4FDD;&#x7559;&#x8F6F;&#x94FE;&#x7ED3;</span><br><span class="line">-L, --copy-links &#x60F3;&#x5BF9;&#x5F85;&#x5E38;&#x89C4;&#x6587;&#x4EF6;&#x4E00;&#x6837;&#x5904;&#x7406;&#x8F6F;&#x94FE;&#x7ED3;</span><br><span class="line">--copy-unsafe-links &#x4EC5;&#x4EC5;&#x62F7;&#x8D1D;&#x6307;&#x5411;SRC&#x8DEF;&#x5F84;&#x76EE;&#x5F55;&#x6811;&#x4EE5;&#x5916;&#x7684;&#x94FE;&#x7ED3;</span><br><span class="line">--safe-links &#x5FFD;&#x7565;&#x6307;&#x5411;SRC&#x8DEF;&#x5F84;&#x76EE;&#x5F55;&#x6811;&#x4EE5;&#x5916;&#x7684;&#x94FE;&#x7ED3;</span><br><span class="line">-H, --hard-links &#x4FDD;&#x7559;&#x786C;&#x94FE;&#x7ED3;</span><br><span class="line">-p, --perms &#x4FDD;&#x6301;&#x6587;&#x4EF6;&#x6743;&#x9650;</span><br><span class="line">-o, --owner &#x4FDD;&#x6301;&#x6587;&#x4EF6;&#x5C5E;&#x4E3B;&#x4FE1;&#x606F;</span><br><span class="line">-g, --group &#x4FDD;&#x6301;&#x6587;&#x4EF6;&#x5C5E;&#x7EC4;&#x4FE1;&#x606F;</span><br><span class="line">-D, --devices &#x4FDD;&#x6301;&#x8BBE;&#x5907;&#x6587;&#x4EF6;&#x4FE1;&#x606F;</span><br><span class="line">-t, --<span class="built_in">times</span> &#x4FDD;&#x6301;&#x6587;&#x4EF6;&#x65F6;&#x95F4;&#x4FE1;&#x606F;</span><br><span class="line">-S, --sparse &#x5BF9;&#x7A00;&#x758F;&#x6587;&#x4EF6;&#x8FDB;&#x884C;&#x7279;&#x6B8A;&#x5904;&#x7406;&#x4EE5;&#x8282;&#x7701;DST&#x7684;&#x7A7A;&#x95F4;</span><br><span class="line">-n, --dry-run&#x73B0;&#x5B9E;&#x54EA;&#x4E9B;&#x6587;&#x4EF6;&#x5C06;&#x88AB;&#x4F20;&#x8F93;</span><br><span class="line">-W, --whole-file &#x62F7;&#x8D1D;&#x6587;&#x4EF6;&#xFF0C;&#x4E0D;&#x8FDB;&#x884C;&#x589E;&#x91CF;&#x68C0;&#x6D4B;</span><br><span class="line">-x, --one-file-system &#x4E0D;&#x8981;&#x8DE8;&#x8D8A;&#x6587;&#x4EF6;&#x7CFB;&#x7EDF;&#x8FB9;&#x754C;</span><br><span class="line">-B, --block-size=SIZE &#x68C0;&#x9A8C;&#x7B97;&#x6CD5;&#x4F7F;&#x7528;&#x7684;&#x5757;&#x5C3A;&#x5BF8;&#xFF0C;&#x9ED8;&#x8BA4;&#x662F;700&#x5B57;&#x8282;</span><br><span class="line">-e, --rsh=COMMAND &#x6307;&#x5B9A;&#x4F7F;&#x7528;rsh&#x3001;ssh&#x65B9;&#x5F0F;&#x8FDB;&#x884C;&#x6570;&#x636E;&#x540C;&#x6B65;</span><br><span class="line">--rsync-path=PATH &#x6307;&#x5B9A;&#x8FDC;&#x7A0B;&#x670D;&#x52A1;&#x5668;&#x4E0A;&#x7684;rsync&#x547D;&#x4EE4;&#x6240;&#x5728;&#x8DEF;&#x5F84;&#x4FE1;&#x606F;</span><br><span class="line">-C, --cvs-exclude &#x4F7F;&#x7528;&#x548C;CVS&#x4E00;&#x6837;&#x7684;&#x65B9;&#x6CD5;&#x81EA;&#x52A8;&#x5FFD;&#x7565;&#x6587;&#x4EF6;&#xFF0C;&#x7528;&#x6765;&#x6392;&#x9664;&#x90A3;&#x4E9B;&#x4E0D;&#x5E0C;&#x671B;&#x4F20;&#x8F93;&#x7684;&#x6587;&#x4EF6;</span><br><span class="line">--existing &#x4EC5;&#x4EC5;&#x66F4;&#x65B0;&#x90A3;&#x4E9B;&#x5DF2;&#x7ECF;&#x5B58;&#x5728;&#x4E8E;DST&#x7684;&#x6587;&#x4EF6;&#xFF0C;&#x800C;&#x4E0D;&#x5907;&#x4EFD;&#x90A3;&#x4E9B;&#x65B0;&#x521B;&#x5EFA;&#x7684;&#x6587;&#x4EF6;</span><br><span class="line">--delete &#x5220;&#x9664;&#x90A3;&#x4E9B;DST&#x4E2D;SRC&#x6CA1;&#x6709;&#x7684;&#x6587;&#x4EF6;</span><br><span class="line">--delete-excluded &#x540C;&#x6837;&#x5220;&#x9664;&#x63A5;&#x6536;&#x7AEF;&#x90A3;&#x4E9B;&#x88AB;&#x8BE5;&#x9009;&#x9879;&#x6307;&#x5B9A;&#x6392;&#x9664;&#x7684;&#x6587;&#x4EF6;</span><br><span class="line">--delete-after &#x4F20;&#x8F93;&#x7ED3;&#x675F;&#x4EE5;&#x540E;&#x518D;&#x5220;&#x9664;</span><br><span class="line">--ignore-errors &#x53CA;&#x65F6;&#x51FA;&#x73B0;IO&#x9519;&#x8BEF;&#x4E5F;&#x8FDB;&#x884C;&#x5220;&#x9664;</span><br><span class="line">--max-delete=NUM &#x6700;&#x591A;&#x5220;&#x9664;NUM&#x4E2A;&#x6587;&#x4EF6;</span><br><span class="line">--partial &#x4FDD;&#x7559;&#x90A3;&#x4E9B;&#x56E0;&#x6545;&#x6CA1;&#x6709;&#x5B8C;&#x5168;&#x4F20;&#x8F93;&#x7684;&#x6587;&#x4EF6;&#xFF0C;&#x4EE5;&#x662F;&#x52A0;&#x5FEB;&#x968F;&#x540E;&#x7684;&#x518D;&#x6B21;&#x4F20;&#x8F93;</span><br><span class="line">--force &#x5F3A;&#x5236;&#x5220;&#x9664;&#x76EE;&#x5F55;&#xFF0C;&#x5373;&#x4F7F;&#x4E0D;&#x4E3A;&#x7A7A;</span><br><span class="line">--numeric-ids &#x4E0D;&#x5C06;&#x6570;&#x5B57;&#x7684;&#x7528;&#x6237;&#x548C;&#x7EC4;ID&#x5339;&#x914D;&#x4E3A;&#x7528;&#x6237;&#x540D;&#x548C;&#x7EC4;&#x540D;</span><br><span class="line">--timeout=TIME IP&#x8D85;&#x65F6;&#x65F6;&#x95F4;&#xFF0C;&#x5355;&#x4F4D;&#x4E3A;&#x79D2;</span><br><span class="line">-I, --ignore-times &#x4E0D;&#x8DF3;&#x8FC7;&#x90A3;&#x4E9B;&#x6709;&#x540C;&#x6837;&#x7684;&#x65F6;&#x95F4;&#x548C;&#x957F;&#x5EA6;&#x7684;&#x6587;&#x4EF6;</span><br><span class="line">--size-only &#x5F53;&#x51B3;&#x5B9A;&#x662F;&#x5426;&#x8981;&#x5907;&#x4EFD;&#x6587;&#x4EF6;&#x65F6;&#xFF0C;&#x4EC5;&#x4EC5;&#x5BDF;&#x770B;&#x6587;&#x4EF6;&#x5927;&#x5C0F;&#x800C;&#x4E0D;&#x8003;&#x8651;&#x6587;&#x4EF6;&#x65F6;&#x95F4;</span><br><span class="line">--modify-window=NUM &#x51B3;&#x5B9A;&#x6587;&#x4EF6;&#x662F;&#x5426;&#x65F6;&#x95F4;&#x76F8;&#x540C;&#x65F6;&#x4F7F;&#x7528;&#x7684;&#x65F6;&#x95F4;&#x6233;&#x7A97;&#x53E3;&#xFF0C;&#x9ED8;&#x8BA4;&#x4E3A;0</span><br><span class="line">-T --temp-dir=DIR &#x5728;DIR&#x4E2D;&#x521B;&#x5EFA;&#x4E34;&#x65F6;&#x6587;&#x4EF6;</span><br><span class="line">--compare-dest=DIR &#x540C;&#x6837;&#x6BD4;&#x8F83;DIR&#x4E2D;&#x7684;&#x6587;&#x4EF6;&#x6765;&#x51B3;&#x5B9A;&#x662F;&#x5426;&#x9700;&#x8981;&#x5907;&#x4EFD;</span><br><span class="line">-P &#x7B49;&#x540C;&#x4E8E; --partial</span><br><span class="line">--progress &#x663E;&#x793A;&#x5907;&#x4EFD;&#x8FC7;&#x7A0B;</span><br><span class="line">-z, --compress &#x5BF9;&#x5907;&#x4EFD;&#x7684;&#x6587;&#x4EF6;&#x5728;&#x4F20;&#x8F93;&#x65F6;&#x8FDB;&#x884C;&#x538B;&#x7F29;&#x5904;&#x7406;</span><br><span class="line">--exclude=PATTERN &#x6307;&#x5B9A;&#x6392;&#x9664;&#x4E0D;&#x9700;&#x8981;&#x4F20;&#x8F93;&#x7684;&#x6587;&#x4EF6;&#x6A21;&#x5F0F;</span><br><span class="line">--include=PATTERN &#x6307;&#x5B9A;&#x4E0D;&#x6392;&#x9664;&#x800C;&#x9700;&#x8981;&#x4F20;&#x8F93;&#x7684;&#x6587;&#x4EF6;&#x6A21;&#x5F0F;</span><br><span class="line">--exclude-from=FILE &#x6392;&#x9664;FILE&#x4E2D;&#x6307;&#x5B9A;&#x6A21;&#x5F0F;&#x7684;&#x6587;&#x4EF6;</span><br><span class="line">--include-from=FILE &#x4E0D;&#x6392;&#x9664;FILE&#x6307;&#x5B9A;&#x6A21;&#x5F0F;&#x5339;&#x914D;&#x7684;&#x6587;&#x4EF6;</span><br><span class="line">--version &#x6253;&#x5370;&#x7248;&#x672C;&#x4FE1;&#x606F;</span><br><span class="line">--address &#x7ED1;&#x5B9A;&#x5230;&#x7279;&#x5B9A;&#x7684;&#x5730;&#x5740;</span><br><span class="line">--config=FILE &#x6307;&#x5B9A;&#x5176;&#x4ED6;&#x7684;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#xFF0C;&#x4E0D;&#x4F7F;&#x7528;&#x9ED8;&#x8BA4;&#x7684;rsyncd.conf&#x6587;&#x4EF6;</span><br><span class="line">--port=PORT &#x6307;&#x5B9A;&#x5176;&#x4ED6;&#x7684;rsync&#x670D;&#x52A1;&#x7AEF;&#x53E3;</span><br><span class="line">--blocking-io &#x5BF9;&#x8FDC;&#x7A0B;shell&#x4F7F;&#x7528;&#x963B;&#x585E;IO</span><br><span class="line">-stats &#x7ED9;&#x51FA;&#x67D0;&#x4E9B;&#x6587;&#x4EF6;&#x7684;&#x4F20;&#x8F93;&#x72B6;&#x6001;</span><br><span class="line">--progress &#x5728;&#x4F20;&#x8F93;&#x65F6;&#x73B0;&#x5B9E;&#x4F20;&#x8F93;&#x8FC7;&#x7A0B;</span><br><span class="line">--<span class="built_in">log</span>-format=formAT &#x6307;&#x5B9A;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x683C;&#x5F0F;</span><br><span class="line">--password-file=FILE &#x4ECE;FILE&#x4E2D;&#x5F97;&#x5230;&#x5BC6;&#x7801;</span><br><span class="line">--bwlimit=KBPS &#x9650;&#x5236;I/O&#x5E26;&#x5BBD;&#xFF0C;KBytes per second</span><br><span class="line">-h, --<span class="built_in">help</span> &#x663E;&#x793A;&#x5E2E;&#x52A9;&#x4FE1;&#x606F;</span><br></pre></td></tr></tbody></table></figure><p></p>
+<h2 id="Rsync-&#x4F7F;&#x7528;&#x5B9E;&#x4F8B;"><a href="#Rsync-&#x4F7F;&#x7528;&#x5B9E;&#x4F8B;" class="headerlink" title="Rsync &#x4F7F;&#x7528;&#x5B9E;&#x4F8B;"></a>Rsync &#x4F7F;&#x7528;&#x5B9E;&#x4F8B;</h2><h4 id="SSH-&#x65B9;&#x5F0F;"><a href="#SSH-&#x65B9;&#x5F0F;" class="headerlink" title="SSH &#x65B9;&#x5F0F;"></a>SSH &#x65B9;&#x5F0F;</h4><p>&#x5728;&#x670D;&#x52A1;&#x7AEF;&#x542F;&#x52A8; ssh &#x670D;&#x52A1;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ service sshd start</span><br><span class="line">&#x542F;&#x52A8; sshd&#xFF1A; [&#x786E;&#x5B9A;]</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>&#x4F7F;&#x7528; rsync &#x8FDB;&#x884C;&#x540C;&#x6B65;</p>
+<p>&#x63A5;&#x4E0B;&#x6765;&#x5C31;&#x53EF;&#x4EE5;&#x5728;&#x5BA2;&#x6237;&#x7AEF;&#x4F7F;&#x7528; rsync &#x547D;&#x4EE4;&#x6765;&#x5907;&#x4EFD;&#x670D;&#x52A1;&#x7AEF;&#x4E0A;&#x7684;&#x6570;&#x636E;&#x4E86;&#xFF0C;SSH &#x65B9;&#x5F0F;&#x662F;&#x901A;&#x8FC7;&#x7CFB;&#x7EDF;&#x7528;&#x6237;&#x6765;&#x8FDB;&#x884C;&#x5907;&#x4EFD;&#x7684;&#xFF0C;&#x5982;&#x4E0B;&#xFF1A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ rsync -vzrtopg --progress -e ssh --delete work@172.16.78.192:/www/* /databack/experiment/rsync</span><br><span class="line">work@172.16.78.192<span class="string">&apos;s password:</span></span><br><span class="line"><span class="string">receiving file list ...</span></span><br><span class="line"><span class="string">5 files to consider</span></span><br><span class="line"><span class="string">test/</span></span><br><span class="line"><span class="string">a</span></span><br><span class="line"><span class="string">0 100% 0.00kB/s 527:35:41 (1, 20.0% of 5)</span></span><br><span class="line"><span class="string">b</span></span><br><span class="line"><span class="string">67 100% 65.43kB/s 0:00:00 (2, 40.0% of 5)</span></span><br><span class="line"><span class="string">c</span></span><br><span class="line"><span class="string">0 100% 0.00kB/s 527:35:41 (3, 60.0% of 5)</span></span><br><span class="line"><span class="string">dd</span></span><br><span class="line"><span class="string">100663296 100% 42.22MB/s 0:00:02 (4, 80.0% of 5)</span></span><br><span class="line"><span class="string">sent 96 bytes received 98190 bytes 11563.06 bytes/sec</span></span><br><span class="line"><span class="string">total size is 100663363 speedup is 1024.19</span></span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>&#x4E0A;&#x9762;&#x7684;&#x4FE1;&#x606F;&#x63CF;&#x8FF0;&#x4E86;&#x6574;&#x4E2A;&#x7684;&#x5907;&#x4EFD;&#x8FC7;&#x7A0B;&#xFF0C;&#x4EE5;&#x53CA;&#x603B;&#x5171;&#x5907;&#x4EFD;&#x6570;&#x636E;&#x7684;&#x5927;&#x5C0F;&#x3002;</p>
+<h4 id="&#x540E;&#x53F0;&#x670D;&#x52A1;&#x65B9;&#x5F0F;"><a href="#&#x540E;&#x53F0;&#x670D;&#x52A1;&#x65B9;&#x5F0F;" class="headerlink" title="&#x540E;&#x53F0;&#x670D;&#x52A1;&#x65B9;&#x5F0F;"></a>&#x540E;&#x53F0;&#x670D;&#x52A1;&#x65B9;&#x5F0F;</h4><p><strong>&#x542F;&#x52A8; rsync &#x670D;&#x52A1;</strong></p>
+<p>&#x7F16;&#x8F91; / etc/xinetd.d/rsync &#x6587;&#x4EF6;&#xFF0C;&#x5C06;&#x5176;&#x4E2D;&#x7684; disable=yes &#x6539;&#x4E3A; disable=no&#xFF0C;&#x5E76;&#x91CD;&#x542F; xinetd &#x670D;&#x52A1;&#xFF0C;&#x5982;&#x4E0B;&#xFF1A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># default: off</span></span><br><span class="line"><span class="comment"># description: The rsync server is a good addition to an ftp server, as it \</span></span><br><span class="line"><span class="comment"># allows crc checksumming etc.</span></span><br><span class="line">service rsync</span><br><span class="line">{</span><br><span class="line"><span class="built_in">disable</span> = no</span><br><span class="line">socket_type = stream</span><br><span class="line"><span class="built_in">wait</span> = no</span><br><span class="line">user = root</span><br><span class="line">server = /usr/bin/rsync</span><br><span class="line">server_args = --daemon</span><br><span class="line">log_on_failure += USERID</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure><p></p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ /etc/init.d/xinetd restart</span><br><span class="line">&#x505C;&#x6B62; xinetd&#xFF1A; [&#x786E;&#x5B9A;]</span><br><span class="line">&#x542F;&#x52A8; xinetd&#xFF1A; [&#x786E;&#x5B9A;]</span><br></pre></td></tr></tbody></table></figure>
+<p>&#x6216;&#x8005;&#x81EA;&#x5DF1;&#x624B;&#x52A8;&#x542F;&#x52A8;&#x5E76;&#x6DFB;&#x52A0;&#x81EA;&#x542F;&#x52A8;&#xFF1A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/rsync --daemon --config=/etc/rsyncd.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;/usr/bin/rsync --daemon --config=/etc/rsyncd.conf&quot;</span> &gt;&gt; /etc/rc.local</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p><strong>&#x521B;&#x5EFA;&#x914D;&#x7F6E;&#x6587;&#x4EF6;</strong></p>
+<p>&#x9ED8;&#x8BA4;&#x5B89;&#x88C5;&#x597D; rsync &#x7A0B;&#x5E8F;&#x540E;&#xFF0C;&#x5E76;&#x4E0D;&#x4F1A;&#x81EA;&#x52A8;&#x521B;&#x5EFA; rsync &#x7684;&#x4E3B;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#xFF0C;&#x9700;&#x8981;&#x624B;&#x5DE5;&#x6765;&#x521B;&#x5EFA;&#xFF0C;&#x5176;&#x4E3B;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x4E3A; &#x201C;/etc/rsyncd.conf&#x201D;&#xFF0C;&#x521B;&#x5EFA;&#x8BE5;&#x6587;&#x4EF6;&#x5E76;&#x63D2;&#x5165;&#x5982;&#x4E0B;&#x5185;&#x5BB9;&#xFF1A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Minimal configuration file for rsync daemon</span></span><br><span class="line"><span class="comment"># See rsync(1) and rsyncd.conf(5) man pages for help</span></span><br><span class="line"></span><br><span class="line"><span class="comment">############################ &#x4EE5;&#x4E0B;&#x662F;&#x516C;&#x5171;&#x53C2;&#x6570;&#x914D;&#x7F6E; ############################</span></span><br><span class="line"><span class="comment"># This line is required by the /etc/init.d/rsyncd script</span></span><br><span class="line">pid file = /var/run/rsyncd.pid</span><br><span class="line"><span class="comment"># &#x670D;&#x52A1;&#x7684;&#x7AEF;&#x53E3;</span></span><br><span class="line">port = 873</span><br><span class="line"><span class="comment"># &#x670D;&#x52A1;&#x7684;IP</span></span><br><span class="line">address = 10.44.201.202</span><br><span class="line"><span class="comment"># &#x8FD0;&#x884C;&#x7684;&#x5BBF;&#x4E3B;&#x8D26;&#x6237;&#xFF0C;&#x8FD9;&#x91CC;&#x4E3A;&#x7B80;&#x5355;&#x5C31;root&#x4E86;</span></span><br><span class="line">uid = root</span><br><span class="line">gid = root</span><br><span class="line"><span class="comment"># &#x6253;&#x5F00;&#xFF08;yes&#xFF09;&#x540E;&#x6709;&#x4E2A;&#x529F;&#x80FD;&#x662F;&#x8BA9;&#x7B26;&#x53F7;&#x94FE;&#x63A5;&#x53EF;&#x4EE5;&#x540C;&#x6B65;&#x8FC7;&#x53BB;&#xFF08;&#x4E0D;&#x901A;&#x8FC7;&#x7B26;&#x53F7;&#x94FE;&#x63A5;&#x5BF9;&#x5E94;&#x7684;&#x5B9E;&#x9645;&#x6587;&#x4EF6;&#xFF09;</span></span><br><span class="line">use chroot = no</span><br><span class="line"><span class="comment"># &#x5BA2;&#x6237;&#x7AEF;&#x53EA;&#x8BFB;</span></span><br><span class="line"><span class="built_in">read</span> only = yes</span><br><span class="line"><span class="comment">#limit access to private LANs</span></span><br><span class="line">hosts allow=10.51.56.165/255.255.255.0</span><br><span class="line"><span class="comment"># hosts deny=*</span></span><br><span class="line"><span class="comment"># &#x6700;&#x5927;&#x8FDE;&#x63A5;&#x6570;</span></span><br><span class="line">max connections = 5</span><br><span class="line"><span class="comment"># &#x6B22;&#x8FCE;&#x4FE1;&#x606F;&#x5BF9;&#x5E94;&#x7684;&#x6587;&#x4EF6;</span></span><br><span class="line"><span class="comment"># motd file = /etc/rsyncd.motd</span></span><br><span class="line"><span class="comment"># &#x5BA2;&#x6237;&#x7AEF;&#x94FE;&#x63A5;&#x7684;&#x8D85;&#x65F6;&#x65F6;&#x95F4;</span></span><br><span class="line">timeout = 300</span><br><span class="line"></span><br><span class="line"><span class="comment"># &#x4EE5;&#x4E0B;&#x662F;&#x65E5;&#x5FD7;&#x76F8;&#x5173;&#x914D;&#x7F6E;&#xFF0C;&#x53EF;&#x9009;&#x4F7F;&#x7528;&#x72EC;&#x7ACB;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x548C;&#x7CFB;&#x7EDF;&#x65E5;&#x5FD7;</span></span><br><span class="line"><span class="comment"># This will give you a separate log file</span></span><br><span class="line"><span class="comment"># log file = /var/log/rsync.log</span></span><br><span class="line"><span class="comment"># This will log every file transferred - up to 85,000+ per user, per sync</span></span><br><span class="line"><span class="comment"># transfer logging = yes</span></span><br><span class="line"><span class="comment"># log format = %t %a %m %f %b</span></span><br><span class="line"><span class="comment"># syslog facility = local3</span></span><br><span class="line"></span><br><span class="line"><span class="comment">############################# &#x540C;&#x6B65;&#x6A21;&#x5757;&#x914D;&#x7F6E; ################################</span></span><br><span class="line">[thrift]</span><br><span class="line"><span class="comment"># &#x9700;&#x8981;&#x540C;&#x6B65;&#x7684;&#x8DEF;&#x5F84;</span></span><br><span class="line">path = /data/JiemoLucenes</span><br><span class="line"><span class="comment"># &#x5BA2;&#x6237;&#x7AEF;&#x53EF;&#x4EE5;&#x4F7F;&#x7528;list&#x547D;&#x4EE4;&#x5217;&#x8868;&#x663E;&#x793A;</span></span><br><span class="line">list=yes</span><br><span class="line"><span class="comment"># &#x5FFD;&#x7565;&#x9519;&#x8BEF;</span></span><br><span class="line">ignore errors</span><br><span class="line"><span class="comment"># &#x8BA4;&#x8BC1;&#x7528;&#x6237;</span></span><br><span class="line">auth users = root</span><br><span class="line"><span class="comment"># &#x8BA4;&#x8BC1;&#x4F7F;&#x7528;&#x7684;&#x8D26;&#x6237;&#x5BC6;&#x7801;&#x6587;&#x4EF6;</span></span><br><span class="line">secrets file = /etc/rsyncd.secrets</span><br><span class="line"><span class="comment"># &#x5907;&#x6CE8;&#x4FE1;&#x606F;</span></span><br><span class="line">comment = This is nexus data</span><br><span class="line"><span class="comment"># &#x5982;&#x679C;&#x6709;&#x5FFD;&#x7565;&#x7684;&#x5B50;&#x76EE;&#x5F55;&#xFF0C;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;exclude&#x5B9A;&#x4E49;</span></span><br><span class="line"><span class="comment"># exclude = easylife/  samba/</span></span><br></pre></td></tr></tbody></table></figure><p></p>
+<p><strong>&#x521B;&#x5EFA;&#x5BC6;&#x7801;&#x6587;&#x4EF6;</strong><br>&#x91C7;&#x7528;&#x8FD9;&#x79CD;&#x65B9;&#x5F0F;&#x4E0D;&#x80FD;&#x4F7F;&#x7528;&#x7CFB;&#x7EDF;&#x7528;&#x6237;&#x5BF9;&#x5BA2;&#x6237;&#x7AEF;&#x8FDB;&#x884C;&#x8BA4;&#x8BC1;&#xFF0C;&#x6240;&#x4EE5;&#x9700;&#x8981;&#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x5BC6;&#x7801;&#x6587;&#x4EF6;&#xFF0C;&#x5176;&#x683C;&#x5F0F;&#x4E3A; &#x201C;username:password&#x201D;&#xFF0C;&#x7528;&#x6237;&#x540D;&#x53EF;&#x4EE5;&#x548C;&#x5BC6;&#x7801;&#x53EF;&#x4EE5;&#x968F;&#x4FBF;&#x5B9A;&#x4E49;&#xFF0C;&#x6700;&#x597D;&#x4E0D;&#x8981;&#x548C;&#x7CFB;&#x7EDF;&#x5E10;&#x6237;&#x4E00;&#x81F4;&#xFF0C;&#x540C;&#x65F6;&#x8981;&#x628A;&#x521B;&#x5EFA;&#x7684;&#x5BC6;&#x7801;&#x6587;&#x4EF6;&#x6743;&#x9650;&#x8BBE;&#x7F6E;&#x4E3A; 600&#xFF0C;&#x8FD9;&#x5728;&#x524D;&#x9762;&#x7684;&#x6A21;&#x5757;&#x53C2;&#x6570;&#x505A;&#x4E86;&#x8BE6;&#x7EC6;&#x4ECB;&#x7ECD;&#x3002;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;work:abc123&quot;</span> &gt; /etc/rsyncd.passwd</span><br><span class="line">chmod 600 /etc/rsyncd.passwd</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p><strong>&#x5907;&#x4EFD;</strong><br>&#x5B8C;&#x6210;&#x4EE5;&#x4E0A;&#x5DE5;&#x4F5C;&#xFF0C;&#x73B0;&#x5728;&#x5C31;&#x53EF;&#x4EE5;&#x5BF9;&#x6570;&#x636E;&#x8FDB;&#x884C;&#x5907;&#x4EFD;&#x4E86;&#xFF0C;&#x5982;&#x4E0B;&#xFF1A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ rsync -avz --progress --delete work@172.16.78.192::www /databack/experiment/rsync</span><br><span class="line">Password:</span><br><span class="line">receiving file list ...</span><br><span class="line">6 files to consider</span><br><span class="line">./ files...</span><br><span class="line">a</span><br><span class="line">0 100% 0.00kB/s 528:20:41 (1, 50.0% of 6)</span><br><span class="line">b</span><br><span class="line">67 100% 65.43kB/s 0:00:00 (2, 66.7% of 6)</span><br><span class="line">c</span><br><span class="line">0 100% 0.00kB/s 528:20:41 (3, 83.3% of 6)</span><br><span class="line">dd</span><br><span class="line">100663296 100% 37.49MB/s 0:00:02 (4, 100.0% of 6)</span><br><span class="line">sent 172 bytes received 98276 bytes 17899.64 bytes/sec</span><br><span class="line">total size is 150995011 speedup is 1533.75</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p><strong>&#x6062;&#x590D;</strong><br>&#x5F53;&#x670D;&#x52A1;&#x5668;&#x7684;&#x6570;&#x636E;&#x51FA;&#x73B0;&#x95EE;&#x9898;&#x65F6;&#xFF0C;&#x90A3;&#x4E48;&#x8FD9;&#x65F6;&#x5C31;&#x9700;&#x8981;&#x901A;&#x8FC7;&#x5BA2;&#x6237;&#x7AEF;&#x7684;&#x6570;&#x636E;&#x5BF9;&#x670D;&#x52A1;&#x7AEF;&#x8FDB;&#x884C;&#x6062;&#x590D;&#xFF0C;&#x4F46;&#x524D;&#x63D0;&#x662F;&#x670D;&#x52A1;&#x7AEF;&#x5141;&#x8BB8;&#x5BA2;&#x6237;&#x7AEF;&#x6709;&#x5199;&#x5165;&#x6743;&#x9650;&#xFF0C;&#x5426;&#x5219;&#x4E5F;&#x4E0D;&#x80FD;&#x5728;&#x5BA2;&#x6237;&#x7AEF;&#x76F4;&#x63A5;&#x5BF9;&#x670D;&#x52A1;&#x7AEF;&#x8FDB;&#x884C;&#x6062;&#x590D;&#xFF0C;&#x4F7F;&#x7528; rsync &#x5BF9;&#x6570;&#x636E;&#x8FDB;&#x884C;&#x6062;&#x590D;&#x7684;&#x65B9;&#x6CD5;&#x5982;&#x4E0B;&#xFF1A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ rsync -avz --progress /databack/experiment/rsync/ work@172.16.78.192::www</span><br><span class="line">Password:</span><br><span class="line">building file list ...</span><br><span class="line">6 files to consider</span><br><span class="line">./</span><br><span class="line">a</span><br><span class="line">b</span><br><span class="line">67 100% 0.00kB/s 0:00:00 (2, 66.7% of 6)</span><br><span class="line">c</span><br><span class="line">sent 258 bytes received 76 bytes 95.43 bytes/sec</span><br><span class="line">total size is 150995011 speedup is 452080.87</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p><strong>&#x793A;&#x4F8B;&#x811A;&#x672C;</strong><br>&#x8FD9;&#x91CC;&#x8FD9;&#x4E9B;&#x811A;&#x672C;&#x90FD;&#x662F; rsync &#x7F51;&#x7AD9;&#x4E0A;&#x7684;&#x4F8B;&#x5B50;&#xFF1A;<br>1&#x3001;&#x6BCF;&#x9694;&#x4E03;&#x5929;&#x5C06;&#x6570;&#x636E;&#x5F80;&#x4E2D;&#x5FC3;&#x670D;&#x52A1;&#x5668;&#x505A;&#x589E;&#x91CF;&#x5907;&#x4EFD;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># This script does personal backups to a rsync backup server. You will end up</span></span><br><span class="line"><span class="comment"># with a 7 day rotating incremental backup. The incrementals will go</span></span><br><span class="line"><span class="comment"># into subdirectories named after the day of the week, and the current</span></span><br><span class="line"><span class="comment"># full backup goes into a directory called &quot;current&quot;</span></span><br><span class="line"><span class="comment"># tridge@linuxcare.com</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># directory to backup</span></span><br><span class="line">BDIR=/home/<span class="variable">$USER</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># excludes file - this contains a wildcard pattern per line of files to exclude</span></span><br><span class="line">EXCLUDES=<span class="variable">$HOME</span>/cron/excludes</span><br><span class="line"></span><br><span class="line"><span class="comment"># the name of the backup machine</span></span><br><span class="line">BSERVER=owl</span><br><span class="line"></span><br><span class="line"><span class="comment"># your password on the backup server</span></span><br><span class="line"><span class="built_in">export</span> RSYNC_PASSWORD=XXXXXX</span><br><span class="line"></span><br><span class="line"><span class="comment">#######################################################################</span></span><br><span class="line"></span><br><span class="line">BACKUPDIR=`date +%A`</span><br><span class="line">OPTS=<span class="string">&quot;--force --ignore-errors --delete-excluded --exclude-from=<span class="variable">$EXCLUDES</span></span></span><br><span class="line"><span class="string">--delete --backup --backup-dir=/<span class="variable">$BACKUPDIR</span> -a&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/bin:/usr/bin:/usr/<span class="built_in">local</span>/bin</span><br><span class="line"></span><br><span class="line"><span class="comment"># the following line clears the last weeks incremental directory</span></span><br><span class="line">[ -d <span class="variable">$HOME</span>/emptydir ] || mkdir <span class="variable">$HOME</span>/emptydir</span><br><span class="line">rsync --delete -a <span class="variable">$HOME</span>/emptydir/ <span class="variable">$BSERVER</span>::<span class="variable">$USER</span>/<span class="variable">$BACKUPDIR</span>/</span><br><span class="line">rmdir <span class="variable">$HOME</span>/emptydir</span><br><span class="line"></span><br><span class="line"><span class="comment"># now the actual transfer</span></span><br><span class="line">rsync <span class="variable">$OPTS</span> <span class="variable">$BDIR</span> <span class="variable">$BSERVER</span>::<span class="variable">$USER</span>/current</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>2&#x3001;&#x5907;&#x4EFD;&#x81F3;&#x4E00;&#x4E2A;&#x7A7A;&#x95F2;&#x7684;&#x786C;&#x76D8;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> PATH=/usr/<span class="built_in">local</span>/bin:/usr/bin:/bin</span><br><span class="line"></span><br><span class="line">LIST=<span class="string">&quot;rootfs usr data data2&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> d <span class="keyword">in</span> <span class="variable">$LIST</span>; <span class="keyword">do</span></span><br><span class="line">mount /backup/<span class="variable">$d</span></span><br><span class="line">rsync -ax --exclude fstab --delete /<span class="variable">$d</span>/ /backup/<span class="variable">$d</span>/</span><br><span class="line">umount /backup/<span class="variable">$d</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line">DAY=`date <span class="string">&quot;+%A&quot;</span>`</span><br><span class="line"></span><br><span class="line">rsync -a --delete /usr/<span class="built_in">local</span>/apache /data2/backups/<span class="variable">$DAY</span></span><br><span class="line">rsync -a --delete /data/solid /data2/backups/<span class="variable">$DAY</span></span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>3&#x3001;&#x5BF9; vger.rutgers.edu &#x7684; cvs &#x6811;&#x8FDB;&#x884C;&#x955C;&#x50CF;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> /var/www/cvs/vger/</span><br><span class="line">PATH=/usr/<span class="built_in">local</span>/bin:/usr/freeware/bin:/usr/bin:/bin</span><br><span class="line"></span><br><span class="line">RUN=`lps x | grep rsync | grep -v grep | wc -l`</span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$RUN</span>&quot;</span> -gt 0 ]; <span class="keyword">then</span></span><br><span class="line"><span class="built_in">echo</span> already running</span><br><span class="line"><span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">rsync -az vger.rutgers.edu::cvs/CVSROOT/ChangeLog <span class="variable">$HOME</span>/ChangeLog</span><br><span class="line"></span><br><span class="line">sum1=`sum <span class="variable">$HOME</span>/ChangeLog`</span><br><span class="line">sum2=`sum /var/www/cvs/vger/CVSROOT/ChangeLog`</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$sum1</span>&quot;</span> = <span class="string">&quot;<span class="variable">$sum2</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line"><span class="built_in">echo</span> nothing to <span class="keyword">do</span></span><br><span class="line"><span class="built_in">exit</span> 0</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">rsync -az --delete --force vger.rutgers.edu::cvs/ /var/www/cvs/vger/</span><br><span class="line"><span class="built_in">exit</span> 0</span><br></pre></td></tr></tbody></table></figure><p></p>
+<h2 id="FAQ"><a href="#FAQ" class="headerlink" title="FAQ"></a>FAQ</h2><p>Q&#xFF1A;&#x5982;&#x4F55;&#x901A;&#x8FC7; ssh &#x8FDB;&#x884C; rsync&#xFF0C;&#x800C;&#x4E14;&#x65E0;&#x987B;&#x8F93;&#x5165;&#x5BC6;&#x7801;&#xFF1F;</p>
+<p>A&#xFF1A;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x4EE5;&#x4E0B;&#x51E0;&#x4E2A;&#x6B65;&#x9AA4;</p>
+<pre><code>* &#x901A;&#x8FC7; ssh-keygen &#x5728; server A &#x4E0A;&#x5EFA;&#x7ACB; SSH keys&#xFF0C;&#x4E0D;&#x8981;&#x6307;&#x5B9A;&#x5BC6;&#x7801;&#xFF0C;&#x4F60;&#x4F1A;&#x5728;~/.ssh &#x4E0B;&#x770B;&#x5230; identity &#x548C; identity.pub &#x6587;&#x4EF6;
+* &#x5728; server B &#x4E0A;&#x7684; home &#x76EE;&#x5F55;&#x5EFA;&#x7ACB;&#x5B50;&#x76EE;&#x5F55;. ssh
+* &#x5C06; A &#x7684; identity.pub &#x62F7;&#x8D1D;&#x5230; server B &#x4E0A;
+* &#x5C06; identity.pub &#x52A0;&#x5230;`~[user b]/.ssh/authorized_keys`
+* &#x4E8E;&#x662F; server A &#x4E0A;&#x7684; A &#x7528;&#x6237;&#xFF0C;&#x53EF;&#x901A;&#x8FC7;&#x4E0B;&#x9762;&#x547D;&#x4EE4;&#x4EE5;&#x7528;&#x6237; B ssh &#x5230; server B &#x4E0A;&#x4E86; e.g.`ssh -l userB serverB`
+* &#x8FD9;&#x6837;&#x5C31;&#x4F7F; server A &#x4E0A;&#x7684;&#x7528;&#x6237; A &#x5C31;&#x53EF;&#x4EE5; ssh &#x4EE5;&#x7528;&#x6237; B &#x7684;&#x8EAB;&#x4EFD;&#x65E0;&#x9700;&#x5BC6;&#x7801;&#x767B;&#x9646;&#x5230; server B &#x4E0A;&#x4E86;&#x3002;
+</code></pre><p>Q&#xFF1A;&#x5982;&#x4F55;&#x901A;&#x8FC7;&#x5728;&#x4E0D;&#x5371;&#x5BB3;&#x5B89;&#x5168;&#x7684;&#x60C5;&#x51B5;&#x4E0B;&#x901A;&#x8FC7;&#x9632;&#x706B;&#x5899;&#x4F7F;&#x7528; rsync?</p>
+<p>A&#xFF1A;&#x89E3;&#x7B54;&#x5982;&#x4E0B;&#xFF1A;</p>
+<p>&#x8FD9;&#x901A;&#x5E38;&#x6709;&#x4E24;&#x79CD;&#x60C5;&#x51B5;&#xFF0C;&#x4E00;&#x79CD;&#x662F;&#x670D;&#x52A1;&#x5668;&#x5728;&#x9632;&#x706B;&#x5899;&#x5185;&#xFF0C;&#x4E00;&#x79CD;&#x662F;&#x670D;&#x52A1;&#x5668;&#x5728;&#x9632;&#x706B;&#x5899;&#x5916;&#x3002;&#x65E0;&#x8BBA;&#x54EA;&#x79CD;&#x60C5;&#x51B5;&#xFF0C;&#x901A;&#x5E38;&#x8FD8;&#x662F;&#x4F7F;&#x7528; ssh&#xFF0C;&#x8FD9;&#x65F6;&#x6700;&#x597D;&#x65B0;&#x5EFA;&#x4E00;&#x4E2A;&#x5907;&#x4EFD;&#x7528;&#x6237;&#xFF0C;&#x5E76;&#x4E14;&#x914D;&#x7F6E; sshd &#x4EC5;&#x5141;&#x8BB8;&#x8FD9;&#x4E2A;&#x7528;&#x6237;&#x901A;&#x8FC7; RSA &#x8BA4;&#x8BC1;&#x65B9;&#x5F0F;&#x8FDB;&#x5165;&#x3002;&#x5982;&#x679C;&#x670D;&#x52A1;&#x5668;&#x5728;&#x9632;&#x706B;&#x5899;&#x5185;&#xFF0C;&#x5219;&#x6700;&#x597D;&#x9650;&#x5B9A;&#x5BA2;&#x6237;&#x7AEF;&#x7684; IP &#x5730;&#x5740;&#xFF0C;&#x62D2;&#x7EDD;&#x5176;&#x5B83;&#x6240;&#x6709;&#x8FDE;&#x63A5;&#x3002;&#x5982;&#x679C;&#x5BA2;&#x6237;&#x673A;&#x5728;&#x9632;&#x706B;&#x5899;&#x5185;&#xFF0C;&#x5219;&#x53EF;&#x4EE5;&#x7B80; &#x5355;&#x5141;&#x8BB8;&#x9632;&#x706B;&#x5899;&#x6253;&#x5F00; TCP &#x7AEF;&#x53E3; 22 &#x7684; ssh &#x5916;&#x53D1;&#x8FDE;&#x63A5;&#x5C31; ok &#x4E86;&#x3002;</p>
+<p>Q&#xFF1A;&#x6211;&#x80FD;&#x5C06;&#x66F4;&#x6539;&#x8FC7;&#x6216;&#x8005;&#x5220;&#x9664;&#x7684;&#x6587;&#x4EF6;&#x4E5F;&#x5907;&#x4EFD;&#x4E0A;&#x6765;&#x5417;&#xFF1F;</p>
+<p>A&#xFF1A;&#x5F53;&#x7136;&#x53EF;&#x4EE5;&#xFF1A;</p>
+<p>&#x4F60;&#x53EF;&#x4EE5;&#x4F7F;&#x7528;&#x5982;&#xFF1A;<code>rsync -other -options -backupdir = ./backup-2000-2-13 ...</code>&#x8FD9;&#x6837;&#x7684;&#x547D;&#x4EE4;&#x6765;&#x5B9E;&#x73B0;&#x3002;<br>&#x8FD9;&#x6837;&#x5982;&#x679C;&#x6E90;&#x6587;&#x4EF6;:/path/to/some/file.c &#x6539;&#x53D8;&#x4E86;&#xFF0C;&#x90A3;&#x4E48;&#x65E7;&#x7684;&#x6587;&#x4EF6;&#x5C31;&#x4F1A;&#x88AB;&#x79FB;&#x5230;./backup-2000-2-13/path/to/some/file.c&#xFF0C;<br>&#x8FD9;&#x91CC;&#x8FD9;&#x4E2A;&#x76EE;&#x5F55;&#x9700;&#x8981;&#x81EA;&#x5DF1;&#x624B;&#x5DE5;&#x5EFA;&#x7ACB;&#x8D77;&#x6765;</p>
+<p>Q&#xFF1A;&#x6211;&#x9700;&#x8981;&#x5728;&#x9632;&#x706B;&#x5899;&#x4E0A;&#x5F00;&#x653E;&#x54EA;&#x4E9B;&#x7AEF;&#x53E3;&#x4EE5;&#x9002;&#x5E94; rsync&#xFF1F;</p>
+<p>A&#xFF1A;&#x89C6;&#x60C5;&#x51B5;&#x800C;&#x5B9A;</p>
+<p>rsync &#x53EF;&#x4EE5;&#x76F4;&#x63A5;&#x901A;&#x8FC7; 873 &#x7AEF;&#x53E3;&#x7684; tcp &#x8FDE;&#x63A5;&#x4F20;&#x6587;&#x4EF6;&#xFF0C;&#x4E5F;&#x53EF;&#x4EE5;&#x901A;&#x8FC7; 22 &#x7AEF;&#x53E3;&#x7684; ssh &#x6765;&#x8FDB;&#x884C;&#x6587;&#x4EF6;&#x4F20;&#x9012;&#xFF0C;&#x4F46;&#x4F60;&#x4E5F;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x4E0B;&#x5217;&#x547D;&#x4EE4;&#x6539;&#x53D8;&#x5B83;&#x7684;&#x7AEF;&#x53E3;&#xFF1A;<br><code>rsync --port 8730 otherhost::</code><br>&#x6216;&#x8005;<br><code>rsync -e &apos;ssh -p 2002&apos; otherhost:</code></p>
+<p>Q&#xFF1A;&#x6211;&#x5982;&#x4F55;&#x901A;&#x8FC7; rsync &#x53EA;&#x590D;&#x5236;&#x76EE;&#x5F55;&#x7ED3;&#x6784;&#xFF0C;&#x5FFD;&#x7565;&#x6389;&#x6587;&#x4EF6;&#x5462;&#xFF1F;</p>
+<p>A&#xFF1A;<code>rsync -av --include &apos;*/&apos; --exclude &apos;*&apos; source-dir dest-dir</code></p>
+<p>Q&#xFF1A;&#x4E3A;&#x4EC0;&#x4E48;&#x6211;&#x603B;&#x4F1A;&#x51FA;&#x73B0; &#x201C;Read-only file system&#x201D; &#x7684;&#x9519;&#x8BEF;&#x5462;&#xFF1F;</p>
+<p>A&#xFF1A;&#x770B;&#x770B;&#x662F;&#x5426;&#x5FD8;&#x4E86;&#x8BBE; &#x201C;read only = no&#x201D; &#x4E86;</p>
+<p>Q&#xFF1A;&#x4E3A;&#x4EC0;&#x4E48;&#x6211;&#x4F1A;&#x51FA;&#x73B0;&#x2018;@ERROR: invalid gid&#x2019;&#x7684;&#x9519;&#x8BEF;&#x5462;&#xFF1F;</p>
+<p>A&#xFF1A;rsync &#x4F7F;&#x7528;&#x65F6;&#x9ED8;&#x8BA4;&#x662F;&#x7528; uid=nobody;gid=nobody &#x6765;&#x8FD0;&#x884C;&#x7684;&#xFF0C;&#x5982;&#x679C;&#x4F60;&#x7684;&#x7CFB;&#x7EDF;&#x4E0D;&#x5B58;&#x5728; nobody &#x7EC4;&#x7684;&#x8BDD;&#xFF0C;&#x5C31;&#x4F1A;&#x51FA;&#x73B0;&#x8FD9;&#x6837;&#x7684;&#x9519;&#x8BEF;&#xFF0C;&#x53EF;&#x4EE5;&#x8BD5;&#x8BD5; gid = nogroup &#x6216;&#x8005;&#x5176;&#x5B83;</p>
+<p>Q&#xFF1A;&#x7ED1;&#x5B9A;&#x7AEF;&#x53E3; 873 &#x5931;&#x8D25;&#x662F;&#x600E;&#x4E48;&#x56DE;&#x4E8B;&#xFF1F;</p>
+<p>A&#xFF1A;&#x5982;&#x679C;&#x4F60;&#x4E0D;&#x662F;&#x4EE5; root &#x6743;&#x9650;&#x8FD0;&#x884C;&#x8FD9;&#x4E00;&#x5B88;&#x62A4;&#x8FDB;&#x7A0B;&#x7684;&#x8BDD;&#xFF0C;&#x56E0;&#x4E3A; 1024 &#x7AEF;&#x53E3;&#x4EE5;&#x4E0B;&#x662F;&#x7279;&#x6743;&#x7AEF;&#x53E3;&#xFF0C;&#x4F1A;&#x51FA;&#x73B0;&#x8FD9;&#x6837;&#x7684;&#x9519;&#x8BEF;&#x3002;&#x4F60;&#x53EF;&#x4EE5;&#x7528;&#x2013;port &#x53C2;&#x6570;&#x6765;&#x6539;&#x53D8;&#x3002;</p>
+<p>Q&#xFF1A;&#x4E3A;&#x4EC0;&#x4E48;&#x6211;&#x8BA4;&#x8BC1;&#x5931;&#x8D25;&#xFF1F;</p>
+<p>A&#xFF1A;&#x4ECE;&#x4F60;&#x7684;&#x547D;&#x4EE4;&#x884C;&#x770B;&#x6765;&#xFF1A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ rsync -a 144.16.251.213::<span class="built_in">test</span> <span class="built_in">test</span></span><br><span class="line">Password:</span><br><span class="line">@ERROR: auth failed on module <span class="built_in">test</span></span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>&#x5E94;&#x8BE5;&#x662F;&#x6CA1;&#x6709;&#x4EE5;&#x4F60;&#x7684;&#x7528;&#x6237;&#x540D;&#x767B;&#x9646;&#x5BFC;&#x81F4;&#x7684;&#x95EE;&#x9898;&#xFF0C;&#x8BD5;&#x8BD5;<code>rsync -a max@144.16.251.213::test test</code></p>
+<script>
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return; }
+            const img = document.createElement('img');
+            img.style = 'display:none !important;';
+            img.src = el.dataset.src;
+            img.addEventListener('error', () => {
+              img.remove();
+              el.style.color = 'inherit';
+              el.style.backgroundImage = 'none';
+              el.style.background = 'none';
+            });
+            img.addEventListener('load', () => {
+              img.remove();
+            });
+            document.body.appendChild(img);
+          });
+      </script>
+      
+    </div>
+
+    
+
+    
+    
+    
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+
+    <div>
+          
+            
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>本文标题:</span><a href="/2019/03/29/rsync/">rsync 命令详解</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 Wang Jiemin 的个人博客">Wang Jiemin</a></p>
+  <p><span>发布时间:</span>2019年03月29日 - 12:03</p>
+  <p><span>最后更新:</span>2019年03月29日 - 13:03</p>
+  <p><span>原始链接:</span><a href="/2019/03/29/rsync/" title="rsync 命令详解">https://jiemin.wang/2019/03/29/rsync/</a>
+    <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://jiemin.wang/2019/03/29/rsync/" aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>
+</div>
+<script>
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({
+          title: "",
+          text: '复制成功',
+          icon: "success",
+          showConfirmButton: true
+          });
+    });
+    });
+</script>
+
+
+          
+    </div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpeg" alt="Wang Jiemin Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"><i class="fa fa-angellist" aria-hidden="true"></i> Linux</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/29/goModules/" rel="next" title="Modules 初试 -- Go 包管理解决之道">
+                <i class="fa fa-chevron-left"></i> Modules 初试 -- Go 包管理解决之道
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/29/CoveringIndex/" rel="prev" title="MySQL 优化之 Covering Index">
+                MySQL 优化之 Covering Index <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/XIAOXIN.jpg" alt="Wang Jiemin">
+            
+              <p class="site-author-name" itemprop="name">Wang Jiemin</p>
+              <p class="site-description motion-element" itemprop="description">我从不生产BUG, 我是BUG的搬运工~</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">8</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/WangJiemin" title="GitHub &rarr; https://github.com/WangJiemin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:278667010@qq.com" title="E-Mail &rarr; mailto:278667010@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://zhengshun.wang" title="https://zhengshun.wang" rel="noopener" target="_blank">順子の杂货铺</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.chopmoon.com" title="http://blog.chopmoon.com" rel="noopener" target="_blank">龚义杰BLOG</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是-Rsync"><span class="nav-number">1.</span> <span class="nav-text">什么是 Rsync</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rsync-同步算法"><span class="nav-number">2.</span> <span class="nav-text">Rsync 同步算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rsync-参数说明"><span class="nav-number">3.</span> <span class="nav-text">Rsync 参数说明</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#全局参数"><span class="nav-number">3.0.1.</span> <span class="nav-text">全局参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#模块参数"><span class="nav-number">3.0.2.</span> <span class="nav-text">模块参数</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#Rsync-命令"><span class="nav-number">4.</span> <span class="nav-text">Rsync 命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rsync-使用实例"><span class="nav-number">5.</span> <span class="nav-text">Rsync 使用实例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#SSH-方式"><span class="nav-number">5.0.1.</span> <span class="nav-text">SSH 方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#后台服务方式"><span class="nav-number">5.0.2.</span> <span class="nav-text">后台服务方式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FAQ"><span class="nav-number">6.</span> <span class="nav-text">FAQ</span></a></li></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+      <div id="music163player">
+         <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="298" height="52" src="//music.163.com/outchain/player?type=0&id=2162667159&auto=1&height=32"></iframe>
+      </div>
+
+    </div>
+  </aside>
+ 
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart" aria-hidden="true"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wang Jiemin</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  <!-- 雪花特效 -->
+  <script type="text/javascript" src="//libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
+  <script type="text/javascript">
+    var windowWidth = $(window).width();
+    if (windowWidth > 480) {
+      document.write('<script type="text/javascript" src="/js/src/snow.js"><\/script>');
+    }
+  </script>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/three/three.min.js"></script>
+
+  
+  <script src="true"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.7.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.7.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+        // ref: https://github.com/ForbesLindesay/unescape-html
+        var unescapeHtml = function(html) {
+          return String(html)
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, '\'')
+            .replace(/&#x3A;/g, ':')
+            // replace all the other &#x; chars
+            .replace(/&#(\d+);/g, function (m, p) { return String.fromCharCode(p); })
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&amp;/g, '&');
+        };
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                content = unescapeHtml(content);
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script>
+    
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+
+      Counter('get', '/classes/Counter', { where: JSON.stringify({ url }) })
+        .done(function ({ results }) {
+          if (results.length > 0) {
+            var counter = results[0];
+            
+            Counter('put', `/classes/Counter/${counter.objectId}`, JSON.stringify({ time: { "__op":"Increment", "amount":1 } }))
+            
+            .done(function () {
+                  var $element = $(document.getElementById(url));
+                  $element.find('.leancloud-visitors-count').text(counter.time + 1);
+            })
+            
+            .fail(function ({ responseJSON }) {
+                console.log('Failed to save Visitor num, with error message: ' + responseJSON.error);
+            })
+          } else {
+            
+              var $element = $(document.getElementById(url));
+              $element.find('.leancloud-visitors-count').text('Counter not initialized! See more at console err msg.');
+              console.error('ATTENTION! LeanCloud counter has security bug, see here how to solve it: https://github.com/theme-next/hexo-leancloud-counter-security. \n But you also can use LeanCloud without security, by set \'security\' option to \'false\'.');
+            
+          }
+        })
+      .fail(function ({ responseJSON }) {
+        console.log('LeanCloud Counter Error:' + responseJSON.code + " " + responseJSON.error);
+      });
+    }
+    
+
+    $(function() {
+      $.get('https://app-router.leancloud.cn/2/route?appId=' + "JkYmxXIhi14yw96jpzv7c0h2-gzGzoHsz")
+        .done(function ({ api_server }) {
+          var Counter = function (method, url, data) {
+            return $.ajax({
+              method: method,
+              url: `https://${api_server}/1.1${url}`,
+              headers: {
+                'X-LC-Id': "JkYmxXIhi14yw96jpzv7c0h2-gzGzoHsz",
+                'X-LC-Key': "EHRmraDPk6Tzs7qjIgvbbI5G",
+                'Content-Type': 'application/json',
+              },
+              data: data,
+            });
+          };
+          
+          addCount(Counter);
+          
+        })
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <style>
+    .copy-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 20px;
+      color: #333;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      background-color: #eee;
+      background-image: linear-gradient(#fcfcfc, #eee);
+      border: 1px solid #d5d5d5;
+      border-radius: 3px;
+      user-select: none;
+      outline: 0;
+    }
+
+    .highlight-wrap .copy-btn {
+      transition: opacity .3s ease-in-out;
+      opacity: 0;
+      padding: 2px 6px;
+      position: absolute;
+      right: 4px;
+      top: 8px;
+    }
+
+    .highlight-wrap:hover .copy-btn,
+    .highlight-wrap .copy-btn:focus {
+      opacity: 1
+    }
+
+    .highlight-wrap {
+      position: relative;
+    }
+  </style>
+  <script>
+    $('.highlight').each(function (i, e) {
+      var $wrap = $('<div>').addClass('highlight-wrap');
+      $(e).after($wrap);
+      $wrap.append($('<button>').addClass('copy-btn').append('Copy').on('click', function (e) {
+        var code = $(this).parent().find('.code').find('.line').map(function (i, e) {
+          return $(e).text();
+        }).toArray().join('\n');
+        var ta = document.createElement('textarea');
+        var range = document.createRange(); //For Chrome
+        var sel = window.getSelection(); //For Chrome
+        var yPosition = window.pageYOffset || document.documentElement.scrollTop;
+        ta.style.top = yPosition + 'px'; //Prevent page scroll
+        ta.style.position = 'absolute';
+        ta.style.opacity = '0';
+        ta.value = code;
+        ta.textContent = code; //For FireFox
+        ta.contentEditable = true;
+        ta.readOnly = false;
+        document.body.appendChild(ta);
+        range.selectNode(ta);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        ta.setSelectionRange(0, code.length);
+        var result = document.execCommand('copy');
+        
+          if (result) $(this).text('Copied');
+          else $(this).text('Copy failed');
+        
+        ta.blur(); //For iOS
+        $(this).blur();
+      })).on('mouseleave', function (e) {
+        var $b = $(this).find('.copy-btn');
+        setTimeout(function () {
+          $b.text('Copy');
+        }, 300);
+      }).append(e);
+    })
+  </script>
+
+
+  
+
+</body>
+</html>

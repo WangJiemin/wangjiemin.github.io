@@ -2,6 +2,48 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://jiemin.wang/2019/03/29/mysql-optimization-principle-3/</loc>
+    
+    <lastmod>2019-03-29T08:33:32.356Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/03/29/mysql-optimization-principle-2/</loc>
+    
+    <lastmod>2019-03-29T08:04:53.912Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/03/29/mysql-optimization-principle-1/</loc>
+    
+    <lastmod>2019-03-29T07:42:23.911Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/03/29/CoveringIndex/</loc>
+    
+    <lastmod>2019-03-29T06:42:37.257Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/01/28/%E9%9D%A2%E8%AF%95/</loc>
+    
+    <lastmod>2019-03-29T06:38:57.987Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/03/29/rsync/</loc>
+    
+    <lastmod>2019-03-29T05:18:58.858Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://jiemin.wang/2019/03/29/goModules/</loc>
     
     <lastmod>2019-03-29T04:41:58.770Z</lastmod>
@@ -33,13 +75,6 @@
     <loc>https://jiemin.wang/2019/03/25/nc/</loc>
     
     <lastmod>2019-03-25T02:18:46.369Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://jiemin.wang/2019/01/28/%E9%9D%A2%E8%AF%95/</loc>
-    
-    <lastmod>2019-03-21T09:03:10.031Z</lastmod>
     
   </url>
   
