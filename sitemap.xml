@@ -2,6 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://jiemin.wang/2019/04/03/mysql-binlog-server/</loc>
+    
+    <lastmod>2019-04-03T08:14:41.076Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/04/03/innodb-tablespace-copying/</loc>
+    
+    <lastmod>2019-04-03T08:01:04.077Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/04/03/mysql-innodb-buffer-pool-hit/</loc>
+    
+    <lastmod>2019-04-03T07:51:40.125Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/04/03/shell-getopts/</loc>
+    
+    <lastmod>2019-04-03T07:33:23.920Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://jiemin.wang/2019/04/02/linux-screen/</loc>
     
     <lastmod>2019-04-02T11:04:10.233Z</lastmod>
