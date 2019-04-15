@@ -1,4 +1,537 @@
-<!DOCTYPE html><html class="theme-next gemini use-motion" lang="zh-Hans"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><script src="/lib/pace/pace.min.js?v=1.0.2"></script><link rel="stylesheet" href="/lib/pace/pace-theme-center-simple.min.css?v=1.0.2"><link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"><link rel="stylesheet" href="/css/main.css?v=6.7.0"><link rel="apple-touch-icon" sizes="180x180" href="/images/xiaoxin-01.png?v=6.7.0"><link rel="icon" type="image/png" sizes="32x32" href="/images/xiaoxin-01.png?v=6.7.0"><link rel="icon" type="image/png" sizes="16x16" href="/images/xiaoxin-01.png?v=6.7.0"><link rel="mask-icon" href="/images/xiaoxin-01.png?v=6.7.0" color="#222"><script id="hexo.configurations">var NexT=window.NexT||{},CONFIG={root:"/",scheme:"Gemini",version:"6.7.0",sidebar:{position:"left",display:"post",offset:12,b2t:!1,scrollpercent:!0,onmobile:!1},fancybox:!1,fastclick:!1,lazyload:!1,tabs:!0,motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}},algolia:{applicationID:"",apiKey:"",indexName:"",hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}}}</script><script>!function(e,t,n,a,c,i,o,d,s){d=function(){i=t.createElement(n),o=t.getElementsByTagName(n)[0],i.src="//widget.seniverse.com/widget/chameleon.js",i.charset="utf-8",i.async=1,o.parentNode.insertBefore(i,o)},e.ThinkPageWeatherWidgetObject=a,e[a]||(e[a]=function(){(e[a].q=e[a].q||[]).push(arguments)}),e[a].l=+new Date,e.attachEvent?e.attachEvent("onload",d):e.addEventListener("load",d,!1)}(window,document,"script","tpwidget")</script><script>tpwidget("init",{flavor:"bubble",location:"WX4FBXXFKE4F",geolocation:"enabled",position:"top-right",margin:"10px 10px",language:"auto",unit:"c",theme:"chameleon",uid:"U6899A955F",hash:"3537a35c8bfe0f65e5d773944596793a"}),tpwidget("show")</script><meta name="description" content="MHA &amp;#x547D;&amp;#x4EE4; masterha_master_switch&amp;#x5E38;&amp;#x7528;&amp;#x53C2;&amp;#x6570;&amp;#x4ECB;&amp;#x7ECD;1234567891011121314151617181920212223242526272829303132333435363738394041424344--master_state=dead    &amp;#x5F3A"><meta name="keywords" content="MySQL,MHA"><meta property="og:type" content="article"><meta property="og:title" content="masterha-master-switch 参数详解"><meta property="og:url" content="https://jiemin.wang/2019/03/28/masterha-master-switch/index.html"><meta property="og:site_name" content="Jamin Blog"><meta property="og:description" content="MHA &amp;#x547D;&amp;#x4EE4; masterha_master_switch&amp;#x5E38;&amp;#x7528;&amp;#x53C2;&amp;#x6570;&amp;#x4ECB;&amp;#x7ECD;1234567891011121314151617181920212223242526272829303132333435363738394041424344--master_state=dead    &amp;#x5F3A"><meta property="og:locale" content="zh-Hans"><meta property="og:updated_time" content="2019-03-28T11:52:40.322Z"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="masterha-master-switch 参数详解"><meta name="twitter:description" content="MHA &amp;#x547D;&amp;#x4EE4; masterha_master_switch&amp;#x5E38;&amp;#x7528;&amp;#x53C2;&amp;#x6570;&amp;#x4ECB;&amp;#x7ECD;1234567891011121314151617181920212223242526272829303132333435363738394041424344--master_state=dead    &amp;#x5F3A"><link rel="canonical" href="https://jiemin.wang/2019/03/28/masterha-master-switch/"><script id="page.configurations">CONFIG.page={sidebar:""}</script><title>masterha-master-switch 参数详解 | Jamin Blog</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-title,.use-motion .comments,.use-motion .menu-item,.use-motion .motion-element,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .logo,.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript></head><body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans"><div class="container sidebar-position-left page-post-detail"><div class="headband"></div><header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-wrapper"><div class="site-meta"><div class="custom-logo-site-title"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span> <span class="site-title">Jamin Blog</span><span class="logo-line-after"><i></i></span></a></div><p class="site-subtitle">一个不聊技术的 DBA 不是一个好厨子...</p></div><div class="site-nav-toggle"> <button aria-label="Toggle navigation bar"><span class="btn-bar"></span><span class="btn-bar"></span><span class="btn-bar"></span></button></div></div><nav class="site-nav"><ul id="menu" class="menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i><br>Home</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i><br>Categories</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i><br>Tags</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i><br>Archives</a></li><li class="menu-item menu-item-life"><a href="/coffee" rel="section"><i class="menu-item-icon fa fa-fw fa-coffee"></i><br>生活中的美好</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i><br>About</a></li><li class="menu-item menu-item-search"><a href="javascript:;" class="popup-trigger"><i class="menu-item-icon fa fa-search fa-fw"></i><br>Search</a></li></ul><div class="site-search"><div class="popup search-popup local-search-popup"><div class="local-search-header clearfix"><span class="search-icon"><i class="fa fa-search"></i></span><span class="popup-btn-close"><i class="fa fa-times-circle"></i></span><div class="local-search-input-wrapper"> <input autocomplete="off" placeholder="Searching..." spellcheck="false" type="text" id="local-search-input"></div></div><div id="local-search-result"></div></div></div></nav></div></header><main id="main" class="main"><div class="main-inner"><div class="content-wrap"><div id="content" class="content"><div id="posts" class="posts-expand"><article class="post post-type-normal" itemscope itemtype="http://schema.org/Article"><div class="post-block"><link itemprop="mainEntityOfPage" href="https://jiemin.wang/2019/03/28/masterha-master-switch/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="name" content="Wang Jiemin"><meta itemprop="description" content="我从不生产BUG, 我是BUG的搬运工~"><meta itemprop="image" content="/images/XIAOXIN.jpg"></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Jamin Blog"></span><header class="post-header"><h1 class="post-title" itemprop="name headline">masterha-master-switch 参数详解</h1><div class="post-meta"><span class="post-time"><span class="post-meta-item-icon"><i class="fa fa-calendar-o"></i></span> <span class="post-meta-item-text">Posted on</span> <time title="Created: 2019-03-28 19:45:02 / Modified: 19:52:40" itemprop="dateCreated datePublished" datetime="2019-03-28T19:45:02+08:00">2019-03-28</time></span> <span class="post-category"><span class="post-meta-divider">|</span><span class="post-meta-item-icon"><i class="fa fa-folder-o"></i></span> <span class="post-meta-item-text">In</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span> , <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/MHA/" itemprop="url" rel="index"><span itemprop="name">MHA</span></a></span></span> <span id="/2019/03/28/masterha-master-switch/" class="leancloud_visitors" data-flag-title="masterha-master-switch 参数详解"><span class="post-meta-divider">|</span><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="post-meta-item-text">Views:</span><span class="leancloud-visitors-count"></span> <span>℃</span></span></div></header><div class="post-body" itemprop="articleBody"><h4 id="MHA-&#x547D;&#x4EE4;-masterha-master-switch"><a href="#MHA-&#x547D;&#x4EE4;-masterha-master-switch" class="headerlink" title="MHA &#x547D;&#x4EE4; masterha_master_switch"></a>MHA &#x547D;&#x4EE4; <a href="https://github.com/yoshinorim/mha4mysql-manager/wiki/masterha_master_switch" target="_blank" rel="noopener">masterha_master_switch</a></h4><p>&#x5E38;&#x7528;&#x53C2;&#x6570;&#x4ECB;&#x7ECD;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">--master_state=dead</span><br><span class="line">    &#x5F3A;&#x5236;&#x7684;&#x53C2;&#x6570;&#xFF0C;&#x53C2;&#x6570;&#x503C;&#x4E3A;<span class="string">&quot;dead&quot;</span> &#x6216;&#x8005; <span class="string">&quot;alive&quot;</span> . &#x5982;&#x679C; &#x8BBE;&#x7F6E;&#x4E3A; alive &#x6A21;&#x5F0F;&#xFF0C;masterha_master_switch &#x5F00;&#x59CB;&#x5728;&#x7EBF;&#x4E3B;&#x5E93;&#x5207;&#x6362;&#x64CD;&#x4F5C;&#x3002;</span><br><span class="line"> </span><br><span class="line">--dead_master_host=(hostname)</span><br><span class="line">    &#x5F3A;&#x5236;&#x53C2;&#x6570;&#xFF0C;&#x5B95;&#x673A;&#x7684;&#x4E3B;&#x5E93;&#x6240;&#x5728;&#x7684;&#x4E3B;&#x673A;&#x540D;&#x79F0;&#x3002;--dead_master_ip &#x548C; --dead_master_port &#x662F;&#x53EF;&#x9009;&#x53C2;&#x6570;&#xFF0C;&#x5982;&#x679C;&#x8FD9;&#x4E9B;&#x53C2;&#x6570;&#x6CA1;&#x6709;&#x8BBE;&#x7F6E;&#xFF0C;--dead_master_ip &#x5C31;&#x662F; --dead_master_host &#x89E3;&#x6790;&#x7684;IP&#x5730;&#x5740;&#x3002;--dead_master_port &#x4E3A; 3306</span><br><span class="line"> </span><br><span class="line">--new_master_host=(hostname)</span><br><span class="line">    &#x65B0;&#x4E3B;&#x673A;&#x5730;&#x5740;&#xFF0C;&#x53EF;&#x9009;&#x53C2;&#x6570;&#xFF0C;&#x8FD9;&#x4E2A;&#x53C2;&#x6570;&#x5728;&#x4F60;&#x660E;&#x786E;&#x65B0;&#x7684;&#x4E3B;&#x5E93;&#x7684;&#x4E3B;&#x673A;&#xFF0C;&#x975E;&#x5E38;&#x6709;&#x7528;&#x3002;(&#x8FD9;&#x5C31;&#x610F;&#x5473;&#x7740;&#x4F60;&#x4E0D;&#x9700;&#x8981;&#x8BA9;MHA&#x6765;&#x51B3;&#x5B9A;&#x65B0;&#x7684;&#x4E3B;&#x5E93;)&#x3002;&#x5982;&#x679C;&#x4E0D;&#x8BBE;&#x7F6E;&#x6B64;&#x53C2;&#x6570;&#xFF0C;MHA &#x5C06;&#x4F1A;&#x5229;&#x7528;&#x81EA;&#x52A8;failover&#x7684;&#x89C4;&#x5219;&#x6765;&#x9009;&#x62E9;&#x65B0;&#x7684;&#x4E3B;&#x5E93;&#x3002;&#x5982;&#x679C;&#x8BBE;&#x7F6E;--new_master_host&#xFF0C;MHA&#x9009;&#x62E9;&#x6B64;&#x4E3B;&#x673A;&#x4E3A;&#x65B0;&#x7684;&#x4E3B;&#x5E93;&#xFF0C;&#x5982;&#x679C;&#x4E0D;&#x80FD;&#x6210;&#x4E3A;&#x4E3B;&#x5E93;&#xFF0C;MHA&#x5C06;&#x4F1A;&#x9000;&#x51FA;</span><br><span class="line"> </span><br><span class="line">--interactive=(0|1)</span><br><span class="line">    &#x5982;&#x679C;&#x8BBE;&#x7F6E;&#x4E3A;0&#xFF0C;&#x5728;masterha_master_switch&#xFF0C;&#x5B83;&#x81EA;&#x52A8;&#x6267;&#x884C;&#x6545;&#x969C;&#x8F6C;&#x79FB;(&#x975E;&#x4EA4;&#x4E92;&#x5F0F;)&#x3002;&#x8FD9;&#x5B9E;&#x9645;&#x4E0A;&#x662F;&#x548C;masterha_manager&#x7684;&#x5185;&#x90E8;&#x8FD0;&#x884C;&#x673A;&#x5236;&#x4E00;&#x6837;&#xFF0C;&#x8FD9;&#x79CD;&#x975E;&#x4EA4;&#x4E92;&#x5F0F;&#x6545;&#x969C;&#x8F6C;&#x79FB;&#x662F;&#x6709;&#x7528;&#x7684;&#xFF0C;&#x5982;&#x679C;&#x4F60;&#x5DF2;&#x7ECF;&#x8BC1;&#x5B9E;&#x4E86;master&#x6B7B;&#x4E86;,&#x4F46;&#x4F60;&#x60F3;&#x5C3D;&#x5FEB;&#x505A;&#x6545;&#x969C;&#x8F6C;&#x79FB;&#x3002;&#x975E;&#x4EA4;&#x4E92;&#x5F0F;&#x6545;&#x969C;&#x8F6C;&#x79FB;&#x4E5F;&#x662F;&#x6709;&#x7528;&#x7684;,&#x5982;&#x679C;&#x4F60;&#x4F7F;&#x7528;&#x5176;&#x4ED6;&#x73B0;&#x6709;&#x7684;&#x4E3B;&#x76D1;&#x63A7;&#x8F6F;&#x4EF6;&#x548C;&#x8981;&#x8C03;&#x7528;&#x7684;&#x975E;&#x4EA4;&#x4E92;&#x5F0F;&#x6545;&#x969C;&#x8F6C;&#x79FB;&#x547D;&#x4EE4;&#x8F6F;&#x4EF6;&#x3002;&#x5178;&#x578B;&#x7684;&#x4F8B;&#x5B50;&#x662F;masterha_master_switch&#x8C03;&#x7528;&#x4ECE;&#x96C6;&#x7FA4;&#x8F6F;&#x4EF6;&#x50CF;&#x8D77;&#x640F;&#x5668;&#x3002;</span><br><span class="line"> </span><br><span class="line">--ssh_reachable=(0|1|2)</span><br><span class="line">    &#x6307;&#x5B9A;master &#x7ECF;&#x8FC7;SSH&#x662F;&#x5426;&#x53EF;&#x8FBE;&#x3002;0:&#x4E0D;&#x53EF;&#x8FBE;&#x3001;1:&#x53EF;&#x8FBE;&#x3001;2:&#x672A;&#x77E5;(&#x9ED8;&#x8BA4;&#x503C;)&#x3002; &#x5982;&#x679C;&#x8BBE;&#x7F6E;&#x4E3A;&#x4E86;2&#xFF0C;&#x6B64;&#x547D;&#x4EE4;&#x5185;&#x90E8;&#x5C06;&#x4F1A;&#x68C0;&#x6D4B;&#x901A;&#x8FC7;SSH &#x662F;&#x5426;&#x53EF;&#x8FBE;master&#xFF0C;&#x5E76;&#x4E14;&#x8DDF;&#x65B0;SSH &#x72B6;&#x6001;&#x3002;&#x5982;&#x679C;&#x53EF;&#x8FBE;&#xFF0C;&#x4E14;&#x8BBE;&#x7F6E;master_ip_failover_script &#x6216;&#x8005; shutdown_script .&#x5C06;&#x4F1A;&#x6267;&#x884C;<span class="string">&quot;--command=stopssh&quot;</span>&#x3002;&#x5426;&#x5219;&#xFF0C;&#x6267;&#x884C; <span class="string">&quot;--command=stop&quot;</span>&#x3002;&#x53E6;&#x5916;&#xFF0C;&#x5982;&#x679C;&#x5B95;&#x673A;&#x7684;master&#x901A;&#x8FC7;SSH&#x53EF;&#x8FBE;&#xFF0C;failover&#x811A;&#x672C;&#x8BD5;&#x56FE;&#x4ECE;&#x5B95;&#x673A;&#x7684;master&#x673A;&#x5668;&#x4E0A;&#x62F7;&#x8D1D;&#x6CA1;&#x6709;&#x6CA1;&#x6709;&#x53D1;&#x9001;&#x7684;binlog&#x3002;</span><br><span class="line"> </span><br><span class="line">--skip_change_master</span><br><span class="line">    &#x5982;&#x679C;&#x8BBE;&#x7F6E;&#x6B64;&#x53C2;&#x6570;&#xFF0C;&#x5F53;&#x53D1;&#x751F;failover&#x7684;&#x65F6;&#x5019;&#xFF0C;MAH &#x5728;&#x5E94;&#x7528;&#x5B8C;&#x4E0D;&#x540C;&#x7684;relay <span class="built_in">log</span>&#x9000;&#x51FA;&#xFF0C;&#x5FFD;&#x7565;CHANGE MASTER &#x548C; START SLAVE &#x64CD;&#x4F5C;&#x3002;&#x6240;&#x4EE5; slaves &#x4E0D;&#x4F1A;&#x6307;&#x5411; &#x65B0;&#x7684;master. &#x5F00;&#x542F;&#x6B64;&#x53C2;&#x6570;&#xFF0C;&#x6709;&#x5229;&#x4E8E;&#x624B;&#x52A8;&#x7684;&#x4E8C;&#x6B21;&#x68C0;&#x67E5;slave &#x6062;&#x590D;&#x662F;&#x5426;&#x6210;&#x529F;</span><br><span class="line"> </span><br><span class="line">--skip_disable_read_only</span><br><span class="line">    &#x8BBE;&#x7F6E;&#x6B64;&#x53C2;&#x6570;&#xFF0C;MHA &#x5C06;&#x4E0D;&#x4F1A;&#x5728;&#x65B0;&#x7684;&#x4E3B;&#x5E93;&#x4E0A;&#x6267;&#x884C; SET GLOBAL read_only =0 &#x64CD;&#x4F5C;&#xFF0C;&#x6709;&#x5229;&#x4E8E;&#x624B;&#x52A8;&#x64CD;&#x4F5C;</span><br><span class="line"> </span><br><span class="line">--last_failover_minute=(minutes)</span><br><span class="line">    &#x53C2;&#x8003;master_manager </span><br><span class="line"> </span><br><span class="line">--ignore_last_failover</span><br><span class="line">    &#x53C2;&#x8003;master_manager</span><br><span class="line"> </span><br><span class="line">--wait_on_failover_error=(seconds)</span><br><span class="line">    &#x7C7B;&#x4F3C;&#x4E8E;master_manager, &#x6B64;&#x53C2;&#x6570;&#x53EA;&#x7528;&#x4E8E;&#x81EA;&#x52A8;&#x7684;/&#x975E;&#x4EA4;&#x4E92;&#x5F0F;&#x7684;failover&#x3002;&#x5982;&#x679C;&#x6CA1;&#x6709;&#x8BBE;&#x7F6E;--interval=0&#xFF0C;wait_on_failover_error &#x5C06;&#x4F1A;&#x88AB;&#x5FFD;&#x7565;&#xFF0C;&#x5728;&#x53D1;&#x751F;&#x9519;&#x8BEF;&#x7684;&#x65F6;&#x5019;&#x4E0D;&#x4F1A;sleep&#x3002;</span><br><span class="line"> </span><br><span class="line">--remove_dead_master_conf</span><br><span class="line">    &#x53C2;&#x8003;masterha_manager</span><br><span class="line"> </span><br><span class="line">--wait_until_gtid_in_sync(0|1)</span><br><span class="line">    &#x6B64;&#x53C2;&#x6570;&#x4ECE;0.56&#x7248;&#x672C;&#x5F00;&#x59CB;&#x53EF;&#x7528;&#xFF0C;&#x5982;&#x679C;&#x8BBE;&#x7F6E;&#x6210;1&#xFF0C;&#x5F53;&#x57FA;&#x4E8E;GITD&#x7684;failover&#x65F6;,MHA &#x4F1A;&#x7B49;&#x5F85;&#x6240;&#x6709;&#x7684;&#x4ECE;&#x5E93;&#x8FFD;&#x4E0A;&#x65B0;&#x4E3B;&#x5E93;&#x7684;GITD</span><br><span class="line"> </span><br><span class="line">--skip_change_master</span><br><span class="line">    &#x6B64;&#x53C2;&#x6570;&#x4ECE;0.56&#x7248;&#x672C;&#x5F00;&#x59CB;&#x53EF;&#x7528;&#xFF0C;&#x5982;&#x679C;&#x5F00;&#x542F;&#x6B64;&#x9009;&#x9879;&#xFF0C;MHA &#x8DF3;&#x8FC7; CHANGE MASTER &#x7684;&#x64CD;&#x4F5C;</span><br><span class="line"> </span><br><span class="line">--skip_disable_read_only</span><br><span class="line">    &#x6B64;&#x53C2;&#x6570;&#x4ECE;0.56&#x7248;&#x672C;&#x5F00;&#x59CB;&#x53EF;&#x7528;&#xFF0C;&#x5982;&#x679C;&#x5F00;&#x542F;&#x6B64;&#x9009;&#x9879;&#xFF0C;MHA &#x5C06;&#x4F1A;&#x5728;&#x65B0;&#x7684;master &#x8DF3;&#x8FC7; SET GLOBAL read_only = 0;</span><br><span class="line"> </span><br><span class="line">--ignore_binlog_server_error</span><br><span class="line">    &#x6B64;&#x53C2;&#x6570;&#x4ECE;0.56&#x7248;&#x672C;&#x5F00;&#x59CB;&#x53EF;&#x7528;&#xFF0C;&#x5982;&#x679C;&#x5F00;&#x542F;&#x6B64;&#x9009;&#x9879;&#xFF0C;&#x5F53;&#x6267;&#x884C;failover&#x7684;&#x65F6;&#xFF0C;MHA&#x5FFD;&#x7565;binlog server&#x4E0A;&#x4EFB;&#x4F55;&#x9519;&#x8BEF;</span><br></pre></td></tr></tbody></table></figure><p></p><h5 id="&#x4E3B;&#x5728;&#x7EBF;&#x5207;&#x6362;&#x65F6;&#x76F8;&#x5173;&#x53C2;&#x6570;"><a href="#&#x4E3B;&#x5728;&#x7EBF;&#x5207;&#x6362;&#x65F6;&#x76F8;&#x5173;&#x53C2;&#x6570;" class="headerlink" title="&#x4E3B;&#x5728;&#x7EBF;&#x5207;&#x6362;&#x65F6;&#x76F8;&#x5173;&#x53C2;&#x6570;"></a>&#x4E3B;&#x5728;&#x7EBF;&#x5207;&#x6362;&#x65F6;&#x76F8;&#x5173;&#x53C2;&#x6570;</h5><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">--new_master_host=(hostname)</span><br><span class="line">    &#x65B0;&#x4E3B;&#x673A;&#x5730;&#x5740;&#xFF0C;&#x53EF;&#x9009;&#x53C2;&#x6570;&#xFF0C;&#x8FD9;&#x4E2A;&#x53C2;&#x6570;&#x5728;&#x4F60;&#x660E;&#x786E;&#x65B0;&#x7684;&#x4E3B;&#x5E93;&#x7684;&#x4E3B;&#x673A;&#xFF0C;&#x975E;&#x5E38;&#x6709;&#x7528;&#x3002;(&#x8FD9;&#x5C31;&#x610F;&#x5473;&#x7740;&#x4F60;&#x4E0D;&#x9700;&#x8981;&#x8BA9;MHA&#x6765;&#x51B3;&#x5B9A;&#x65B0;&#x7684;&#x4E3B;&#x5E93;)&#x3002;&#x5982;&#x679C;&#x4E0D;&#x8BBE;&#x7F6E;&#x6B64;&#x53C2;&#x6570;&#xFF0C;MHA &#x5C06;&#x4F1A;&#x5229;&#x7528;&#x81EA;&#x52A8;failover&#x7684;&#x89C4;&#x5219;&#x6765;&#x9009;&#x62E9;&#x65B0;&#x7684;&#x4E3B;&#x5E93;&#x3002;&#x5982;&#x679C;&#x8BBE;&#x7F6E;--new_master_host&#xFF0C;MHA&#x9009;&#x62E9;&#x6B64;&#x4E3B;&#x673A;&#x4E3A;&#x65B0;&#x7684;&#x4E3B;&#x5E93;&#xFF0C;&#x5982;&#x679C;&#x4E0D;&#x80FD;&#x6210;&#x4E3A;&#x4E3B;&#x5E93;&#xFF0C;MHA&#x5C06;&#x4F1A;&#x9000;&#x51FA;</span><br><span class="line"> </span><br><span class="line">--orig_master_is_new_slave</span><br><span class="line">    &#x5F53;&#x5B8C;&#x6210;&#x4E3B;&#x5E93;&#x5207;&#x6362;&#x540E;&#xFF0C;&#x539F;&#x5148;&#x7684;&#x4E3B;&#x5E93;&#x5C06;&#x4F5C;&#x4E3A;&#x73B0;&#x5728;&#x4E3B;&#x5E93;&#x7684;slave&#x8FD0;&#x884C;&#x3002;&#x9ED8;&#x8BA4;:&#x4E0D;&#x5F00;&#x542F;(&#x539F;&#x5148;&#x7684;&#x4E3B;&#x5E93;&#x4E0D;&#x4F1A;&#x52A0;&#x5165;&#x5230;&#x65B0;&#x7684;&#x590D;&#x5236;&#x73AF;&#x5883;&#x4E2D;)&#x3002;&#x5982;&#x679C;&#x5F00;&#x542F;&#x6B64;&#x9009;&#x9879;&#xFF0C;&#x9700;&#x8981;&#x5728;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x4E2D;&#x8BBE;&#x7F6E;repl_password&#x53C2;&#x6570;&#xFF0C;&#x7531;&#x4E8E;&#x5F53;&#x671F;&#x7684;Master&#x5E76;&#x4E0D;&#x77E5;&#x9053;&#x65B0;&#x7684;Master&#x7684;replication&#x7684;&#x5BC6;&#x7801;</span><br><span class="line"> </span><br><span class="line">--remove_orig_master_conf</span><br><span class="line">    &#x5982;&#x679C;&#x8BBE;&#x7F6E;&#x6B64;&#x53C2;&#x6570;&#xFF0C;&#x5F53;&#x6210;&#x529F;failover&#x540E;&#xFF0C;MHA manager&#x5C06;&#x4F1A;&#x81EA;&#x52A8;&#x5220;&#x9664;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x4E2D;&#x5173;&#x4E8E;dead master&#x7684;&#x914D;&#x7F6E;&#x9009;&#x9879;&#x3002;</span><br><span class="line"> </span><br><span class="line">--skip_lock_all_tables</span><br><span class="line">    &#x5F53;&#x5728;&#x505A;&#x4E3B;&#x5E93;&#x5207;&#x6362;&#x7684;&#x65F6;&#x5019;&#xFF0C;MHA&#x4F1A;&#x5728;&#x539F;&#x5148;&#x7684;&#x4E3B;&#x5E93;&#x4E0A;&#x6267;&#x884C;FLUSH TABLES WITH READ LOCK &#x64CD;&#x4F5C;&#xFF0C;&#x786E;&#x4FDD;&#x6CA1;&#x6709;&#x8DDF;&#x65B0;&#x64CD;&#x4F5C;&#xFF0C;&#x4F46;&#x662F;FLUSH TABLES WITH READ LOCK &#x64CD;&#x4F5C;&#x662F;&#x975E;&#x5E38;&#x8017;&#x8D39;&#x8D44;&#x6E90;&#x7684;&#xFF0C;&#x5E76;&#x4E14;&#x4F60;&#x53EF;&#x4EE5;&#x5728;&#x539F;&#x5148;&#x7684;&#x4E3B;&#x5E93;&#x786E;&#x5B9A;&#x6CA1;&#x6709;&#x8DDF;&#x65B0;&#x64CD;&#x4F5C;(&#x901A;&#x8FC7;master_ip_online_change_script &#x4E2D;<span class="built_in">kill</span> all clients&#x64CD;&#x4F5C;&#x7B49;)&#x3002;&#x53EF;&#x4EE5;&#x5229;&#x7528;&#x6B64;&#x9009;&#x9879;&#x907F;&#x514D;&#x9501;&#x8868;&#x3002;</span><br></pre></td></tr></tbody></table></figure><script>
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-center-simple.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/xiaoxin-01.png?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+<script>(function(T,h,i,n,k,P,a,g,e){g=function(){P=h.createElement(i);a=h.getElementsByTagName(i)[0];P.src=k;P.charset="utf-8";P.async=1;a.parentNode.insertBefore(P,a)};T["ThinkPageWeatherWidgetObject"]=n;T[n]||(T[n]=function(){(T[n].q=T[n].q||[]).push(arguments)});T[n].l=+new Date();if(T.attachEvent){T.attachEvent("onload",g)}else{T.addEventListener("load",g,false)}}(window,document,"script","tpwidget","//widget.seniverse.com/widget/chameleon.js"))</script>
+<script>tpwidget("init", {
+    "flavor": "bubble",
+    "location": "WX4FBXXFKE4F",
+    "geolocation": "enabled",
+    "position": "top-right",
+    "margin": "10px 10px",
+    "language": "auto",
+    "unit": "c",
+    "theme": "chameleon",
+    "uid": "U6899A955F",
+    "hash": "3537a35c8bfe0f65e5d773944596793a"
+});
+tpwidget("show");</script>
+
+  <meta name="description" content="MHA 命令 masterha_master_switch常用参数介绍1234567891011121314151617181920212223242526272829303132333435363738394041424344--master_state=dead    强制的参数，参数值为&quot;dead&quot; 或者 &quot;alive&quot; . 如果 设置为 alive 模式，masterha_master_s">
+<meta name="keywords" content="MySQL,MHA">
+<meta property="og:type" content="article">
+<meta property="og:title" content="masterha-master-switch 参数详解">
+<meta property="og:url" content="https://jiemin.wang/2019/03/28/masterha-master-switch/index.html">
+<meta property="og:site_name" content="Jamin Blog">
+<meta property="og:description" content="MHA 命令 masterha_master_switch常用参数介绍1234567891011121314151617181920212223242526272829303132333435363738394041424344--master_state=dead    强制的参数，参数值为&quot;dead&quot; 或者 &quot;alive&quot; . 如果 设置为 alive 模式，masterha_master_s">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-28T11:52:40.322Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="masterha-master-switch 参数详解">
+<meta name="twitter:description" content="MHA 命令 masterha_master_switch常用参数介绍1234567891011121314151617181920212223242526272829303132333435363738394041424344--master_state=dead    强制的参数，参数值为&quot;dead&quot; 或者 &quot;alive&quot; . 如果 设置为 alive 模式，masterha_master_s">
+
+
+
+
+
+
+  <link rel="canonical" href="https://jiemin.wang/2019/03/28/masterha-master-switch/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>masterha-master-switch 参数详解 | Jamin Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jamin Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">一个不聊技术的 DBA 不是一个好厨子...</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-life">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/coffee" rel="section"><i class="menu-item-icon fa fa-fw fa-coffee"></i> <br>生活中的美好</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>Search</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="Searching..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://jiemin.wang/2019/03/28/masterha-master-switch/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Wang Jiemin">
+      <meta itemprop="description" content="我从不生产BUG, 我是BUG的搬运工~">
+      <meta itemprop="image" content="/images/XIAOXIN.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jamin Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">masterha-master-switch 参数详解
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-03-28 19:45:02 / Modified: 19:52:40" itemprop="dateCreated datePublished" datetime="2019-03-28T19:45:02+08:00">2019-03-28</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/MHA/" itemprop="url" rel="index"><span itemprop="name">MHA</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/03/28/masterha-master-switch/" class="leancloud_visitors" data-flag-title="masterha-master-switch 参数详解">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Views: </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+                 <span>℃</span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="MHA-命令-masterha-master-switch"><a href="#MHA-命令-masterha-master-switch" class="headerlink" title="MHA 命令 masterha_master_switch"></a>MHA 命令 <a href="https://github.com/yoshinorim/mha4mysql-manager/wiki/masterha_master_switch" target="_blank" rel="noopener">masterha_master_switch</a></h4><p>常用参数介绍<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">--master_state=dead</span><br><span class="line">    强制的参数，参数值为<span class="string">"dead"</span> 或者 <span class="string">"alive"</span> . 如果 设置为 alive 模式，masterha_master_switch 开始在线主库切换操作。</span><br><span class="line"> </span><br><span class="line">--dead_master_host=(hostname)</span><br><span class="line">    强制参数，宕机的主库所在的主机名称。--dead_master_ip 和 --dead_master_port 是可选参数，如果这些参数没有设置，--dead_master_ip 就是 --dead_master_host 解析的IP地址。--dead_master_port 为 3306</span><br><span class="line"> </span><br><span class="line">--new_master_host=(hostname)</span><br><span class="line">    新主机地址，可选参数，这个参数在你明确新的主库的主机，非常有用。(这就意味着你不需要让MHA来决定新的主库)。如果不设置此参数，MHA 将会利用自动failover的规则来选择新的主库。如果设置--new_master_host，MHA选择此主机为新的主库，如果不能成为主库，MHA将会退出</span><br><span class="line"> </span><br><span class="line">--interactive=(0|1)</span><br><span class="line">    如果设置为0，在masterha_master_switch，它自动执行故障转移(非交互式)。这实际上是和masterha_manager的内部运行机制一样，这种非交互式故障转移是有用的，如果你已经证实了master死了,但你想尽快做故障转移。非交互式故障转移也是有用的,如果你使用其他现有的主监控软件和要调用的非交互式故障转移命令软件。典型的例子是masterha_master_switch调用从集群软件像起搏器。</span><br><span class="line"> </span><br><span class="line">--ssh_reachable=(0|1|2)</span><br><span class="line">    指定master 经过SSH是否可达。0:不可达、1:可达、2:未知(默认值)。 如果设置为了2，此命令内部将会检测通过SSH 是否可达master，并且跟新SSH 状态。如果可达，且设置master_ip_failover_script 或者 shutdown_script .将会执行<span class="string">"--command=stopssh"</span>。否则，执行 <span class="string">"--command=stop"</span>。另外，如果宕机的master通过SSH可达，failover脚本试图从宕机的master机器上拷贝没有没有发送的binlog。</span><br><span class="line"> </span><br><span class="line">--skip_change_master</span><br><span class="line">    如果设置此参数，当发生failover的时候，MAH 在应用完不同的relay <span class="built_in">log</span>退出，忽略CHANGE MASTER 和 START SLAVE 操作。所以 slaves 不会指向 新的master. 开启此参数，有利于手动的二次检查slave 恢复是否成功</span><br><span class="line"> </span><br><span class="line">--skip_disable_read_only</span><br><span class="line">    设置此参数，MHA 将不会在新的主库上执行 SET GLOBAL read_only =0 操作，有利于手动操作</span><br><span class="line"> </span><br><span class="line">--last_failover_minute=(minutes)</span><br><span class="line">    参考master_manager </span><br><span class="line"> </span><br><span class="line">--ignore_last_failover</span><br><span class="line">    参考master_manager</span><br><span class="line"> </span><br><span class="line">--wait_on_failover_error=(seconds)</span><br><span class="line">    类似于master_manager, 此参数只用于自动的/非交互式的failover。如果没有设置--interval=0，wait_on_failover_error 将会被忽略，在发生错误的时候不会sleep。</span><br><span class="line"> </span><br><span class="line">--remove_dead_master_conf</span><br><span class="line">    参考masterha_manager</span><br><span class="line"> </span><br><span class="line">--wait_until_gtid_in_sync(0|1)</span><br><span class="line">    此参数从0.56版本开始可用，如果设置成1，当基于GITD的failover时,MHA 会等待所有的从库追上新主库的GITD</span><br><span class="line"> </span><br><span class="line">--skip_change_master</span><br><span class="line">    此参数从0.56版本开始可用，如果开启此选项，MHA 跳过 CHANGE MASTER 的操作</span><br><span class="line"> </span><br><span class="line">--skip_disable_read_only</span><br><span class="line">    此参数从0.56版本开始可用，如果开启此选项，MHA 将会在新的master 跳过 SET GLOBAL read_only = 0;</span><br><span class="line"> </span><br><span class="line">--ignore_binlog_server_error</span><br><span class="line">    此参数从0.56版本开始可用，如果开启此选项，当执行failover的时，MHA忽略binlog server上任何错误</span><br></pre></td></tr></tbody></table></figure><p></p>
+<h5 id="主在线切换时相关参数"><a href="#主在线切换时相关参数" class="headerlink" title="主在线切换时相关参数"></a>主在线切换时相关参数</h5><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">--new_master_host=(hostname)</span><br><span class="line">    新主机地址，可选参数，这个参数在你明确新的主库的主机，非常有用。(这就意味着你不需要让MHA来决定新的主库)。如果不设置此参数，MHA 将会利用自动failover的规则来选择新的主库。如果设置--new_master_host，MHA选择此主机为新的主库，如果不能成为主库，MHA将会退出</span><br><span class="line"> </span><br><span class="line">--orig_master_is_new_slave</span><br><span class="line">    当完成主库切换后，原先的主库将作为现在主库的slave运行。默认:不开启(原先的主库不会加入到新的复制环境中)。如果开启此选项，需要在配置文件中设置repl_password参数，由于当期的Master并不知道新的Master的replication的密码</span><br><span class="line"> </span><br><span class="line">--remove_orig_master_conf</span><br><span class="line">    如果设置此参数，当成功failover后，MHA manager将会自动删除配置文件中关于dead master的配置选项。</span><br><span class="line"> </span><br><span class="line">--skip_lock_all_tables</span><br><span class="line">    当在做主库切换的时候，MHA会在原先的主库上执行FLUSH TABLES WITH READ LOCK 操作，确保没有跟新操作，但是FLUSH TABLES WITH READ LOCK 操作是非常耗费资源的，并且你可以在原先的主库确定没有跟新操作(通过master_ip_online_change_script 中<span class="built_in">kill</span> all clients操作等)。可以利用此选项避免锁表。</span><br></pre></td></tr></tbody></table></figure><script>
         document.querySelectorAll('.github-emoji')
           .forEach(el => {
             if (!el.dataset.src) { return; }
@@ -16,7 +549,526 @@
             });
             document.body.appendChild(img);
           });
-      </script></div><div><div><div style="text-align:center;color:#ccc;font-size:14px">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div></div></div><div><div class="my_post_copyright"><script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script><script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script><script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script><p><span>本文标题:</span><a href="/2019/03/28/masterha-master-switch/">masterha-master-switch 参数详解</a></p><p><span>文章作者:</span><a href="/" title="访问 Wang Jiemin 的个人博客">Wang Jiemin</a></p><p><span>发布时间:</span>2019年03月28日 - 19:03</p><p><span>最后更新:</span>2019年03月28日 - 19:03</p><p><span>原始链接:</span><a href="/2019/03/28/masterha-master-switch/" title="masterha-master-switch 参数详解">https://jiemin.wang/2019/03/28/masterha-master-switch/</a><span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://jiemin.wang/2019/03/28/masterha-master-switch/" aria-label="复制成功！"></i></span></p><p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p></div><script>var clipboard=new Clipboard(".fa-clipboard");$(".fa-clipboard").click(function(){clipboard.on("success",function(){swal({title:"",text:"复制成功",icon:"success",showConfirmButton:!0})})})</script></div><div><div style="padding:10px 0;margin:20px auto;width:90%;text-align:center"><div></div> <button id="rewardButton" disable="enable" onclick='var qr=document.getElementById("QR");"none"===qr.style.display?qr.style.display="block":qr.style.display="none"'> <span>Donate</span></button><div id="QR" style="display:none"><div id="alipay" style="display:inline-block"> <img id="alipay_qr" src="/images/alipay.jpeg" alt="Wang Jiemin Alipay"><p>Alipay</p></div></div></div></div><footer class="post-footer"><div class="post-tags"><a href="/tags/MySQL/" rel="tag"><i class="fa fa-angellist" aria-hidden="true"></i> MySQL</a><a href="/tags/MHA/" rel="tag"><i class="fa fa-angellist" aria-hidden="true"></i> MHA</a></div><div class="post-nav"><div class="post-nav-next post-nav-item"><a href="/2019/03/28/mha-switch/" rel="next" title="MHA 故障切换演练 --- masterha_master_switch"><i class="fa fa-chevron-left"></i> MHA 故障切换演练 --- masterha_master_switch</a></div><span class="post-nav-divider"></span><div class="post-nav-prev post-nav-item"> <a href="/2019/03/29/goModules/" rel="prev" title="Modules 初试 -- Go 包管理解决之道">Modules 初试 -- Go 包管理解决之道<i class="fa fa-chevron-right"></i></a></div></div></footer></div></article></div></div></div><div class="sidebar-toggle"><div class="sidebar-toggle-line-wrap"><span class="sidebar-toggle-line sidebar-toggle-line-first"></span><span class="sidebar-toggle-line sidebar-toggle-line-middle"></span><span class="sidebar-toggle-line sidebar-toggle-line-last"></span></div></div><aside id="sidebar" class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap"> Table of Contents</li><li class="sidebar-nav-overview" data-target="site-overview-wrap"> Overview</li></ul><div class="site-overview-wrap sidebar-panel"><div class="site-overview"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"> <img class="site-author-image" itemprop="image" src="/images/XIAOXIN.jpg" alt="Wang Jiemin"><p class="site-author-name" itemprop="name">Wang Jiemin</p><p class="site-description motion-element" itemprop="description">我从不生产BUG, 我是BUG的搬运工~</p></div><nav class="site-state motion-element"><div class="site-state-item site-state-posts"> <a href="/archives/"><span class="site-state-item-count">27</span> <span class="site-state-item-name">posts</span></a></div><div class="site-state-item site-state-categories"> <a href="/categories/index.html"><span class="site-state-item-count">8</span> <span class="site-state-item-name">categories</span></a></div><div class="site-state-item site-state-tags"> <a href="/tags/index.html"><span class="site-state-item-count">6</span> <span class="site-state-item-name">tags</span></a></div></nav><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/WangJiemin" title="GitHub &rarr; https://github.com/WangJiemin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i> GitHub</a></span><span class="links-of-author-item"><a href="mailto:278667010@qq.com" title="E-Mail &rarr; mailto:278667010@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i> E-Mail</a></span></div><div class="links-of-blogroll motion-element links-of-blogroll-block"><div class="links-of-blogroll-title"><i class="fa fa-fw fa-link"></i> 友情链接</div><ul class="links-of-blogroll-list"><li class="links-of-blogroll-item"> <a href="https://zhengshun.wang" title="https://zhengshun.wang" rel="noopener" target="_blank">順子の杂货铺</a></li><li class="links-of-blogroll-item"> <a href="http://blog.chopmoon.com" title="http://blog.chopmoon.com" rel="noopener" target="_blank">龚义杰BLOG</a></li></ul></div></div></div><div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active"><div class="post-toc"><div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#MHA-命令-masterha-master-switch"><span class="nav-number">1.</span> <span class="nav-text">MHA 命令 masterha_master_switch</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#主在线切换时相关参数"><span class="nav-number">1.1.</span> <span class="nav-text">主在线切换时相关参数</span></a></li></ol></li></ol></div></div></div><div id="music163player"><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="298" height="52" src="//music.163.com/outchain/player?type=0&id=2162667159&auto=1&height=32"></iframe></div></div></aside></div></main><footer id="footer" class="footer"><div class="footer-inner"><div class="copyright">&copy; <span itemprop="copyrightYear">2019</span><span class="with-love" id="animate"><i class="fa fa-heart" aria-hidden="true"></i></span> <span class="author" itemprop="copyrightHolder">Wang Jiemin</span></div></div></footer><div class="back-to-top"><i class="fa fa-arrow-up"></i> <span id="scrollpercent"><span>0</span>%</span></div></div><script type="text/javascript" src="//libs.baidu.com/jquery/1.8.3/jquery.min.js"></script><script type="text/javascript">var windowWidth=$(window).width();480<windowWidth&&document.write('<script type="text/javascript" src="/js/src/snow.js"><\/script>')</script><script>"[object Function]"!==Object.prototype.toString.call(window.Promise)&&(window.Promise=null)</script><script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script><script src="/lib/jquery/index.js?v=2.1.3"></script><script src="/lib/velocity/velocity.min.js?v=1.2.1"></script><script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script><script src="/lib/three/three.min.js"></script><script src="true"></script><script src="/js/src/utils.js?v=6.7.0"></script><script src="/js/src/motion.js?v=6.7.0"></script><script src="/js/src/affix.js?v=6.7.0"></script><script src="/js/src/schemes/pisces.js?v=6.7.0"></script><script src="/js/src/scrollspy.js?v=6.7.0"></script><script src="/js/src/post-details.js?v=6.7.0"></script><script src="/js/src/bootstrap.js?v=6.7.0"></script><script>
+      </script>
+      
+    </div>
+
+    
+
+    
+    
+    
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+
+    <div>
+          
+            
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>本文标题:</span><a href="/2019/03/28/masterha-master-switch/">masterha-master-switch 参数详解</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 Wang Jiemin 的个人博客">Wang Jiemin</a></p>
+  <p><span>发布时间:</span>2019年03月28日 - 19:03</p>
+  <p><span>最后更新:</span>2019年03月28日 - 19:03</p>
+  <p><span>原始链接:</span><a href="/2019/03/28/masterha-master-switch/" title="masterha-master-switch 参数详解">https://jiemin.wang/2019/03/28/masterha-master-switch/</a>
+    <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://jiemin.wang/2019/03/28/masterha-master-switch/" aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>
+</div>
+<script>
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({
+          title: "",
+          text: '复制成功',
+          icon: "success",
+          showConfirmButton: true
+          });
+    });
+    });
+</script>
+
+
+          
+    </div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpeg" alt="Wang Jiemin Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MySQL/" rel="tag"><i class="fa fa-angellist" aria-hidden="true"></i> MySQL</a>
+          
+            <a href="/tags/MHA/" rel="tag"><i class="fa fa-angellist" aria-hidden="true"></i> MHA</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/28/mha-switch/" rel="next" title="MHA 故障切换演练 --- masterha_master_switch">
+                <i class="fa fa-chevron-left"></i> MHA 故障切换演练 --- masterha_master_switch
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/29/goModules/" rel="prev" title="Modules 初试 -- Go 包管理解决之道">
+                Modules 初试 -- Go 包管理解决之道 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/XIAOXIN.jpg" alt="Wang Jiemin">
+            
+              <p class="site-author-name" itemprop="name">Wang Jiemin</p>
+              <p class="site-description motion-element" itemprop="description">我从不生产BUG, 我是BUG的搬运工~</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">28</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/WangJiemin" title="GitHub &rarr; https://github.com/WangJiemin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:278667010@qq.com" title="E-Mail &rarr; mailto:278667010@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://zhengshun.wang" title="https://zhengshun.wang" rel="noopener" target="_blank">順子の杂货铺</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.chopmoon.com" title="http://blog.chopmoon.com" rel="noopener" target="_blank">龚义杰BLOG</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#MHA-命令-masterha-master-switch"><span class="nav-number">1.</span> <span class="nav-text">MHA 命令 masterha_master_switch</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#主在线切换时相关参数"><span class="nav-number">1.1.</span> <span class="nav-text">主在线切换时相关参数</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+      <div id="music163player">
+         <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="298" height="52" src="//music.163.com/outchain/player?type=0&id=2162667159&auto=1&height=32"></iframe>
+      </div>
+
+    </div>
+  </aside>
+ 
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart" aria-hidden="true"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wang Jiemin</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  <!-- 雪花特效 -->
+  <script type="text/javascript" src="//libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
+  <script type="text/javascript">
+    var windowWidth = $(window).width();
+    if (windowWidth > 480) {
+      document.write('<script type="text/javascript" src="/js/src/snow.js"><\/script>');
+    }
+  </script>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/three/three.min.js"></script>
+
+  
+  <script src="true"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.7.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.7.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script>
     // Popup Window;
     var isfetched = false;
     var isXml = true;
@@ -349,7 +1401,16 @@
         onPopupClose();
       }
     });
-  </script><script>
+  </script>
+
+
+
+
+
+  
+
+  
+  <script>
     
     function addCount(Counter) {
       var $visitors = $(".leancloud_visitors");
@@ -405,4 +1466,117 @@
           
         })
     });
-  </script><style>.copy-btn{display:inline-block;padding:6px 12px;font-size:13px;font-weight:700;line-height:20px;color:#333;white-space:nowrap;vertical-align:middle;cursor:pointer;background-color:#eee;background-image:linear-gradient(#fcfcfc,#eee);border:1px solid #d5d5d5;border-radius:3px;user-select:none;outline:0}.highlight-wrap .copy-btn{transition:opacity .3s ease-in-out;opacity:0;padding:2px 6px;position:absolute;right:4px;top:8px}.highlight-wrap .copy-btn:focus,.highlight-wrap:hover .copy-btn{opacity:1}.highlight-wrap{position:relative}</style><script>$(".highlight").each(function(e,t){var n=$("<div>").addClass("highlight-wrap");$(t).after(n),n.append($("<button>").addClass("copy-btn").append("Copy").on("click",function(e){var t=$(this).parent().find(".code").find(".line").map(function(e,t){return $(t).text()}).toArray().join("\n"),n=document.createElement("textarea"),o=document.createRange(),a=window.getSelection(),i=window.pageYOffset||document.documentElement.scrollTop;n.style.top=i+"px",n.style.position="absolute",n.style.opacity="0",n.value=t,n.textContent=t,n.contentEditable=!0,n.readOnly=!1,document.body.appendChild(n),o.selectNode(n),a.removeAllRanges(),a.addRange(o),n.setSelectionRange(0,t.length),document.execCommand("copy")?$(this).text("Copied"):$(this).text("Copy failed"),n.blur(),$(this).blur()})).on("mouseleave",function(e){var t=$(this).find(".copy-btn");setTimeout(function(){t.text("Copy")},300)}).append(t)})</script></body></html>
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <style>
+    .copy-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 20px;
+      color: #333;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      background-color: #eee;
+      background-image: linear-gradient(#fcfcfc, #eee);
+      border: 1px solid #d5d5d5;
+      border-radius: 3px;
+      user-select: none;
+      outline: 0;
+    }
+
+    .highlight-wrap .copy-btn {
+      transition: opacity .3s ease-in-out;
+      opacity: 0;
+      padding: 2px 6px;
+      position: absolute;
+      right: 4px;
+      top: 8px;
+    }
+
+    .highlight-wrap:hover .copy-btn,
+    .highlight-wrap .copy-btn:focus {
+      opacity: 1
+    }
+
+    .highlight-wrap {
+      position: relative;
+    }
+  </style>
+  <script>
+    $('.highlight').each(function (i, e) {
+      var $wrap = $('<div>').addClass('highlight-wrap');
+      $(e).after($wrap);
+      $wrap.append($('<button>').addClass('copy-btn').append('Copy').on('click', function (e) {
+        var code = $(this).parent().find('.code').find('.line').map(function (i, e) {
+          return $(e).text();
+        }).toArray().join('\n');
+        var ta = document.createElement('textarea');
+        var range = document.createRange(); //For Chrome
+        var sel = window.getSelection(); //For Chrome
+        var yPosition = window.pageYOffset || document.documentElement.scrollTop;
+        ta.style.top = yPosition + 'px'; //Prevent page scroll
+        ta.style.position = 'absolute';
+        ta.style.opacity = '0';
+        ta.value = code;
+        ta.textContent = code; //For FireFox
+        ta.contentEditable = true;
+        ta.readOnly = false;
+        document.body.appendChild(ta);
+        range.selectNode(ta);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        ta.setSelectionRange(0, code.length);
+        var result = document.execCommand('copy');
+        
+          if (result) $(this).text('Copied');
+          else $(this).text('Copy failed');
+        
+        ta.blur(); //For iOS
+        $(this).blur();
+      })).on('mouseleave', function (e) {
+        var $b = $(this).find('.copy-btn');
+        setTimeout(function () {
+          $b.text('Copy');
+        }, 300);
+      }).append(e);
+    })
+  </script>
+
+
+  
+
+</body>
+</html>

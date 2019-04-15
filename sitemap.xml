@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://jiemin.wang/2019/04/15/mongodb-inset-into-select/</loc>
+    
+    <lastmod>2019-04-15T11:23:47.799Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://jiemin.wang/2019/04/03/mysql-binlog-server/</loc>
     
     <lastmod>2019-04-03T08:14:41.076Z</lastmod>

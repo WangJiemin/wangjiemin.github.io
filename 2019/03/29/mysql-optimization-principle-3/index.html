@@ -1,4 +1,719 @@
-<!DOCTYPE html><html class="theme-next gemini use-motion" lang="zh-Hans"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><script src="/lib/pace/pace.min.js?v=1.0.2"></script><link rel="stylesheet" href="/lib/pace/pace-theme-center-simple.min.css?v=1.0.2"><link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"><link rel="stylesheet" href="/css/main.css?v=6.7.0"><link rel="apple-touch-icon" sizes="180x180" href="/images/xiaoxin-01.png?v=6.7.0"><link rel="icon" type="image/png" sizes="32x32" href="/images/xiaoxin-01.png?v=6.7.0"><link rel="icon" type="image/png" sizes="16x16" href="/images/xiaoxin-01.png?v=6.7.0"><link rel="mask-icon" href="/images/xiaoxin-01.png?v=6.7.0" color="#222"><script id="hexo.configurations">var NexT=window.NexT||{},CONFIG={root:"/",scheme:"Gemini",version:"6.7.0",sidebar:{position:"left",display:"post",offset:12,b2t:!1,scrollpercent:!0,onmobile:!1},fancybox:!1,fastclick:!1,lazyload:!1,tabs:!0,motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}},algolia:{applicationID:"",apiKey:"",indexName:"",hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}}}</script><script>!function(e,t,n,a,c,i,o,d,s){d=function(){i=t.createElement(n),o=t.getElementsByTagName(n)[0],i.src="//widget.seniverse.com/widget/chameleon.js",i.charset="utf-8",i.async=1,o.parentNode.insertBefore(i,o)},e.ThinkPageWeatherWidgetObject=a,e[a]||(e[a]=function(){(e[a].q=e[a].q||[]).push(arguments)}),e[a].l=+new Date,e.attachEvent?e.attachEvent("onload",d):e.addEventListener("load",d,!1)}(window,document,"script","tpwidget")</script><script>tpwidget("init",{flavor:"bubble",location:"WX4FBXXFKE4F",geolocation:"enabled",position:"top-right",margin:"10px 10px",language:"auto",unit:"c",theme:"chameleon",uid:"U6899A955F",hash:"3537a35c8bfe0f65e5d773944596793a"}),tpwidget("show")</script><meta name="description" content="&amp;#x6234;&amp;#x4E0A;&amp;#x5B83;&amp;#x3002;&amp;#x90FD;&amp;#x51E0;&amp;#x5341;&amp;#x5C81;&amp;#x7684;&amp;#x4EBA;&amp;#x4E86;&amp;#xFF0C;&amp;#x4F60;&amp;#x770B;&amp;#x4F60;&amp;#x591A;&amp;#x8D31;&amp;#xFF0C;&amp;#x4F60;&amp;#x6CA1;&amp;#x5C0A;&amp;#x4E25;&amp;#x554A;&amp;#xFF1F;&amp;#x6211"><meta name="keywords" content="MySQL"><meta property="og:type" content="article"><meta property="og:title" content="MySQL 优化原理(三)"><meta property="og:url" content="https://jiemin.wang/2019/03/29/mysql-optimization-principle-3/index.html"><meta property="og:site_name" content="Jamin Blog"><meta property="og:description" content="&amp;#x6234;&amp;#x4E0A;&amp;#x5B83;&amp;#x3002;&amp;#x90FD;&amp;#x51E0;&amp;#x5341;&amp;#x5C81;&amp;#x7684;&amp;#x4EBA;&amp;#x4E86;&amp;#xFF0C;&amp;#x4F60;&amp;#x770B;&amp;#x4F60;&amp;#x591A;&amp;#x8D31;&amp;#xFF0C;&amp;#x4F60;&amp;#x6CA1;&amp;#x5C0A;&amp;#x4E25;&amp;#x554A;&amp;#xFF1F;&amp;#x6211"><meta property="og:locale" content="zh-Hans"><meta property="og:image" content="https://jiemin.wang/2019/03/29/mysql-optimization-principle-3/timg.jpeg"><meta property="og:updated_time" content="2019-03-29T08:33:32.356Z"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="MySQL 优化原理(三)"><meta name="twitter:description" content="&amp;#x6234;&amp;#x4E0A;&amp;#x5B83;&amp;#x3002;&amp;#x90FD;&amp;#x51E0;&amp;#x5341;&amp;#x5C81;&amp;#x7684;&amp;#x4EBA;&amp;#x4E86;&amp;#xFF0C;&amp;#x4F60;&amp;#x770B;&amp;#x4F60;&amp;#x591A;&amp;#x8D31;&amp;#xFF0C;&amp;#x4F60;&amp;#x6CA1;&amp;#x5C0A;&amp;#x4E25;&amp;#x554A;&amp;#xFF1F;&amp;#x6211"><meta name="twitter:image" content="https://jiemin.wang/2019/03/29/mysql-optimization-principle-3/timg.jpeg"><link rel="canonical" href="https://jiemin.wang/2019/03/29/mysql-optimization-principle-3/"><script id="page.configurations">CONFIG.page={sidebar:""}</script><title>MySQL 优化原理(三) | Jamin Blog</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-title,.use-motion .comments,.use-motion .menu-item,.use-motion .motion-element,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .logo,.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript></head><body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans"><div class="container sidebar-position-left page-post-detail"><div class="headband"></div><header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-wrapper"><div class="site-meta"><div class="custom-logo-site-title"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span> <span class="site-title">Jamin Blog</span><span class="logo-line-after"><i></i></span></a></div><p class="site-subtitle">一个不聊技术的 DBA 不是一个好厨子...</p></div><div class="site-nav-toggle"> <button aria-label="Toggle navigation bar"><span class="btn-bar"></span><span class="btn-bar"></span><span class="btn-bar"></span></button></div></div><nav class="site-nav"><ul id="menu" class="menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i><br>Home</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i><br>Categories</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i><br>Tags</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i><br>Archives</a></li><li class="menu-item menu-item-life"><a href="/coffee" rel="section"><i class="menu-item-icon fa fa-fw fa-coffee"></i><br>生活中的美好</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i><br>About</a></li><li class="menu-item menu-item-search"><a href="javascript:;" class="popup-trigger"><i class="menu-item-icon fa fa-search fa-fw"></i><br>Search</a></li></ul><div class="site-search"><div class="popup search-popup local-search-popup"><div class="local-search-header clearfix"><span class="search-icon"><i class="fa fa-search"></i></span><span class="popup-btn-close"><i class="fa fa-times-circle"></i></span><div class="local-search-input-wrapper"> <input autocomplete="off" placeholder="Searching..." spellcheck="false" type="text" id="local-search-input"></div></div><div id="local-search-result"></div></div></div></nav></div></header><main id="main" class="main"><div class="main-inner"><div class="content-wrap"><div id="content" class="content"><div id="posts" class="posts-expand"><article class="post post-type-normal" itemscope itemtype="http://schema.org/Article"><div class="post-block"><link itemprop="mainEntityOfPage" href="https://jiemin.wang/2019/03/29/mysql-optimization-principle-3/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="name" content="Wang Jiemin"><meta itemprop="description" content="我从不生产BUG, 我是BUG的搬运工~"><meta itemprop="image" content="/images/XIAOXIN.jpg"></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Jamin Blog"></span><header class="post-header"><h1 class="post-title" itemprop="name headline">MySQL 优化原理(三)</h1><div class="post-meta"><span class="post-time"><span class="post-meta-item-icon"><i class="fa fa-calendar-o"></i></span> <span class="post-meta-item-text">Posted on</span> <time title="Created: 2019-03-29 14:57:29 / Modified: 16:33:32" itemprop="dateCreated datePublished" datetime="2019-03-29T14:57:29+08:00">2019-03-29</time></span> <span class="post-category"><span class="post-meta-divider">|</span><span class="post-meta-item-icon"><i class="fa fa-folder-o"></i></span> <span class="post-meta-item-text">In</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span></span> <span id="/2019/03/29/mysql-optimization-principle-3/" class="leancloud_visitors" data-flag-title="MySQL 优化原理(三)"><span class="post-meta-divider">|</span><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="post-meta-item-text">Views:</span><span class="leancloud-visitors-count"></span> <span>℃</span></span></div></header><div class="post-body" itemprop="articleBody"> <span itemprop="image" itemscope itemtype="http://schema.org/ImageObject"><img itemprop="url image" src="timg.jpeg" class="full-image" alt="alt" title="title"><meta itemprop="width" content="auto"><meta itemprop="height" content="auto"></span><blockquote class="blockquote-center"><p><strong>&#x6234;&#x4E0A;&#x5B83;&#x3002;&#x90FD;&#x51E0;&#x5341;&#x5C81;&#x7684;&#x4EBA;&#x4E86;&#xFF0C;&#x4F60;&#x770B;&#x4F60;&#x591A;&#x8D31;&#xFF0C;&#x4F60;&#x6CA1;&#x5C0A;&#x4E25;&#x554A;&#xFF1F;&#x6211;&#x4E0D;&#x60F3;&#x770B;&#x89C1;&#x4F60;&#xFF0C;&#x5FEB;&#x70B9;&#x6234;&#x4E0A;&#xFF0C;&#x7136;&#x540E;&#x53BB;&#x770B;&#x533B;&#x751F;&#x3002;</strong></p></blockquote><h2 id="&#x524D;&#x8A00;"><a href="#&#x524D;&#x8A00;" class="headerlink" title="&#x524D;&#x8A00;"></a>&#x524D;&#x8A00;</h2><p>&#x804A;&#x804A; MySQL &#x914D;&#x7F6E;&#x3002;</p><p>&#x5927;&#x591A;&#x6570;&#x5F00;&#x53D1;&#x8005;&#x53EF;&#x80FD;&#x4E0D;&#x592A;&#x4F1A;&#x5173;&#x6CE8; MySQL &#x7684;&#x914D;&#x7F6E;&#xFF0C;&#x6BD5;&#x7ADF;&#x5728;&#x57FA;&#x672C;&#x914D;&#x7F6E;&#x6CA1;&#x6709;&#x95EE;&#x9898;&#x7684;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x628A;&#x66F4;&#x591A;&#x7684;&#x7CBE;&#x529B;&#x653E;&#x5728; schema &#x8BBE;&#x8BA1;&#x3001;&#x7D22;&#x5F15;&#x4F18;&#x5316;&#x548C; SQL &#x4F18;&#x5316;&#x4E0A;&#xFF0C;&#x662F;&#x975E;&#x5E38;&#x52A1;&#x5B9E;&#x7684;&#x7B56;&#x7565;&#x3002;&#x8FD9;&#x65F6;&#xFF0C;&#x5982;&#x679C;&#x518D;&#x82B1;&#x529B;&#x6C14;&#x53BB;&#x4F18;&#x5316;&#x914D;&#x7F6E;&#x9879;&#xFF0C;&#x83B7;&#x5F97;&#x7684;&#x6536;&#x76CA;&#x901A;&#x5E38;&#x90FD;&#x6BD4;&#x8F83;&#x5C0F;&#x3002;&#x66F4;&#x591A;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x57FA;&#x4E8E;&#x5B89;&#x5168;&#x56E0;&#x7D20;&#x7684;&#x8003;&#x91CF;&#xFF0C;&#x666E;&#x901A;&#x5F00;&#x53D1;&#x8005;&#x5F88;&#x5C11;&#x80FD;&#x591F;&#x63A5;&#x89E6;&#x5230;&#x751F;&#x4EA7;&#x73AF;&#x5883;&#x7684; MySQL &#x914D;&#x7F6E;&#x3002;&#x6B63;&#x662F;&#x8FD9;&#x6837;&#xFF0C;&#x5BFC;&#x81F4;&#x5F00;&#x53D1;&#x8005;&#xFF08;&#x5305;&#x62EC;&#x6211;&#xFF09;&#x5BF9; MySQL &#x7684;&#x914D;&#x7F6E;&#x4E0D;&#x751A;&#x4E86;&#x89E3;&#xFF0C;&#x5E0C;&#x671B;&#x672C;&#x6587;&#x80FD;&#x5E2E;&#x4F60;&#x66F4;&#x597D;&#x7684;&#x4E86;&#x89E3; MySQL &#x914D;&#x7F6E;&#x3002;</p><p>&#x5982;&#x679C;&#x8BA9;&#x4F60;&#x5728;&#x67D0;&#x79CD;&#x73AF;&#x5883;&#x4E0A;&#x5B89;&#x88C5;&#x914D;&#x7F6E; MySQL&#xFF0C;&#x4F60;&#x4F1A;&#x600E;&#x4E48;&#x505A;&#xFF1F;&#x5B89;&#x88C5;&#x540E;&#xFF0C;&#x76F4;&#x63A5; copy &#x4FEE;&#x6539;&#x793A;&#x4F8B;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#xFF0C;&#x5E94;&#x8BE5;&#x662F;&#x5927;&#x591A;&#x6570;&#x4EBA;&#x7684;&#x505A;&#x6CD5;&#x3002;&#x4F46;&#x5F3A;&#x70C8;&#x5EFA;&#x8BAE;&#x4E0D;&#x8981;&#x600E;&#x4E48;&#x505A;&#xFF0C;&#x9996;&#x5148;&#xFF0C;&#x793A;&#x4F8B;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x6709;&#x975E;&#x5E38;&#x591A;&#x6CE8;&#x91CA;&#x6389;&#x7684;&#x914D;&#x7F6E;&#x9879;&#xFF0C;&#x5B83;&#x53EF;&#x80FD;&#x4F1A;&#x8BF1;&#x4F7F;&#x4F60;&#x6253;&#x5F00;&#x4E00;&#x4E2A;&#x4F60;&#x5E76;&#x4E0D;&#x4E86;&#x89E3;&#x7684;&#x914D;&#x7F6E;&#xFF0C;&#x800C;&#x4E14;&#x8FD9;&#x4E9B;&#x6CE8;&#x91CA;&#x8FD8;&#x4E0D;&#x4E00;&#x5B9A;&#x51C6;&#x786E;&#x3002;&#x5176;&#x6B21;&#xFF0C;MySQL &#x7684;&#x4E00;&#x4E9B;&#x914D;&#x7F6E;&#x5BF9;&#x4E8E;&#x73B0;&#x4EE3;&#x5316;&#x7684;&#x786C;&#x4EF6;&#x548C;&#x5DE5;&#x4F5C;&#x8D1F;&#x8F7D;&#x6765;&#x8BF4;&#xFF0C;&#x6709;&#x70B9;&#x8FC7;&#x65F6;&#x4E86;&#x3002;</p><p>MySQL &#x6709;&#x975E;&#x5E38;&#x591A;&#x7684;&#x914D;&#x7F6E;&#x9879;&#x53EF;&#x4EE5;&#x4FEE;&#x6539;&#xFF0C;&#x4F46;&#x5927;&#x591A;&#x6570;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x4F60;&#x90FD;&#x4E0D;&#x5E94;&#x8BE5;&#x968F;&#x4FBF;&#x4FEE;&#x6539;&#x5B83;&#xFF0C;&#x56E0;&#x4E3A;&#x9519;&#x8BEF;&#x6216;&#x8005;&#x6CA1;&#x7528;&#x7684;&#x914D;&#x7F6E;&#x5BFC;&#x81F4;&#x7684;&#x6F5C;&#x5728;&#x98CE;&#x9669;&#x975E;&#x5E38;&#x5927;&#xFF0C;&#x800C;&#x4E14;&#x8FD8;&#x5F88;&#x96BE;&#x5B9A;&#x4F4D;&#x95EE;&#x9898;&#x3002;&#x786E;&#x4FDD;&#x57FA;&#x672C;&#x914D;&#x7F6E;&#x6B63;&#x786E;&#xFF0C;&#x7136;&#x540E;&#x5C0F;&#x5FC3;&#x8BCA;&#x65AD;&#x95EE;&#x9898;&#xFF0C;&#x786E;&#x8BA4;&#x95EE;&#x9898;&#x6070;&#x597D;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x67D0;&#x4E2A;&#x914D;&#x7F6E;&#x9879;&#x89E3;&#x51B3;&#xFF0C;&#x7D27;&#x63A5;&#x7740;&#x518D;&#x4FEE;&#x6539;&#x8FD9;&#x4E2A;&#x914D;&#x7F6E;&#x5427;&#x3002;</p><p>&#x5176;&#x5B9E;&#xFF0C;&#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x597D;&#x7684;&#x914D;&#x7F6E;&#xFF0C;&#x6700;&#x5FEB;&#x65B9;&#x6CD5;&#x4E0D;&#x662F;&#x4ECE;&#x5B66;&#x4E60;&#x914D;&#x7F6E;&#x9879;&#x5F00;&#x59CB;&#xFF0C;&#x4E5F;&#x4E0D;&#x662F;&#x95EE;&#x54EA;&#x4E2A;&#x914D;&#x7F6E;&#x9879;&#x5E94;&#x8BE5;&#x600E;&#x4E48;&#x8BBE;&#x7F6E;&#x6216;&#x8005;&#x600E;&#x4E48;&#x4FEE;&#x6539;&#x5F00;&#x59CB;&#xFF0C;&#x66F4;&#x4E0D;&#x662F;&#x4ECE;&#x68C0;&#x67E5;&#x670D;&#x52A1;&#x5668;&#x884C;&#x4E3A;&#x548C;&#x8BE2;&#x95EE;&#x54EA;&#x4E2A;&#x914D;&#x7F6E;&#x9879;&#x53EF;&#x4EE5;&#x63D0;&#x5347;&#x6027;&#x80FD;&#x5F00;&#x59CB;&#x3002;&#x6700;&#x597D;&#x662F;&#x4ECE;&#x7406;&#x89E3; MySQL &#x5185;&#x6838;&#x548C;&#x884C;&#x4E3A;&#x5F00;&#x59CB;&#xFF0C;&#x7136;&#x540E;&#x5229;&#x7528;&#x8FD9;&#x4E9B;&#x77E5;&#x8BC6;&#x6765;&#x6307;&#x5BFC;&#x4F60;&#x914D;&#x7F6E; MySQL&#x3002;</p><p>&#x5C31;&#x4ECE;&#x7406;&#x89E3; MySQL &#x914D;&#x7F6E;&#x7684;&#x5DE5;&#x4F5C;&#x539F;&#x7406;&#x5F00;&#x59CB;&#x5427;&#x3002;</p><h2 id="MySQL-&#x914D;&#x7F6E;&#x7684;&#x5DE5;&#x4F5C;&#x539F;&#x7406;"><a href="#MySQL-&#x914D;&#x7F6E;&#x7684;&#x5DE5;&#x4F5C;&#x539F;&#x7406;" class="headerlink" title="MySQL &#x914D;&#x7F6E;&#x7684;&#x5DE5;&#x4F5C;&#x539F;&#x7406;"></a>MySQL &#x914D;&#x7F6E;&#x7684;&#x5DE5;&#x4F5C;&#x539F;&#x7406;</h2><p>MySQL &#x4ECE;&#x54EA;&#x513F;&#x83B7;&#x5F97;&#x914D;&#x7F6E;&#x4FE1;&#x606F;&#xFF1A;&#x547D;&#x4EE4;&#x884C;&#x53C2;&#x6570;&#x548C;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x3002;&#x7C7B; Unix &#x7CFB;&#x7EDF;&#x4E2D;&#xFF0C;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x4E00;&#x822C;&#x4F4D;&#x4E8E; /etc/my.cnf &#x6216;&#x8005; /etc/mysql/my.cnf&#x3002;&#x5728;&#x542F;&#x52A8;&#x65F6;&#xFF0C;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x547D;&#x4EE4;&#x884C;&#x53C2;&#x6570;&#x6307;&#x5B9A;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x7684;&#x4F4D;&#x7F6E;&#xFF0C;&#x5F53;&#x7136;&#x547D;&#x4EE4;&#x884C;&#x4E2D;&#x4E5F;&#x53EF;&#x4EE5;&#x6307;&#x5B9A;&#x5176;&#x5B83;&#x53C2;&#x6570;&#xFF0C;&#x670D;&#x52A1;&#x5668;&#x4F1A;&#x8BFB;&#x53D6;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x7684;&#x5185;&#x5BB9;&#xFF0C;&#x5220;&#x9664;&#x6240;&#x6709;&#x6CE8;&#x91CA;&#x548C;&#x6362;&#x884C;&#xFF0C;&#x7136;&#x540E;&#x548C;&#x547D;&#x4EE4;&#x884C;&#x9009;&#x9879;&#x4E00;&#x8D77;&#x5904;&#x7406;&#x3002;</p><p>&#x4EFB;&#x4F55;&#x6253;&#x7B97;&#x957F;&#x671F;&#x4F7F;&#x7528;&#x7684;&#x914D;&#x7F6E;&#x9879;&#x90FD;&#x5E94;&#x8BE5;&#x5199;&#x5165;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#xFF0C;&#x800C;&#x4E0D;&#x662F;&#x5728;&#x547D;&#x4EE4;&#x884C;&#x4E2D;&#x6307;&#x5B9A;&#x3002;&#x4E00;&#x5B9A;&#x8981;&#x6E05;&#x695A;&#x7684;&#x77E5;&#x9053; MySQL &#x4F7F;&#x7528;&#x7684;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x4F4D;&#x7F6E;&#xFF0C;&#x5728;&#x4FEE;&#x6539;&#x65F6;&#x4E0D;&#x80FD;&#x60F3;&#x5F53;&#x7136;&#xFF0C;&#x6BD4;&#x5982;&#xFF0C;&#x4FEE;&#x6539;&#x4E86; /etc/my.cnf &#x7684;&#x914D;&#x7F6E;&#x9879;&#xFF0C;&#x4F46; MySQL &#x5B9E;&#x9645;&#x5E76;&#x672A;&#x4F7F;&#x7528;&#x8FD9;&#x4E2A;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x3002;&#x5982;&#x679C;&#x4F60;&#x4E0D;&#x77E5;&#x9053;&#x5F53;&#x524D;&#x4F7F;&#x7528;&#x7684;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x8DEF;&#x5F84;&#xFF0C;&#x53EF;&#x4EE5;&#x5C1D;&#x8BD5;&#xFF1A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">which</span> mysqld</span><br><span class="line">/usr/sbin/mysqld</span><br><span class="line">$ /usr/sbin/mysqld --verbose --<span class="built_in">help</span> |grep -A 1 <span class="string">&apos;Default options&apos;</span></span><br><span class="line">Default options are <span class="built_in">read</span> from the following files <span class="keyword">in</span> the given order:</span><br><span class="line">/etc/my.cnf /etc/mysql/my.cnf ~/.my.cnf</span><br></pre></td></tr></tbody></table></figure><p></p><p>&#x4E00;&#x4E2A;&#x5178;&#x578B;&#x7684;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x5305;&#x542B;&#x591A;&#x4E2A;&#x90E8;&#x5206;&#xFF0C;&#x6BCF;&#x4E2A;&#x90E8;&#x5206;&#x7684;&#x5F00;&#x5934;&#x662F;&#x4E00;&#x4E2A;&#x65B9;&#x62EC;&#x53F7;&#x62EC;&#x8D77;&#x6765;&#x7684;&#x5206;&#x6BB5;&#x540D;&#x79F0;&#x3002;MySQL &#x7A0B;&#x5E8F;&#x901A;&#x5E38;&#x8BFB;&#x53D6;&#x8DDF;&#x5B83;&#x540C;&#x540D;&#x7684;&#x5206;&#x6BB5;&#x90E8;&#x5206;&#xFF0C;&#x6BD4;&#x5982;&#xFF0C;&#x8BB8;&#x591A;&#x5BA2;&#x6237;&#x7AEF;&#x7A0B;&#x5E8F;&#x8BFB;&#x53D6;[client]&#x90E8;&#x5206;&#x3002;&#x670D;&#x52A1;&#x5668;&#x901A;&#x5E38;&#x8BFB;&#x53D6;[mysqld]&#x8FD9;&#x4E00;&#x6BB5;&#xFF0C;&#x4E00;&#x5B9A;&#x8981;&#x786E;&#x8BA4;&#x914D;&#x7F6E;&#x9879;&#x653E;&#x5728;&#x4E86;&#x6587;&#x4EF6;&#x6B63;&#x786E;&#x7684;&#x5206;&#x6BB5;&#x4E2D;&#xFF0C;&#x5426;&#x5219;&#x914D;&#x7F6E;&#x662F;&#x4E0D;&#x4F1A;&#x751F;&#x6548;&#x7684;&#x3002;</p><p>MySQL &#x6BCF;&#x4E00;&#x4E2A;&#x914D;&#x7F6E;&#x9879;&#x5747;&#x4F7F;&#x7528;&#x5C0F;&#x5199;&#xFF0C;&#x5355;&#x8BCD;&#x4E4B;&#x95F4;&#x7528;&#x4E0B;&#x5212;&#x7EBF;&#x6216;&#x8005;&#x6A2A;&#x7EBF;&#x9694;&#x5F00;&#xFF0C;&#x867D;&#x7136;&#x6211;&#x4EEC;&#x5E38;&#x7528;&#x7684;&#x5206;&#x9694;&#x7B26;&#x662F;&#x4E0B;&#x5212;&#x7EBF;&#xFF0C;&#x4F46;&#x5982;&#x679C;&#x5728;&#x547D;&#x4EE4;&#x884C;&#x6216;&#x8005;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x4E2D;&#x89C1;&#x5230;&#x5982;&#x4E0B;&#x914D;&#x7F6E;&#xFF0C;&#x4F60;&#x8981;&#x77E5;&#x9053;&#xFF0C;&#x5B83;&#x4EEC;&#x5176;&#x5B9E;&#x662F;&#x7B49;&#x4EF7;&#x7684;&#xFF1A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># &#x914D;&#x7F6E;&#x6587;&#x4EF6;</span></span><br><span class="line">max_connections=5000</span><br><span class="line">max-connections=5000</span><br><span class="line"><span class="comment"># &#x547D;&#x4EE4;&#x884C;</span></span><br><span class="line">/usr/sbin/mysqld --max_connections=5000</span><br><span class="line">/usr/sbin/mysqld --max-connections=5000</span><br></pre></td></tr></tbody></table></figure><p></p><p>&#x914D;&#x7F6E;&#x9879;&#x53EF;&#x4EE5;&#x6709;&#x591A;&#x4E2A;&#x4F5C;&#x7528;&#x57DF;&#xFF1A;&#x5168;&#x5C40;&#x4F5C;&#x7528;&#x57DF;&#x3001;&#x4F1A;&#x8BDD;&#x4F5C;&#x7528;&#x57DF; (&#x6BCF;&#x4E2A;&#x8FDE;&#x63A5;&#x4F5C;&#x7528;&#x4E0D;&#x540C;)&#x3001;&#x5BF9;&#x8C61;&#x4F5C;&#x7528;&#x57DF;&#x3002;&#x5F88;&#x591A;&#x4F1A;&#x8BDD;&#x7EA7;&#x914D;&#x7F6E;&#x9879;&#x8DDF;&#x5168;&#x5C40;&#x914D;&#x7F6E;&#x76F8;&#x7B49;&#xFF0C;&#x53EF;&#x4EE5;&#x8BA4;&#x4E3A;&#x662F;&#x9ED8;&#x8BA4;&#x503C;&#xFF0C;&#x5982;&#x679C;&#x6539;&#x53D8;&#x4F1A;&#x8BDD;&#x7EA7;&#x914D;&#x7F6E;&#x9879;&#xFF0C;&#x5B83;&#x53EA;&#x5F71;&#x54CD;&#x6539;&#x52A8;&#x7684;&#x5F53;&#x524D;&#x8FDE;&#x63A5;&#xFF0C;&#x5F53;&#x8FDE;&#x63A5;&#x5173;&#x95ED;&#x65F6;&#xFF0C;&#x6240;&#x6709;&#x7684;&#x53C2;&#x6570;&#x53D8;&#x66F4;&#x90FD;&#x4F1A;&#x5931;&#x6548;&#x3002;&#x4E0B;&#x9762;&#x6709;&#x51E0;&#x4E2A;&#x793A;&#x4F8B;&#x914D;&#x7F6E;&#x9879;&#xFF1A;</p><ul><li><code>query-cache-size</code> &#x5168;&#x5C40;&#x914D;&#x7F6E;&#x9879;</li><li><code>sort-buffer-size</code> &#x9ED8;&#x8BA4;&#x5168;&#x5C40;&#x76F8;&#x540C;&#xFF0C;&#x4F46;&#x6BCF;&#x4E2A;&#x7EBF;&#x7A0B;&#x91CC;&#x4E5F;&#x53EF;&#x4EE5;&#x8BBE;&#x7F6E;</li><li><code>join-buffer-size</code> &#x9ED8;&#x8BA4;&#x5168;&#x5C40;&#xFF0C;&#x4E14;&#x6BCF;&#x4E2A;&#x7EBF;&#x7A0B;&#x4E5F;&#x53EF;&#x4EE5;&#x8BBE;&#x7F6E;&#x3002;&#x4F46;&#x82E5;&#x4E00;&#x4E2A;&#x67E5;&#x8BE2;&#x4E2D;&#x5173;&#x8054;&#x591A;&#x5F20;&#x8868;&#xFF0C;&#x53EF;&#x4EE5;&#x4E3A;&#x6BCF;&#x4E2A;&#x5173;&#x8054;&#x5206;&#x914D;&#x4E00;&#x4E2A;&#x5173;&#x8054;&#x7F13;&#x5B58; (join-buffer)&#xFF0C;&#x6240;&#x4EE5;&#x4E00;&#x4E2A;&#x67E5;&#x8BE2;&#x53EF;&#x80FD;&#x6709;&#x591A;&#x4E2A;&#x5173;&#x8054;&#x7F13;&#x51B2;&#x3002;</li></ul><p>&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x4E2D;&#x7684;&#x53D8;&#x91CF; (&#x914D;&#x7F6E;&#x9879;) &#x6709;&#x5F88;&#x591A; (&#x4F46;&#x4E0D;&#x662F;&#x6240;&#x6709;) &#x53EF;&#x4EE5;&#x5728;&#x670D;&#x52A1;&#x5668;&#x8FD0;&#x884C;&#x65F6;&#x4FEE;&#x6539;&#xFF0C;MySQL &#x628A;&#x8FD9;&#x4E9B;&#x5F52;&#x4E3A;&#x52A8;&#x6001;&#x914D;&#x7F6E;&#x53D8;&#x91CF;&#xFF1A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">-- &#x8BBE;&#x7F6E;&#x5168;&#x5C40;&#x53D8;&#x91CF;&#xFF0C;GLOBAL&#x548C;@@global&#x4F5C;&#x7528;&#x662F;&#x4E00;&#x6837;&#x7684;</span><br><span class="line"><span class="built_in">set</span>   GLOBAL   sort-buffer-size  = &lt;value&gt;</span><br><span class="line"><span class="built_in">set</span>   @@global.sort-buffer-size := &lt;value&gt;</span><br><span class="line"></span><br><span class="line">-- &#x8BBE;&#x7F6E;&#x4F1A;&#x8BDD;&#x7EA7;&#x53D8;&#x91CF;&#xFF0C;&#x4E0B;&#x9762;6&#x79CD;&#x65B9;&#x5F0F;&#x4F5C;&#x7528;&#x662F;&#x4E00;&#x6837;&#x7684;</span><br><span class="line">-- &#x5373;&#xFF1A;&#x6CA1;&#x6709;&#x4FEE;&#x9970;&#x7B26;&#x3001;SESSION&#x3001;LOCAL&#x7B49;&#x4FEE;&#x9970;&#x7B26;&#x4F5C;&#x7528;&#x662F;&#x4E00;&#x81F4;&#x7684;</span><br><span class="line"><span class="built_in">set</span>  SESSION   sort-buffer-size  = &lt;value&gt;</span><br><span class="line"><span class="built_in">set</span>  @@session.sort-buffer-size := &lt;value&gt;</span><br><span class="line"><span class="built_in">set</span>          @@sort-buffer-size  = &lt;value&gt;</span><br><span class="line"><span class="built_in">set</span>  LOCAL     sort-buffer-size  = &lt;value&gt;</span><br><span class="line"><span class="built_in">set</span>     @@ocal.sort-buffer-size := &lt;value&gt;</span><br><span class="line"><span class="built_in">set</span>            sort-buffer-size  = &lt;value&gt;</span><br><span class="line"></span><br><span class="line">-- <span class="built_in">set</span>&#x547D;&#x4EE4;&#x53EF;&#x4EE5;&#x540C;&#x65F6;&#x8BBE;&#x7F6E;&#x591A;&#x4E2A;&#x53D8;&#x91CF;&#xFF0C;&#x4F46;&#x5176;&#x4E2D;&#x53EA;&#x8981;&#x6709;&#x4E00;&#x4E2A;&#x53D8;&#x91CF;&#x8BBE;&#x7F6E;&#x5931;&#x8D25;&#xFF0C;&#x6240;&#x6709;&#x7684;&#x53D8;&#x91CF;&#x90FD;&#x672A;&#x751F;&#x6548;</span><br><span class="line">SET GLOBAL sort-buffer-size = 100, SESSION sort-buffer-size = 1000;</span><br><span class="line">SET GLOBAL max-connections = 1000, sort-buffer-size = 1000000;</span><br></pre></td></tr></tbody></table></figure><p></p><p>&#x52A8;&#x6001;&#x7684;&#x8BBE;&#x7F6E;&#x53D8;&#x91CF;&#xFF0C;MySQL &#x5173;&#x95ED;&#x65F6;&#x8FD9;&#x4E9B;&#x53D8;&#x91CF;&#x90FD;&#x4F1A;&#x5931;&#x6548;&#x3002;&#x5982;&#x679C;&#x5728;&#x670D;&#x52A1;&#x5668;&#x8FD0;&#x884C;&#x65F6;&#x4FEE;&#x6539;&#x4E86;&#x53D8;&#x91CF;&#x7684;&#x5168;&#x5C40;&#x503C;&#xFF0C;&#x8FD9;&#x4E2A;&#x503C;&#x5BF9;&#x5F53;&#x524D;&#x4F1A;&#x8BDD;&#x548C;&#x5176;&#x4ED6;&#x4EFB;&#x4F55;&#x5DF2;&#x7ECF;&#x5B58;&#x5728;&#x7684;&#x4F1A;&#x8BDD;&#x90FD;&#x4E0D;&#x8D77;&#x6548;&#x679C;&#xFF0C;&#x8FD9;&#x662F;&#x56E0;&#x4E3A;&#x4F1A;&#x8BDD;&#x7684;&#x53D8;&#x91CF;&#x503C;&#x662F;&#x5728;&#x8FDE;&#x63A5;&#x521B;&#x5EFA;&#x65F6;&#x4ECE;&#x5168;&#x5C40;&#x503C;&#x521D;&#x59CB;&#x5316;&#x800C;&#x6765;&#x7684;&#x3002;&#x6CE8;&#x610F;&#xFF0C;&#x5728;&#x914D;&#x7F6E;&#x4FEE;&#x6539;&#x540E;&#xFF0C;&#x9700;&#x8981;&#x786E;&#x8BA4;&#x662F;&#x5426;&#x4FEE;&#x6539;&#x6210;&#x529F;&#x3002;</p><p>&#x4F60;&#x53EF;&#x80FD;&#x6CE8;&#x610F;&#x5230;&#xFF0C;&#x4E0A;&#x9762;&#x7684;&#x793A;&#x4F8B;&#x4E2D;&#xFF0C;&#x6709;&#x4E9B;&#x4F7F;&#x7528; &#x2018;=&#x2019;&#xFF0C;&#x6709;&#x4E9B;&#x4F7F;&#x7528; &#x2018;:=&#x2019;&#x3002;&#x5BF9;&#x4E8E; set &#x547D;&#x4EE4;&#x672C;&#x8EAB;&#x6765;&#x8BF4;&#xFF0C;&#x4E24;&#x79CD;&#x8D4B;&#x503C;&#x8FD0;&#x7B97;&#x7B26;&#x6CA1;&#x6709;&#x4EFB;&#x4F55;&#x533A;&#x522B;&#xFF0C;&#x5728;&#x547D;&#x4EE4;&#x884C;&#x4E2D;&#x4F7F;&#x7528;&#x4EFB;&#x4E00;&#x8FD0;&#x7B97;&#x7B26;&#x7B26;&#xFF0C;&#x5747;&#x53EF;&#x4EE5;&#x751F;&#x6548;&#x3002;&#x800C;&#x5728;&#x5176;&#x4ED6;&#x8BED;&#x53E5;&#x4E2D;&#xFF0C;&#x8D4B;&#x503C;&#x8FD0;&#x7B97;&#x7B26;&#x5FC5;&#x987B;&#x662F; &#x2018;:=&#x2019;&#xFF0C;&#x56E0;&#x4E3A;&#x5728;&#x975E; set &#x8BED;&#x53E5;&#x4E2D; &#x2018;=&#x2019; &#x88AB;&#x89C6;&#x4E3A;&#x6BD4;&#x8F83;&#x8FD0;&#x7B97;&#x7B26;&#x3002;&#x5177;&#x4F53;&#x53EF;&#x4EE5;&#x53C2;&#x8003;&#x5982;&#x4E0B;&#x793A;&#x4F8B;&#xFF1A;</p><p>&#x8BE6;&#x7EC6;&#x793A;&#x4F8B;&#x53EF;&#x4EE5;&#x53C2;&#x8003;&#xFF1A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">-- @exp &#x8868;&#x793A;&#x7528;&#x6237;&#x53D8;&#x91CF;&#xFF0C;&#x4E0A;&#x9762;&#x7684;&#x793A;&#x4F8B;&#x5747;&#x662F;&#x7CFB;&#x7EDF;&#x53D8;&#x91CF;</span><br><span class="line">-- &#x9519;&#x8BEF;</span><br><span class="line"><span class="built_in">set</span> @user = 123456;</span><br><span class="line"><span class="built_in">set</span> @group = select GROUP from USER <span class="built_in">where</span> User = @user;</span><br><span class="line">select * from USER <span class="built_in">where</span> GROUP = @group;</span><br><span class="line"></span><br><span class="line">-- &#x6B63;&#x786E;</span><br><span class="line">SET @user := 123456;</span><br><span class="line">SELECT @group := `group` FROM user WHERE user = @user;</span><br><span class="line">SELECT * FROM user WHERE `group` = @group;</span><br></pre></td></tr></tbody></table></figure><p></p><p>&#x6709;&#x4E00;&#x4E9B;&#x914D;&#x7F6E;&#x4F7F;&#x7528;&#x4E86;&#x4E0D;&#x540C;&#x7684;&#x5355;&#x4F4D;&#xFF0C;&#x6BD4;&#x5982;table-cache&#x53D8;&#x91CF;&#x6307;&#x5B9A;&#x8868;&#x53EF;&#x4EE5;&#x88AB;&#x7F13;&#x5B58;&#x7684;&#x6570;&#x91CF;&#xFF0C;&#x800C;&#x4E0D;&#x662F;&#x8868;&#x53EF;&#x4EE5;&#x88AB;&#x7F13;&#x5B58;&#x7684;&#x5B57;&#x8282;&#x6570;&#x3002;&#x800C;<code>key-buffer-size</code>&#x5219;&#x662F;&#x4EE5;&#x5B57;&#x8282;&#x4E3A;&#x5355;&#x4F4D;&#x3002;</p><p>&#x8FD8;&#x6709;&#x4E00;&#x4E9B;&#x914D;&#x7F6E;&#x53EF;&#x4EE5;&#x6307;&#x5B9A;&#x540E;&#x7F00;&#x5355;&#x4F4D;&#xFF0C;&#x6BD4;&#x5982;1M=1024<em>1024&#x5B57;&#x8282;&#xFF0C;&#x4F46;&#x9700;&#x8981;&#x6CE8;&#x610F;&#x7684;&#x662F;&#xFF0C;&#x8FD9;&#x53EA;&#x80FD;&#x5728;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x6216;&#x8005;&#x4F5C;&#x4E3A;&#x547D;&#x4EE4;&#x884C;&#x53C2;&#x6570;&#x65F6;&#x6709;&#x6548;&#x3002;&#x5F53;&#x4F7F;&#x7528; SQL &#x7684; SET &#x547D;&#x4EE4;&#x65F6;&#xFF0C;&#x5FC5;&#x987B;&#x4F7F;&#x7528;&#x6570;&#x5B57;&#x503C; 1048576 &#x6216;&#x8005; 1024</em>1024 &#x8FD9;&#x6837;&#x7684;&#x8868;&#x8FBE;&#x5F0F;&#xFF0C;&#x4F46;&#x5728;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x4E2D;&#x4E0D;&#x80FD;&#x4F7F;&#x7528;&#x8868;&#x8FBE;&#x5F0F;&#x3002;</p><p><strong>&#x5C0F;&#x5FC3;&#x7FFC;&#x7FFC;&#x7684;&#x914D;&#x7F6E; MySQL</strong><br>&#x6211;&#x4EEC;&#x5E38;&#x5E38;&#x52A8;&#x6001;&#x7684;&#x4FEE;&#x6539;&#x914D;&#x7F6E;&#xFF0C;&#x4F46;&#x8BF7;&#x52A1;&#x5FC5;&#x5C0F;&#x5FC3;&#xFF0C;&#x56E0;&#x4E3A;&#x5B83;&#x4EEC;&#x53EF;&#x80FD;&#x5BFC;&#x81F4;&#x6570;&#x636E;&#x5E93;&#x505A;&#x5927;&#x91CF;&#x8017;&#x65F6;&#x7684;&#x5DE5;&#x4F5C;&#xFF0C;&#x4ECE;&#x800C;&#x5F71;&#x54CD;&#x6570;&#x636E;&#x5E93;&#x7684;&#x6574;&#x4F53;&#x6027;&#x80FD;&#x3002;&#x6BD4;&#x5982;&#x4ECE;&#x7F13;&#x5B58;&#x4E2D;&#x5237;&#x65B0;&#x810F;&#x5757;&#xFF0C;&#x4E0D;&#x540C;&#x7684;&#x5237;&#x65B0;&#x65B9;&#x5F0F;&#x5BF9; I/O &#x7684;&#x5F71;&#x54CD;&#x5DEE;&#x522B;&#x5F88;&#x5927; (&#x540E;&#x6587;&#x4F1A;&#x5177;&#x4F53;&#x8BF4;&#x660E;)&#x3002;&#x6700;&#x597D;&#x628A;&#x4E00;&#x4E9B;&#x597D;&#x7684;&#x4E60;&#x60EF;&#x4F5C;&#x4E3A;&#x89C4;&#x8303;&#x5408;&#x5E76;&#x5230;&#x5DE5;&#x4F5C;&#x6D41;&#x7A0B;&#x4E2D;&#x53BB;&#xFF0C;&#x5C31;&#x6BD4;&#x5982;&#xFF1A;</p><p><strong>&#x597D;&#x4E60;&#x60EF; 1&#xFF1A;&#x4E0D;&#x8981;&#x901A;&#x8FC7;&#x914D;&#x7F6E;&#x9879;&#x7684;&#x540D;&#x79F0;&#x6765;&#x63A8;&#x65AD;&#x4E00;&#x4E2A;&#x53D8;&#x91CF;&#x7684;&#x4F5C;&#x7528;</strong></p><p>&#x4E0D;&#x8981;&#x901A;&#x8FC7;&#x914D;&#x7F6E;&#x9879;&#x7684;&#x540D;&#x79F0;&#x6765;&#x63A8;&#x65AD;&#x4E00;&#x4E2A;&#x53D8;&#x91CF;&#x7684;&#x4F5C;&#x7528;&#xFF0C;&#x56E0;&#x4E3A;&#x5B83;&#x53EF;&#x80FD;&#x8DDF;&#x4F60;&#x60F3;&#x8C61;&#x7684;&#x5B8C;&#x5168;&#x4E0D;&#x4E00;&#x6837;&#x3002;&#x6BD4;&#x5982;&#xFF1A;</p><ul><li><code>read-buffer-size</code>&#xFF1A;&#x5F53; MySQL &#x9700;&#x8981;&#x987A;&#x5E8F;&#x8BFB;&#x53D6;&#x6570;&#x636E;&#x65F6;&#xFF0C;&#x5982;&#x65E0;&#x6CD5;&#x4F7F;&#x7528;&#x7D22;&#x5F15;&#xFF0C;&#x5176;&#x5C06;&#x8FDB;&#x884C;&#x5168;&#x8868;&#x626B;&#x63CF;&#x6216;&#x8005;&#x5168;&#x7D22;&#x5F15;&#x626B;&#x63CF;&#x3002;&#x8FD9;&#x65F6;&#xFF0C;MySQL &#x6309;&#x7167;&#x6570;&#x636E;&#x7684;&#x5B58;&#x50A8;&#x987A;&#x5E8F;&#x4F9D;&#x6B21;&#x8BFB;&#x53D6;&#x6570;&#x636E;&#x5757;&#xFF0C;&#x6BCF;&#x6B21;&#x8BFB;&#x53D6;&#x7684;&#x6570;&#x636E;&#x5757;&#x9996;&#x5148;&#x4F1A;&#x6682;&#x5B58;&#x5728;&#x7F13;&#x5B58;&#x4E2D;&#xFF0C;&#x5F53;&#x7F13;&#x5B58;&#x7A7A;&#x95F4;&#x88AB;&#x5199;&#x6EE1;&#x6216;&#x8005;&#x5168;&#x90E8;&#x6570;&#x636E;&#x8BFB;&#x53D6;&#x7ED3;&#x675F;&#x540E;&#xFF0C;&#x518D;&#x5C06;&#x7F13;&#x5B58;&#x4E2D;&#x7684;&#x6570;&#x636E;&#x8FD4;&#x56DE;&#x7ED9;&#x4E0A;&#x5C42;&#x8C03;&#x7528;&#x8005;&#xFF0C;&#x4EE5;&#x63D0;&#x9AD8;&#x6548;&#x7387;&#x3002;</li><li><code>read-rnd-buffer-size</code>&#xFF1A;&#x548C;&#x987A;&#x5E8F;&#x8BFB;&#x53D6;&#x76F8;&#x5BF9;&#x5E94;&#xFF0C;&#x5F53; MySQL &#x8FDB;&#x884C;&#x975E;&#x987A;&#x5E8F;&#x8BFB;&#x53D6;&#xFF08;&#x968F;&#x673A;&#x8BFB;&#x53D6;&#xFF09;&#x6570;&#x636E;&#x5757;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x4F1A;&#x5229;&#x7528;&#x8FD9;&#x4E2A;&#x7F13;&#x51B2;&#x533A;&#x6682;&#x5B58;&#x8BFB;&#x53D6;&#x7684;&#x6570;&#x636E;&#x3002;&#x6BD4;&#x5982;&#xFF1A;&#x6839;&#x636E;&#x7D22;&#x5F15;&#x4FE1;&#x606F;&#x8BFB;&#x53D6;&#x8868;&#x6570;&#x636E;&#x3001;&#x6839;&#x636E;&#x6392;&#x5E8F;&#x540E;&#x7684;&#x7ED3;&#x679C;&#x96C6;&#x4E0E;&#x8868;&#x8FDB;&#x884C; Join &#x7B49;&#x7B49;&#x3002;&#x603B;&#x7684;&#x6765;&#x8BF4;&#xFF0C;&#x5C31;&#x662F;&#x5F53;&#x6570;&#x636E;&#x5757;&#x7684;&#x8BFB;&#x53D6;&#x9700;&#x8981;&#x6EE1;&#x8DB3;&#x4E00;&#x5B9A;&#x7684;&#x987A;&#x5E8F;&#x7684;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;MySQL &#x5C31;&#x9700;&#x8981;&#x4EA7;&#x751F;&#x968F;&#x673A;&#x8BFB;&#x53D6;&#xFF0C;&#x8FDB;&#x800C;&#x4F7F;&#x7528;&#x5230;read-rnd-buffer-size&#x53C2;&#x6570;&#x6240;&#x8BBE;&#x7F6E;&#x7684;&#x5185;&#x5B58;&#x7F13;&#x51B2;&#x533A;&#x3002;</li></ul><p>&#x8FD9;&#x4E24;&#x4E2A;&#x914D;&#x7F6E;&#x90FD;&#x662F;&#x5728;&#x626B;&#x63CF; MyISAM &#x8868;&#x65F6;&#x6709;&#x6548;&#xFF0C;&#x4E14; MySQL &#x4F1A;&#x4E3A;&#x6BCF;&#x4E2A;&#x7EBF;&#x7A0B;&#x5206;&#x914D;&#x5185;&#x5B58;&#x3002;&#x5BF9;&#x4E8E;&#x524D;&#x8005;&#xFF0C;MySQL &#x53EA;&#x4F1A;&#x5728;&#x67E5;&#x8BE2;&#x9700;&#x8981;&#x4F7F;&#x7528;&#x65F6;&#x624D;&#x4F1A;&#x4E3A;&#x8BE5;&#x7F13;&#x5B58;&#x5206;&#x914D;&#x5185;&#x5B58;&#xFF0C;&#x5E76;&#x4E14;&#x4E00;&#x6B21;&#x6027;&#x5206;&#x914D;&#x8BE5;&#x53C2;&#x6570;&#x6307;&#x5B9A;&#x5927;&#x5C0F;&#x7684;&#x5168;&#x90E8;&#x5185;&#x5B58;&#xFF0C;&#x800C;&#x540E;&#x8005;&#x540C;&#x6837;&#x662F;&#x9700;&#x8981;&#x65F6;&#x624D;&#x5206;&#x914D;&#x5185;&#x5B58;&#xFF0C;&#x4F46;&#x53EA;&#x5206;&#x914D;&#x9700;&#x8981;&#x7684;&#x5185;&#x5B58;&#x5927;&#x5C0F;&#x800C;&#x4E0D;&#x662F;&#x53C2;&#x6570;&#x6307;&#x5B9A;&#x7684;&#x6570;&#x503C;&#xFF0C;max-read-rnd-buffer-size(&#x5B9E;&#x9645;&#x4E0A;&#x6CA1;&#x6709;&#x8FD9;&#x4E2A;&#x914D;&#x7F6E;&#x9879;) &#x8FD9;&#x4E2A;&#x540D;&#x5B57;&#x66F4;&#x80FD;&#x8868;&#x8FBE;&#x8FD9;&#x4E2A;&#x53D8;&#x91CF;&#x7684;&#x5B9E;&#x9645;&#x542B;&#x4E49;&#x3002;</p><p><strong>&#x597D;&#x4E60;&#x60EF; 2&#xFF1A;&#x4E0D;&#x8981;&#x8F7B;&#x6613;&#x5728;&#x5168;&#x5C40;&#x4FEE;&#x6539;&#x4F1A;&#x8BDD;&#x7EA7;&#x522B;&#x7684;&#x914D;&#x7F6E;</strong></p><p>&#x5BF9;&#x4E8E;&#x67D0;&#x4E9B;&#x4F1A;&#x8BDD;&#x7EA7;&#x522B;&#x7684;&#x8BBE;&#x7F6E;&#xFF0C;&#x4E0D;&#x8981;&#x8F7B;&#x6613;&#x7684;&#x5728;&#x5168;&#x5C40;&#x589E;&#x52A0;&#x5B83;&#x4EEC;&#x7684;&#x503C;&#xFF0C;&#x9664;&#x975E;&#x4F60;&#x786E;&#x8BA4;&#x8FD9;&#x6837;&#x505A;&#x662F;&#x5BF9;&#x7684;&#x3002;&#x6BD4;&#x5982;&#xFF1A;<code>sort-buffer-size</code>&#xFF0C;&#x8BE5;&#x53C2;&#x6570;&#x63A7;&#x5236;&#x6392;&#x5E8F;&#x64CD;&#x4F5C;&#x7684;&#x7F13;&#x5B58;&#x5927;&#x5C0F;&#xFF0C;MySQL &#x53EA;&#x4F1A;&#x5728;&#x67E5;&#x8BE2;&#x9700;&#x8981;&#x505A;&#x6392;&#x5E8F;&#x64CD;&#x4F5C;&#x65F6;&#x624D;&#x4F1A;&#x4E3A;&#x8BE5;&#x7F13;&#x51B2;&#x5206;&#x914D;&#x5185;&#x5B58;&#xFF0C;&#x4E00;&#x65E6;&#x9700;&#x8981;&#x6392;&#x5E8F;&#xFF0C;&#x5C31;&#x4F1A;&#x4E00;&#x6B21;&#x6027;&#x5206;&#x914D;&#x6307;&#x5B9A;&#x5927;&#x5C0F;&#x7684;&#x5185;&#x5B58;&#xFF0C;&#x5373;&#x4F7F;&#x662F;&#x975E;&#x5E38;&#x5C0F;&#x7684;&#x6392;&#x5E8F;&#x64CD;&#x4F5C;&#x3002;&#x56E0;&#x6B64;&#x5728;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x4E2D;&#x5E94;&#x8BE5;&#x914D;&#x7F6E;&#x7684;&#x5C0F;&#x4E00;&#x4E9B;&#xFF0C;&#x7136;&#x540E;&#x5728;&#x67D0;&#x4E9B;&#x67E5;&#x8BE2;&#x9700;&#x8981;&#x6392;&#x5E8F;&#x65F6;&#xFF0C;&#x518D;&#x5728;&#x8FDE;&#x63A5;&#x4E2D;&#x628A;&#x5B83;&#x8C03;&#x5927;&#x3002;&#x6BD4;&#x5982;&#xFF1A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SET @@seession.sort-buffer-size := &lt;value&gt;</span><br><span class="line">-- &#x6267;&#x884C;&#x67E5;&#x8BE2;&#x7684;sql</span><br><span class="line">SET @@seession.sort-buffer-size := DEFAULT -- &#x6062;&#x590D;&#x9ED8;&#x8BA4;&#x503C;</span><br><span class="line">-- &#x53EF;&#x4EE5;&#x5C06;&#x7C7B;&#x4F3C;&#x7684;&#x4EE3;&#x7801;&#x5C01;&#x88C5;&#x5728;&#x51FD;&#x6570;&#x4E2D;&#x65B9;&#x4FBF;&#x4F7F;&#x7528;&#x3002;</span><br></pre></td></tr></tbody></table></figure><p></p><p><strong>&#x597D;&#x4E60;&#x60EF; 3&#xFF1A;&#x914D;&#x7F6E;&#x53D8;&#x91CF;&#x65F6;&#xFF0C;&#x5E76;&#x4E0D;&#x662F;&#x503C;&#x8D8A;&#x5927;&#x8D8A;&#x597D;</strong><br>&#x914D;&#x7F6E;&#x53D8;&#x91CF;&#x65F6;&#xFF0C;&#x5E76;&#x4E0D;&#x662F;&#x503C;&#x8D8A;&#x5927;&#x8D8A;&#x597D;&#xFF0C;&#x800C;&#x4E14;&#x5982;&#x679C;&#x8BBE;&#x7F6E;&#x7684;&#x503C;&#x592A;&#x9AD8;&#xFF0C;&#x53EF;&#x80FD;&#x66F4;&#x5BB9;&#x6613;&#x5BFC;&#x81F4;&#x5185;&#x5B58;&#x95EE;&#x9898;&#x3002;&#x5728;&#x4FEE;&#x6539;&#x5B8C;&#x6210;&#x540E;&#xFF0C;&#x5E94;&#x8BE5;&#x901A;&#x8FC7;&#x76D1;&#x63A7;&#x6765;&#x786E;&#x8BA4;&#x53D8;&#x91CF;&#x7684;&#x4FEE;&#x6539;&#x5BF9;&#x670D;&#x52A1;&#x5668;&#x6574;&#x4F53;&#x6027;&#x80FD;&#x7684;&#x5F71;&#x54CD;&#x3002;</p><p><strong>&#x597D;&#x4E60;&#x60EF; 4&#xFF1A;&#x89C4;&#x8303;&#x6CE8;&#x91CA;&#xFF0C;&#x7248;&#x672C;&#x63A7;&#x5236;</strong><br>&#x5728;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x4E2D;&#x5199;&#x597D;&#x6CE8;&#x91CA;&#xFF0C;&#x53EF;&#x80FD;&#x4F1A;&#x8282;&#x7701;&#x81EA;&#x5DF1;&#x548C;&#x540C;&#x4E8B;&#x5927;&#x91CF;&#x7684;&#x5DE5;&#x4F5C;&#xFF0C;&#x4E00;&#x4E2A;&#x66F4;&#x597D;&#x7684;&#x4E60;&#x60EF;&#x662F;&#x628A;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x7F6E;&#x4E8E;&#x7248;&#x672C;&#x63A7;&#x5236;&#x4E4B;&#x4E0B;&#x3002;</p><p>&#x8BF4;&#x5B8C;&#x4E86;&#x597D;&#x4E60;&#x60EF;&#xFF0C;&#x518D;&#x6765;&#x8BF4;&#x8BF4;&#x4E0D;&#x597D;&#x7684;&#x4E60;&#x60EF;&#x3002;</p><p><strong>&#x574F;&#x4E60;&#x60EF; 1&#xFF1A;&#x6839;&#x636E;&#x4E00;&#x4E9B; &#x201C;&#x6BD4;&#x7387;&#x201D; &#x6765;&#x8C03;&#x4F18;</strong><br>&#x4E00;&#x4E2A;&#x7ECF;&#x5178;&#x7684;&#x6309; &#x201C;&#x6BD4;&#x7387;&#x201D; &#x8C03;&#x4F18;&#x7684;&#x7ECF;&#x9A8C;&#x6CD5;&#x5219;&#x662F;&#xFF0C;&#x7F13;&#x5B58;&#x7684;&#x547D;&#x4E2D;&#x7387;&#x5E94;&#x8BE5;&#x9AD8;&#x4E8E;&#x67D0;&#x4E2A;&#x767E;&#x5206;&#x6BD4;&#xFF0C;&#x5982;&#x679C;&#x547D;&#x4E2D;&#x7387;&#x8FC7;&#x4F4E;&#xFF0C;&#x5219;&#x5E94;&#x8BE5;&#x589E;&#x52A0;&#x7F13;&#x5B58;&#x7684;&#x5927;&#x5C0F;&#x3002;&#x8FD9;&#x662F;&#x975E;&#x5E38;&#x9519;&#x8BEF;&#x7684;&#x610F;&#x89C1;&#xFF0C;&#x5927;&#x5BB6;&#x53EF;&#x4EE5;&#x4ED4;&#x7EC6;&#x601D;&#x8003;&#x4E00;&#x4E0B;&#xFF1A;&#x7F13;&#x5B58;&#x7684;&#x547D;&#x4E2D;&#x7387;&#x8DDF;&#x7F13;&#x5B58;&#x5927;&#x5C0F;&#x6709;&#x5FC5;&#x7136;&#x8054;&#x7CFB;&#x5417;&#xFF1F;(&#x5206;&#x6BCD;&#x53D8;&#x5927;&#xFF0C;&#x503C;&#x5C31;&#x53D8;&#x5927;&#x4E86;&#xFF1F;) &#x9664;&#x975E;&#x786E;&#x5B9E;&#x662F;&#x7F13;&#x5B58;&#x592A;&#x5C0F;&#x4E86;&#x3002;&#x5173;&#x4E8E; MyISAM &#x952E;&#x7F13;&#x51B2;&#x547D;&#x4E2D;&#x7387;&#xFF0C;&#x4E0B;&#x6587;&#x4F1A;&#x8BE6;&#x7EC6;&#x8BF4;&#x660E;&#x3002;</p><p><strong>&#x574F;&#x4E60;&#x60EF; 2&#xFF1A;&#x968F;&#x4FBF;&#x4F7F;&#x7528;&#x8C03;&#x4F18;&#x811A;&#x672C;</strong><br>&#x5C3D;&#x91CF;&#x4E0D;&#x8981;&#x4F7F;&#x7528;&#x8C03;&#x4F18;&#x811A;&#x672C;&#xFF01;&#x4E0D;&#x540C;&#x7684;&#x4E1A;&#x52A1;&#x573A;&#x666F;&#x3001;&#x4E0D;&#x540C;&#x7684;&#x786C;&#x4EF6;&#x73AF;&#x5883;&#x5BF9; MySQL &#x7684;&#x6027;&#x80FD;&#x8981;&#x6C42;&#x662F;&#x4E0D;&#x4E00;&#x6837;&#x7684;&#x3002;&#x6BD4;&#x5982;&#x6709;&#x4E9B;&#x4E1A;&#x52A1;&#x5BF9;&#x6570;&#x636E;&#x7684;&#x5B8C;&#x6574;&#x6027;&#x8981;&#x6C42;&#x8F83;&#x9AD8;&#xFF0C;&#x90A3;&#x4E48;&#x5C31;&#x4E00;&#x5B9A;&#x8981;&#x4FDD;&#x8BC1;&#x6570;&#x636E;&#x4E0D;&#x4E22;&#x5931;&#xFF0C;&#x51FA;&#x73B0;&#x6545;&#x969C;&#x540E;&#x53EF;&#x6062;&#x590D;&#x6570;&#x636E;&#xFF0C;&#x800C;&#x6709;&#x4E9B;&#x4E1A;&#x52A1;&#x5374;&#x5BF9;&#x6570;&#x636E;&#x7684;&#x5B8C;&#x6574;&#x6027;&#x8981;&#x6C42;&#x6CA1;&#x90A3;&#x4E48;&#x9AD8;&#xFF0C;&#x4F46;&#x5BF9;&#x6027;&#x80FD;&#x8981;&#x6C42;&#x66F4;&#x9AD8;&#x3002;&#x56E0;&#x6B64;&#xFF0C;&#x5373;&#x4F7F;&#x662F;&#x540C;&#x4E00;&#x4E2A;&#x53D8;&#x91CF;&#xFF0C;&#x5728;&#x8FD9;&#x4E24;&#x4E2A;&#x4E0D;&#x540C;&#x573A;&#x666F;&#x4E0B;&#xFF0C;&#x5176;&#x914D;&#x7F6E;&#x7684;&#x503C;&#x4E5F;&#x5E94;&#x8BE5;&#x662F;&#x4E0D;&#x540C;&#x7684;&#x3002;&#x90A3;&#x4F60;&#x8FD8;&#x80FD;&#x653E;&#x5FC3;&#x7684;&#x4F7F;&#x7528;&#x7F51;&#x4E0A;&#x627E;&#x5230;&#x7684;&#x811A;&#x672C;&#x5417; &#xFF1F;</p><blockquote><p>&#x672C;&#x5C0F;&#x8282;&#x793A;&#x4F8B;&#x7684;&#x51E0;&#x4E2A;&#x914D;&#x7F6E;&#x9879;&#xFF0C;&#x4EC5;&#x7528;&#x4E8E;&#x4E3E;&#x4F8B;&#x8BF4;&#x660E;&#xFF0C;&#x5E76;&#x4E0D;&#x4EE3;&#x8868;&#x5B83;&#x4EEC;&#x6709;&#x591A;&#x4E48;&#x91CD;&#x8981;&#xFF0C;&#x8BF7;&#x6839;&#x636E;&#x5B9E;&#x9645;&#x5E94;&#x7528;&#x573A;&#x666F;&#x914D;&#x7F6E;&#x5B83;&#x4EEC;&#x3002;&#x5C31;&#x6BD4;&#x5982;<code>sort-buffer-size</code>&#xFF0C;&#x4F60;&#x771F;&#x7684;&#x9700;&#x8981; 100M &#x5185;&#x5B58;&#x6765;&#x7F13;&#x5B58; 10 &#x884C;&#x6570;&#x636E;&#xFF1F;</p></blockquote><h4 id="&#x5206;&#x6BB5;"><a href="#&#x5206;&#x6BB5;" class="headerlink" title="&#x5206;&#x6BB5;"></a>&#x5206;&#x6BB5;</h4><p>MySQL &#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x7684;&#x683C;&#x5F0F;&#x4E3A;&#x96C6;&#x4E2D;&#x5F0F;&#xFF0C;&#x901A;&#x5E38;&#x4F1A;&#x5206;&#x6210;&#x597D;&#x51E0;&#x90E8;&#x5206;&#xFF0C;&#x53EF;&#x4EE5;&#x4E3A;&#x591A;&#x4E2A;&#x7A0B;&#x5E8F;&#x63D0;&#x4F9B;&#x914D;&#x7F6E;&#xFF0C;&#x5982;<code>[client]</code>&#x3001;<code>[mysqld]</code>&#x3001;<code>[mysql]</code>&#x7B49;&#x7B49;&#x3002;MySQL &#x7A0B;&#x5E8F;&#x901A;&#x5E38;&#x662F;&#x8BFB;&#x53D6;&#x4E0E;&#x5B83;&#x540C;&#x540D;&#x7684;&#x5206;&#x6BB5;&#x90E8;&#x5206;&#x3002;</p><ul><li><code>[client]</code>&#x5BA2;&#x6237;&#x7AEF;&#x9ED8;&#x8BA4;&#x8BBE;&#x7F6E;&#x5185;&#x5BB9;</li><li><code>[mysql]</code>&#x4F7F;&#x7528; mysql &#x547D;&#x4EE4;&#x767B;&#x5F55; MySQL &#x6570;&#x636E;&#x5E93;&#x65F6;&#x7684;&#x9ED8;&#x8BA4;&#x8BBE;&#x7F6E;</li><li><code>[mysqld]</code>&#x6570;&#x636E;&#x5E93;&#x672C;&#x8EAB;&#x7684;&#x9ED8;&#x8BA4;&#x8BBE;&#x7F6E;</li></ul><p>&#x4F8B;&#x5982;&#x670D;&#x52A1;&#x5668; mysqld &#x901A;&#x5E38;&#x8BFB;&#x53D6;<code>[mysqld]</code>&#x5206;&#x6BB5;&#x4E0B;&#x7684;&#x76F8;&#x5173;&#x914D;&#x7F6E;&#x9879;&#x3002;&#x5982;&#x679C;&#x914D;&#x7F6E;&#x9879;&#x4F4D;&#x7F6E;&#x4E0D;&#x6B63;&#x786E;&#xFF0C;&#x8BE5;&#x914D;&#x7F6E;&#x662F;&#x4E0D;&#x4F1A;&#x751F;&#x6548;&#x7684;&#x3002;</p><h4 id="GENERAL"><a href="#GENERAL" class="headerlink" title="GENERAL"></a>GENERAL</h4><p>&#x9996;&#x5148;&#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x7528;&#x6237; mysql &#x6765;&#x8FD0;&#x884C; mysqld &#x8FDB;&#x7A0B;&#xFF0C;&#x8BF7;&#x786E;&#x4FDD;&#x8FD9;&#x4E2A;&#x7528;&#x6237;&#x62E5;&#x6709;&#x64CD;&#x4F5C;&#x6570;&#x636E;&#x76EE;&#x5F55;&#x7684;&#x6743;&#x9650;&#x3002;&#x8BBE;&#x7F6E;&#x9ED8;&#x8BA4;&#x7AEF;&#x53E3;&#x4E3A; 3306&#xFF0C;&#x6709;&#x65F6;&#x4E3A;&#x4E86;&#x5B89;&#x5168;&#xFF0C;&#x53EF;&#x80FD;&#x4F1A;&#x4FEE;&#x6539;&#x4E00;&#x4E0B;&#x3002;&#x9ED8;&#x8BA4;&#x9009;&#x62E9; Innodb &#x5B58;&#x50A8;&#x5F15;&#x64CE;&#xFF0C;&#x5728;&#x5927;&#x591A;&#x6570;&#x60C5;&#x51B5;&#x4E0B;&#x662F;&#x6700;&#x597D;&#x7684;&#x9009;&#x62E9;&#x3002;&#x4F46;&#x5982;&#x679C;&#x9ED8;&#x8BA4;&#x662F; InnoDB&#xFF0C;&#x5374;&#x9700;&#x8981;&#x4F7F;&#x7528; MyISAM &#x5B58;&#x50A8;&#x5F15;&#x64CE;&#xFF0C;&#x8BF7;&#x663E;&#x5F0F;&#x5730;&#x8FDB;&#x884C;&#x914D;&#x7F6E;&#x3002;&#x8BB8;&#x591A;&#x7528;&#x6237;&#x8BA4;&#x4E3A;&#x5176;&#x6570;&#x636E;&#x5E93;&#x4F7F;&#x7528;&#x4E86;&#x67D0;&#x79CD;&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x4F46;&#x5B9E;&#x9645;&#x4E0A;&#x5374;&#x4F7F;&#x7528;&#x7684;&#x662F;&#x53E6;&#x5916;&#x4E00;&#x79CD;&#xFF0C;&#x5C31;&#x662F;&#x56E0;&#x4E3A;&#x9ED8;&#x8BA4;&#x914D;&#x7F6E;&#x7684;&#x95EE;&#x9898;&#x3002;</p><p>&#x63A5;&#x7740;&#x8BBE;&#x7F6E;&#x6570;&#x636E;&#x6587;&#x4EF6;&#x7684;&#x4F4D;&#x7F6E;&#xFF0C;&#x8FD9;&#x91CC;&#x628A; pid &#x6587;&#x4EF6;&#x548C; socket &#x6587;&#x4EF6;&#x653E;&#x5230;&#x76F8;&#x540C;&#x7684;&#x4F4D;&#x7F6E;&#xFF0C;&#x5F53;&#x7136;&#x4E5F;&#x53EF;&#x4EE5;&#x9009;&#x62E9;&#x5176;&#x5B83;&#x4F4D;&#x7F6E;&#xFF0C;&#x4F46;&#x8981;&#x6CE8;&#x610F;&#x7684;&#x662F;&#x4E0D;&#x8981;&#x5C06; socket &#x6587;&#x4EF6;&#x548C; pid &#x6587;&#x4EF6;&#x653E;&#x5230; MySQL &#x7F16;&#x8BD1;&#x7684;&#x9ED8;&#x8BA4;&#x4F4D;&#x7F6E;&#xFF0C;&#x56E0;&#x4E3A;&#x4E0D;&#x540C;&#x7248;&#x672C;&#x7684; MySQL&#xFF0C;&#x8FD9;&#x4E24;&#x4E2A;&#x6587;&#x4EF6;&#x7684;&#x9ED8;&#x8BA4;&#x8DEF;&#x5F84;&#x53EF;&#x80FD;&#x4F1A;&#x4E0D;&#x4E00;&#x81F4;&#xFF0C;&#x6700;&#x597D;&#x660E;&#x786E;&#x5730;&#x8BBE;&#x7F6E;&#x8FD9;&#x4E9B;&#x6587;&#x4EF6;&#x7684;&#x4F4D;&#x7F6E;&#xFF0C;&#x4EE5;&#x514D;&#x7248;&#x672C;&#x5347;&#x7EA7;&#x65F6;&#x51FA;&#x73B0;&#x95EE;&#x9898;&#x3002;</p><blockquote><p>&#x5728;&#x7C7B; UNIX &#x7CFB;&#x7EDF;&#x4E0B;&#x672C;&#x5730;&#x8FDE;&#x63A5; MySQL &#x53EF;&#x4EE5;&#x91C7;&#x7528; UNIX &#x57DF;&#x5957;&#x63A5;&#x5B57;&#x65B9;&#x5F0F;&#xFF0C;&#x8FD9;&#x79CD;&#x65B9;&#x5F0F;&#x9700;&#x8981;&#x4E00;&#x4E2A;&#x5957;&#x63A5;&#x5B57;&#xFF08;socket&#xFF09;&#x6587;&#x4EF6;&#xFF0C;&#x5373;&#x914D;&#x7F6E;&#x4E2D;&#x7684;mysql.sock&#x6587;&#x4EF6;&#x3002;</p></blockquote><blockquote><p>&#x5F53; MySQL &#x5B9E;&#x4F8B;&#x542F;&#x52A8;&#x65F6;&#xFF0C;&#x4F1A;&#x5C06;&#x81EA;&#x5DF1;&#x7684;&#x8FDB;&#x7A0B; ID &#x5199;&#x5165;&#x4E00;&#x4E2A;&#x6587;&#x4EF6;&#x4E2D;&#x2014;&#x2014;&#x8BE5;&#x6587;&#x4EF6;&#x5373;&#x4E3A; pid &#x6587;&#x4EF6;&#x3002;&#x8BE5;&#x6587;&#x4EF6;&#x53EF;&#x7531;&#x53C2;&#x6570;pid-file&#x63A7;&#x5236;&#xFF0C;&#x9ED8;&#x8BA4;&#x4F4D;&#x4E8E;&#x6570;&#x636E;&#x5E93;&#x76EE;&#x5F55;&#x4E0B;&#xFF0C;&#x6587;&#x4EF6;&#x540D;&#x4E3A;&#x4E3B;&#x673A;&#x540D;.pid&#x3002;</p></blockquote><h4 id="DATA-STORAGE"><a href="#DATA-STORAGE" class="headerlink" title="DATA STORAGE"></a>DATA STORAGE</h4><p>datadir&#x7528;&#x4E8E;&#x914D;&#x7F6E;&#x6570;&#x636E;&#x6587;&#x4EF6;&#x7684;&#x5B58;&#x50A8;&#x4F4D;&#x7F6E;&#xFF0C;&#x6CA1;&#x6709;&#x4EC0;&#x4E48;&#x597D;&#x8BF4;&#x7684;&#x3002;</p><p><strong>&#x4E3A;&#x7F13;&#x5B58;&#x5206;&#x914D;&#x5185;&#x5B58;</strong><br>&#x63A5;&#x4E0B;&#x6765;&#x6709;&#x8BB8;&#x591A;&#x6D89;&#x53CA;&#x5230;&#x7F13;&#x5B58;&#x7684;&#x914D;&#x7F6E;&#x9879;&#xFF0C;&#x7F13;&#x5B58;&#x8BBE;&#x7F6E;&#x591A;&#x5927;&#xFF0C;&#x6700;&#x76F4;&#x63A5;&#x7684;&#x56E0;&#x7D20;&#x80AF;&#x5B9A;&#x662F;&#x670D;&#x52A1;&#x5668;&#x5185;&#x5B58;&#x7684;&#x5927;&#x5C0F;&#x3002;&#x5982;&#x679C;&#x670D;&#x52A1;&#x5668;&#x53EA;&#x8FD0;&#x884C; MySQL&#xFF0C;&#x6240;&#x6709;&#x4E0D;&#x9700;&#x8981;&#x4E3A; OS &#x4EE5;&#x53CA;&#x67E5;&#x8BE2;&#x5904;&#x7406;&#x4FDD;&#x7559;&#x7684;&#x5185;&#x5B58;&#x90FD;&#x53EF;&#x4EE5;&#x7528;&#x5728; MySQL &#x7F13;&#x5B58;&#x3002;&#x4E3A; MySQL &#x7F13;&#x5B58;&#x5206;&#x914D;&#x66F4;&#x591A;&#x5185;&#x5B58;&#xFF0C;&#x53EF;&#x4EE5;&#x6709;&#x6548;&#x7684;&#x907F;&#x514D;&#x78C1;&#x76D8;&#x8BBF;&#x95EE;&#xFF0C;&#x63D0;&#x5347;&#x6570;&#x636E;&#x5E93;&#x6027;&#x80FD;&#x3002;&#x5927;&#x90E8;&#x5206;&#x60C5;&#x51B5;&#x6765;&#x8BF4;&#x6700;&#x4E3A;&#x91CD;&#x8981;&#x7684;&#x7F13;&#x5B58;&#xFF1A;</p><ul><li>InnoDB &#x7F13;&#x51B2;&#x6C60;</li><li>InnoDB &#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x548C; MyISAM &#x6570;&#x636E;&#x7684;&#x64CD;&#x4F5C;&#x7CFB;&#x7EDF;&#x7F13;&#x5B58; (MyISAM &#x4F9D;&#x8D56;&#x4E8E; OS &#x7F13;&#x5B58;&#x6570;&#x636E;)</li><li>MyISAM &#x952E;&#x7F13;&#x5B58;</li><li>&#x67E5;&#x8BE2;&#x7F13;&#x5B58;</li><li>&#x65E0;&#x6CD5;&#x914D;&#x7F6E;&#x7684;&#x7F13;&#x5B58;&#xFF0C;&#x6BD4;&#x5982;&#xFF1A;bin-log &#x6216;&#x8005;&#x8868;&#x5B9A;&#x4E49;&#x6587;&#x4EF6;&#x7684; OS &#x7F13;&#x5B58;</li></ul><p>&#x8FD8;&#x6709;&#x4E00;&#x4E9B;&#x5176;&#x4ED6;&#x7F13;&#x5B58;&#xFF0C;&#x4F46;&#x5B83;&#x4EEC;&#x901A;&#x5E38;&#x4E0D;&#x4F1A;&#x4F7F;&#x7528;&#x592A;&#x591A;&#x5185;&#x5B58;&#x3002;&#x5173;&#x4E8E;&#x67E5;&#x8BE2;&#x7F13;&#x5B58;&#xFF0C;&#x524D;&#x9762;&#x6587;&#x7AE0; (&#x53C2;&#x8003;&#x672C;&#x7CFB;&#x5217;&#x7684;&#x7B2C;&#x4E00;&#x7BC7;) &#x5DF2;&#x6709;&#x4ECB;&#x7ECD;&#xFF0C;&#x5927;&#x591A;&#x6570;&#x60C5;&#x51B5;&#x4E0B;&#x6211;&#x4EEC;&#x4E0D;&#x5EFA;&#x8BAE;&#x5F00;&#x542F;&#x67E5;&#x8BE2;&#x7F13;&#x5B58;&#xFF0C;&#x56E0;&#x6B64;&#x4E0A;&#x6587;&#x7684;&#x914D;&#x7F6E;&#x4E2D;query-cache-type=0&#x8868;&#x793A;&#x7981;&#x7528;&#x4E86;&#x67E5;&#x8BE2;&#x7F13;&#x5B58;&#xFF0C;&#x76F8;&#x5E94;&#x7684;&#x67E5;&#x8BE2;&#x7F13;&#x5B58;&#x5927;&#x5C0F;query-cache-size=0&#x3002;&#x9664;&#x5F00;&#x67E5;&#x8BE2;&#x7F13;&#x5B58;&#xFF0C;&#x5269;&#x4E0B;&#x5173;&#x4E8E; InnoDB &#x548C; MyISAM &#x7684;&#x76F8;&#x5173;&#x7F13;&#x5B58;&#xFF0C;&#x5728;&#x63A5;&#x4E0B;&#x6765;&#x4F1A;&#x505A;&#x8BE6;&#x7EC6;&#x4ECB;&#x7ECD;&#x3002;</p><p>&#x5982;&#x679C;&#x53EA;&#x4F7F;&#x7528;&#x5355;&#x4E00;&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#xFF0C;&#x914D;&#x7F6E;&#x670D;&#x52A1;&#x5668;&#x5C31;&#x4F1A;&#x7B80;&#x5355;&#x8BB8;&#x591A;&#x3002;&#x5982;&#x679C;&#x53EA;&#x4F7F;&#x7528; MyISAM &#x8868;&#xFF0C;&#x5C31;&#x53EF;&#x4EE5;&#x5B8C;&#x5168;&#x5173;&#x95ED; InnoDB&#xFF0C;&#x800C;&#x5982;&#x679C;&#x53EA;&#x4F7F;&#x7528; InnoDB&#xFF0C;&#x5C31;&#x53EA;&#x9700;&#x8981;&#x5206;&#x914D;&#x6700;&#x5C11;&#x7684;&#x8D44;&#x6E90;&#x7ED9; MyISAM&#xFF08;MySQL &#x5185;&#x90E8;&#x7CFB;&#x7EDF;&#x8868;&#x4F7F;&#x7528; MyISAM &#x5F15;&#x64CE;&#xFF09;&#x3002;&#x4F46;&#x5982;&#x679C;&#x662F;&#x6DF7;&#x5408;&#x4F7F;&#x7528;&#x5404;&#x79CD;&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#xFF0C;&#x5C31;&#x5F88;&#x96BE;&#x5728;&#x4ED6;&#x4EEC;&#x4E4B;&#x95F4;&#x627E;&#x5230;&#x6070;&#x5F53;&#x7684;&#x5E73;&#x8861;&#xFF0C;&#x56E0;&#x6B64;&#x53EA;&#x80FD;&#x6839;&#x636E;&#x4E1A;&#x52A1;&#x505A;&#x4E00;&#x4E2A;&#x731C;&#x6D4B;&#xFF0C;&#x7136;&#x540E;&#x5728;&#x8FD0;&#x884C;&#x4E2D;&#x89C2;&#x5BDF;&#x670D;&#x52A1;&#x5668;&#x8FD0;&#x884C;&#x72B6;&#x51B5;&#x540E;&#x505A;&#x51FA;&#x8C03;&#x6574;&#x3002;</p><h4 id="MyISAM"><a href="#MyISAM" class="headerlink" title="MyISAM"></a>MyISAM</h4><p><strong>key-buffer-size</strong></p><p><code>key-buffer-size</code>&#x7528;&#x4E8E;&#x914D;&#x7F6E; <code>MyISAM</code>&#x952E;&#x7F13;&#x5B58;&#x5927;&#x5C0F;&#xFF0C;&#x9ED8;&#x8BA4;&#x53EA;&#x6709;&#x4E00;&#x4E2A;&#x952E;&#x7F13;&#x5B58;&#xFF0C;&#x4F46;&#x662F;&#x53EF;&#x4EE5;&#x521B;&#x5EFA;&#x591A;&#x4E2A;&#x3002;MyISAM &#x81EA;&#x8EAB;&#x53EA;&#x7F13;&#x5B58;&#x7D22;&#x5F15;&#xFF0C;&#x4E0D;&#x7F13;&#x5B58;&#x6570;&#x636E; (&#x4F9D;&#x8D56; OS &#x7F13;&#x5B58;&#x6570;&#x636E;)&#x3002;&#x5982;&#x679C;&#x5927;&#x90E8;&#x5206;&#x8868;&#x90FD;&#x662F; <code>MyISAM</code>&#xFF0C;&#x90A3;&#x4E48;&#x5E94;&#x8BE5;&#x4E3A;&#x952E;&#x7F13;&#x5B58;&#x8BBE;&#x7F6E;&#x8F83;&#x591A;&#x7684;&#x5185;&#x5B58;&#x3002;&#x4F46;&#x5982;&#x4F55;&#x786E;&#x5B9A;&#x8BE5;&#x8BBE;&#x7F6E;&#x591A;&#x5927;&#xFF1F;<br>&#x5047;&#x8BBE;&#x6574;&#x4E2A;&#x6570;&#x636E;&#x5E93;&#x4E2D;&#x8868;&#x7684;&#x7D22;&#x5F15;&#x5927;&#x5C0F;&#x4E3A; X&#xFF0C;&#x80AF;&#x5B9A;&#x4E0D;&#x9700;&#x8981;&#x628A;&#x7F13;&#x5B58;&#x8BBE;&#x7F6E;&#x5F97;&#x6BD4; X &#x8FD8;&#x5927;&#xFF0C;&#x6240;&#x4EE5;&#x5F53;&#x524D;&#x7684;&#x7D22;&#x5F15;&#x5927;&#x5C0F;&#x5C31;&#x6210;&#x4E3A;&#x8FD9;&#x4E2A;&#x914D;&#x7F6E;&#x9879;&#x7684;&#x91CD;&#x8981;&#x4F9D;&#x636E;&#x3002;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x4E0B;&#x9762;&#x4E24;&#x79CD;&#x65B9;&#x5F0F;&#x6765;&#x67E5;&#x8BE2;&#x5F53;&#x524D;&#x7D22;&#x5F15;&#x7684;&#x5927;&#x5C0F;&#xFF1A;</p><p>1.&#x901A;&#x8FC7; SQL &#x8BED;&#x53E5;&#x67E5;&#x8BE2;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT SUM(INDEX_LENGTH) FROM INFORMATION_SCHEMA.TABLES WHERE ENGINE = <span class="string">&apos;MYISAM&apos;</span></span><br></pre></td></tr></tbody></table></figure><p></p><p>2.&#x7EDF;&#x8BA1;&#x7D22;&#x5F15;&#x6587;&#x4EF6;&#x7684;&#x5927;&#x5C0F;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ du -sch `find /path/to/mysql/data/directory/ -name <span class="string">&quot;*.MYI&quot;</span>`</span><br><span class="line">&#x6BD4;&#x5982;&#xFF1A;</span><br><span class="line">root@dev-msc3:<span class="comment"># du -sch `find /var/lib/mysql -name &quot;*.MYI&quot;`</span></span><br><span class="line">72K        /var/lib/mysql/static/t_global_region.MYI</span><br><span class="line">40K        /var/lib/mysql/mysql/db.MYI</span><br><span class="line">12K        /var/lib/mysql/mysql/proxies_priv.MYI</span><br><span class="line">12K        /var/lib/mysql/mysql/tables_priv.MYI</span><br><span class="line">4.0K       /var/lib/mysql/mysql/func.MYI</span><br><span class="line">4.0K       /var/lib/mysql/mysql/columns_priv.MYI</span><br><span class="line">4.0K       /var/lib/mysql/mysql/proc.MYI</span><br><span class="line">4.0K       /var/lib/mysql/mysql/event.MYI</span><br><span class="line">4.0K       /var/lib/mysql/mysql/user.MYI</span><br><span class="line">4.0K       /var/lib/mysql/mysql/procs_priv.MYI</span><br><span class="line">4.0K       /var/lib/mysql/mysql/ndb_binlog_index.MYI</span><br><span class="line">164K       total</span><br></pre></td></tr></tbody></table></figure><p></p><p>&#x4F60;&#x53EF;&#x80FD;&#x4F1A;&#x95EE;&#xFF0C;&#x521A;&#x521B;&#x5EFA;&#x597D;&#x7684;&#x6570;&#x636E;&#x5E93;&#xFF0C;&#x6839;&#x672C;&#x5C31;&#x6CA1;&#x4EC0;&#x4E48;&#x6570;&#x636E;&#xFF0C;&#x7D22;&#x5F15;&#x6587;&#x4EF6;&#x5927;&#x5C0F;&#x4E3A; 0&#xFF0C;&#x90A3;&#x5982;&#x4F55;&#x914D;&#x7F6E;&#x952E;&#x7F13;&#x5B58;&#x5927;&#x5C0F;&#xFF1F;&#x8FD9;&#x65F6;&#x5019;&#x53EA;&#x80FD;&#x6839;&#x636E;&#x7ECF;&#x9A8C;&#x503C;&#xFF1A;&#x4E0D;&#x8D85;&#x8FC7;&#x4E3A;&#x64CD;&#x4F5C;&#x7CFB;&#x7EDF;&#x7F13;&#x5B58;&#x4FDD;&#x7559;&#x5185;&#x5B58;&#x7684; 25% ~ 50%&#x3002;&#x8BBE;&#x7F6E;&#x4E00;&#x4E2A;&#x57FA;&#x672C;&#x503C;&#xFF0C;&#x7B49;&#x8FD0;&#x884C;&#x4E00;&#x6BB5;&#x65F6;&#x95F4;&#x540E;&#xFF0C;&#x6839;&#x636E;&#x8FD0;&#x884C;&#x60C5;&#x51B5;&#x6765;&#x8C03;&#x6574;&#x952E;&#x7F13;&#x5B58;&#x5927;&#x5C0F;&#x3002;&#x603B;&#x7ED3;&#x6765;&#x8BF4;&#xFF0C;&#x7D22;&#x5F15;&#x5927;&#x5C0F;&#x4E0E; OS &#x7F13;&#x5B58;&#x7684; 25%~50% &#x4E24;&#x8005;&#x95F4;&#x53D6;&#x5C0F;&#x8005;&#x3002;&#x5F53;&#x7136;&#x8FD8;&#x53EF;&#x4EE5;&#x8BA1;&#x7B97;&#x952E;&#x7F13;&#x5B58;&#x7684;&#x4F7F;&#x7528;&#x60C5;&#x51B5;&#xFF0C;&#x5982;&#x679C;&#x4E00;&#x6BB5;&#x65F6;&#x95F4;&#x540E;&#x8FD8;&#x662F;&#x6CA1;&#x6709;&#x4F7F;&#x7528;&#x5B8C;&#x6240;&#x6709;&#x7684;&#x952E;&#x7F13;&#x5B58;&#xFF0C;&#x5C31;&#x53EF;&#x4EE5;&#x628A;&#x7F13;&#x51B2;&#x533A;&#x8C03;&#x5C0F;&#x4E00;&#x70B9;&#xFF0C;&#x8BA1;&#x7B97;&#x7F13;&#x5B58;&#x533A;&#x7684;&#x4F7F;&#x7528;&#x7387;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x4EE5;&#x4E0B;&#x516C;&#x5F0F;&#xFF1A;<br><strong>(key_blocks_unused * key_cache_block_size) / key_buffer_size</strong></p><blockquote><p>&#x8BF4;&#x660E;&#xFF1A;</p></blockquote><blockquote><p>key_blocks_unused &#x7684;&#x503C;&#x53EF;&#x4EE5;&#x901A;&#x8FC7; SHOW STATUS &#x83B7;&#x53D6;</p></blockquote><blockquote><p>key_cache_block_size &#x7684;&#x503C;&#x53EF;&#x4EE5;&#x901A;&#x8FC7; SHOW VARIABLES &#x83B7;&#x53D6;</p></blockquote><p>&#x952E;&#x7F13;&#x5B58;&#x5757;&#x5927;&#x5C0F;&#x662F;&#x4E00;&#x4E2A;&#x6BD4;&#x8F83;&#x91CD;&#x8981;&#x7684;&#x503C;&#xFF0C;&#x56E0;&#x4E3A;&#x5B83;&#x5F71;&#x54CD; MyISAM&#x3001;OS &#x7F13;&#x5B58;&#x4EE5;&#x53CA;&#x6587;&#x4EF6;&#x7CFB;&#x7EDF;&#x4E4B;&#x95F4;&#x7684;&#x4EA4;&#x4E92;&#x3002;&#x5982;&#x679C;&#x7F13;&#x5B58;&#x5757;&#x592A;&#x5C0F;&#xFF0C;&#x53EF;&#x80FD;&#x4F1A;&#x78B0;&#x5230;&#x5199;&#x65F6;&#x8BFB;&#x53D6; (OS &#x5728;&#x5199;&#x6570;&#x636E;&#x4E4B;&#x524D;&#x5FC5;&#x987B;&#x5148;&#x4ECE;&#x78C1;&#x76D8;&#x4E0A;&#x8BFB;&#x53D6;&#x4E00;&#x4E9B;&#x6570;&#x636E;)&#xFF0C;&#x5173;&#x4E8E;&#x5199;&#x65F6;&#x8BFB;&#x53D6;&#x7684;&#x76F8;&#x5173;&#x77E5;&#x8BC6;&#xFF0C;&#x5927;&#x5BB6;&#x53EF;&#x4EE5;&#x81EA;&#x884C;&#x67E5;&#x9605;&#x3002;</p><p>&#x5173;&#x4E8E;&#x7F13;&#x5B58;&#x547D;&#x4E2D;&#x7387;&#xFF0C;&#x8FD9;&#x91CC;&#x518D;&#x8BF4;&#x4E00;&#x70B9;&#x3002;&#x7F13;&#x5B58;&#x547D;&#x4E2D;&#x7387;&#x6709;&#x4EC0;&#x4E48;&#x610F;&#x4E49;&#xFF1F;&#x5176;&#x5B9E;&#x8FD9;&#x4E2A;&#x6570;&#x5B57;&#x6CA1;&#x592A;&#x5927;&#x7684;&#x4F5C;&#x7528;&#x3002;&#x6BD4;&#x5982; 99% &#x548C; 99.9% &#x4E4B;&#x95F4;&#x770B;&#x8D77;&#x6765;&#x5DEE;&#x8DDD;&#x5F88;&#x5C0F;&#xFF0C;&#x4F46;&#x5B9E;&#x9645;&#x4E0A;&#x4EE3;&#x8868;&#x4E86; 10 &#x500D;&#x7684;&#x5DEE;&#x8DDD;&#x3002;&#x7F13;&#x5B58;&#x547D;&#x4E2D;&#x7387;&#x7684;&#x5B9E;&#x9645;&#x610F;&#x4E49;&#x4E0E;&#x5E94;&#x7528;&#x4E5F;&#x6709;&#x5F88;&#x5927;&#x5173;&#x7CFB;&#xFF0C;&#x6709;&#x4E9B;&#x5E94;&#x7528;&#x53EF;&#x4EE5;&#x5728;&#x547D;&#x4E2D;&#x7387; 99% &#x4E0B;&#x826F;&#x597D;&#x7684;&#x5DE5;&#x4F5C;&#xFF0C;&#x6709;&#x4E9B; I/O &#x5BC6;&#x96C6;&#x578B;&#x5E94;&#x7528;&#xFF0C;&#x53EF;&#x80FD;&#x9700;&#x8981; 99.99%&#x3002;&#x6240;&#x4EE5;&#x4ECE;&#x7ECF;&#x9A8C;&#x4E0A;&#x6765;&#x8BF4;&#xFF0C;&#x6BCF;&#x79D2;&#x672A;&#x547D;&#x4E2D;&#x6B21;&#x6570;&#x8FD9;&#x4E2A;&#x6307;&#x6807;&#x5B9E;&#x9645;&#x4E0A;&#x4F1A;&#x66F4;&#x6709;&#x7528;&#x4E00;&#x4E9B;&#x3002;&#x6BD4;&#x5982;&#x6BCF;&#x79D2; 5 &#x6B21;&#x672A;&#x547D;&#x4E2D;&#x53EF;&#x80FD;&#x4E0D;&#x4F1A;&#x5BFC;&#x81F4; IO &#x7E41;&#x5FD9;&#xFF0C;&#x4F46;&#x6BCF;&#x79D2; 100 &#x6B21;&#x7F13;&#x5B58;&#x672A;&#x547D;&#x4E2D;&#x5219;&#x53EF;&#x80FD;&#x51FA;&#x73B0;&#x95EE;&#x9898;&#x3002;</p><p>MyISAM &#x952E;&#x7F13;&#x5B58;&#x7684;&#x6BCF;&#x79D2;&#x672A;&#x547D;&#x4E2D;&#x6B21;&#x6570;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x5982;&#x4E0B;&#x547D;&#x4EE4;&#x76D1;&#x63A7;&#xFF1A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># &#x8BA1;&#x7B97;&#x6BCF;&#x9694;10s&#x7F13;&#x5B58;&#x672A;&#x547D;&#x4E2D;&#x6B21;&#x6570;&#x7684;&#x589E;&#x91CF;</span></span><br><span class="line"><span class="comment"># &#x4F7F;&#x7528;&#x6B64;&#x547D;&#x4EE4;&#x65F6;&#x8BF7;&#x5E26;&#x4E0A;&#x7528;&#x6237;&#x548C;&#x5BC6;&#x7801;&#x53C2;&#x6570;&#xFF1A;mysqladmin -uroot -pxxx extended-status -r -i 10 | grep Key_reads</span></span><br><span class="line">$ mysqladmin extended-status -r -i 10 | grep Key_reads</span><br></pre></td></tr></tbody></table></figure><p></p><p>&#x6700;&#x540E;&#xFF0C;&#x5373;&#x4F7F;&#x6CA1;&#x6709;&#x4F7F;&#x7528;&#x4EFB;&#x4F55; MyISAM &#x8868;&#xFF0C;&#x4F9D;&#x7136;&#x9700;&#x8981;&#x5C06;key-buffer-size&#x8BBE;&#x7F6E;&#x4E3A;&#x8F83;&#x5C0F;&#x503C;&#xFF0C;&#x6BD4;&#x5982; 32M&#xFF0C;&#x56E0;&#x4E3A; MySQL &#x5185;&#x90E8;&#x4F1A;&#x4F7F;&#x7528; MyISAM &#x8868;&#xFF0C;&#x6BD4;&#x5982; GROUP BY &#x8BED;&#x53E5;&#x53EF;&#x80FD;&#x4F1A;&#x521B;&#x5EFA; MyISAM &#x4E34;&#x65F6;&#x8868;&#x3002;</p><h4 id="myisam-recover"><a href="#myisam-recover" class="headerlink" title="myisam-recover"></a>myisam-recover</h4><p>myisam-recover&#x9009;&#x9879;&#x7528;&#x4E8E;&#x914D;&#x7F6E; MyISAM &#x600E;&#x6837;&#x5BFB;&#x627E;&#x548C;&#x4FEE;&#x590D;&#x9519;&#x8BEF;&#x3002;&#x6253;&#x5F00;&#x8FD9;&#x4E2A;&#x9009;&#x9879;&#x4F1A;&#x901A;&#x77E5; MySQL &#x5728;&#x6253;&#x5F00;&#x8868;&#x65F6;&#xFF0C;&#x68C0;&#x67E5;&#x8868;&#x662F;&#x5426;&#x635F;&#x574F;&#xFF0C;&#x5E76;&#x5728;&#x627E;&#x5230;&#x95EE;&#x9898;&#x65F6;&#x8FDB;&#x884C;&#x4FEE;&#x590D;&#xFF0C;&#x5B83;&#x53EF;&#x4EE5;&#x8BBE;&#x7F6E;&#x5982;&#x4E0B;&#x503C;&#xFF1A;</p><ul><li>DEFAULT&#xFF1A;&#x8868;&#x793A;&#x4E0D;&#x8BBE;&#x7F6E;&#xFF0C;&#x4F1A;&#x5C1D;&#x8BD5;&#x4FEE;&#x590D;&#x5D29;&#x6E83;&#x6216;&#x8005;&#x672A;&#x5B8C;&#x5168;&#x5173;&#x95ED;&#x7684;&#x8868;&#xFF0C;&#x4F46;&#x5728;&#x6062;&#x590D;&#x6570;&#x636E;&#x65F6;&#x4E0D;&#x4F1A;&#x6267;&#x884C;&#x5176;&#x5B83;&#x52A8;&#x4F5C;</li><li>BACKUP&#xFF1A;&#x5C06;&#x6570;&#x636E;&#x6587;&#x4EF6;&#x5907;&#x4EFD;&#x5230;. bak &#x6587;&#x4EF6;&#xFF0C;&#x4EE5;&#x4FBF;&#x968F;&#x540E;&#x8FDB;&#x884C;&#x68C0;&#x67E5;</li><li>FORCE&#xFF1A;&#x5373;&#x4F7F;. myd &#x6587;&#x4EF6;&#x4E2D;&#x4E22;&#x5931;&#x7684;&#x6570;&#x636E;&#x8D85;&#x8FC7; 1 &#x884C;&#xFF0C;&#x4E5F;&#x8BA9;&#x6062;&#x590D;&#x52A8;&#x4F5C;&#x7EE7;&#x7EED;&#x6267;&#x884C;</li><li>QUICK&#xFF1A;&#x9664;&#x975E;&#x6709;&#x5220;&#x9664;&#x5757;&#xFF0C;&#x5426;&#x5219;&#x8DF3;&#x8FC7;&#x6062;&#x590D;</li></ul><p>&#x53EF;&#x4EE5;&#x8BBE;&#x7F6E;&#x591A;&#x4E2A;&#x503C;&#xFF0C;&#x6BCF;&#x4E2A;&#x503C;&#x7528;&#x9017;&#x53F7;&#x9694;&#x5F00;&#xFF0C;&#x6BD4;&#x5982;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x4E2D;&#x7684;BACKUP,FORCE&#x4F1A;&#x5F3A;&#x5236;&#x6062;&#x590D;&#x5E76;&#x4E14;&#x521B;&#x5EFA;&#x5907;&#x4EFD;&#xFF0C;&#x8FD9;&#x6837;&#x914D;&#x7F6E;&#x5728;&#x53EA;&#x6709;&#x4E00;&#x4E9B;&#x5C0F;&#x7684; MyISAM &#x8868;&#x65F6;&#x6709;&#x7528;&#xFF0C;&#x56E0;&#x4E3A;&#x670D;&#x52A1;&#x5668;&#x8FD0;&#x884C;&#x7740;&#x4E00;&#x4E9B;&#x635F;&#x574F;&#x7684; MyISAM &#x8868;&#x662F;&#x975E;&#x5E38;&#x5371;&#x9669;&#x7684;&#xFF0C;&#x5B83;&#x4EEC;&#x6709;&#x65F6;&#x53EF;&#x80FD;&#x4F1A;&#x5BFC;&#x81F4;&#x66F4;&#x591A;&#x6570;&#x636E;&#x635F;&#x574F;&#xFF0C;&#x751A;&#x81F3;&#x670D;&#x52A1;&#x5668;&#x5D29;&#x6E83;&#x3002;&#x7136;&#x800C;&#x5982;&#x679C;&#x6709;&#x5F88;&#x5927;&#x7684;&#x8868;&#xFF0C;&#x5B83;&#x4F1A;&#x5BFC;&#x81F4;&#x670D;&#x52A1;&#x5668;&#x6253;&#x5F00;&#x6240;&#x6709;&#x7684; MyISAM &#x8868;&#x65F6;&#x90FD;&#x68C0;&#x67E5;&#x548C;&#x4FEE;&#x590D;&#xFF0C;&#x5927;&#x8868;&#x7684;&#x68C0;&#x67E5;&#x548C;&#x4FEE;&#x590D;&#x53EF;&#x80FD;&#x4F1A;&#x8017;&#x8D39;&#x5927;&#x91CF;&#x65F6;&#x95F4;&#xFF0C;&#x4E14;&#x5728;&#x8FD9;&#x6BB5;&#x65F6;&#x95F4;&#x91CC;&#xFF0C;MySQL &#x4F1A;&#x963B;&#x6B62;&#x8FD9;&#x4E2A;&#x8FDE;&#x63A5;&#x505A;&#x5176;&#x5B83;&#x4EFB;&#x4F55;&#x64CD;&#x4F5C;&#xFF0C;&#x8FD9;&#x663E;&#x7136;&#x662F;&#x4E0D;&#x5207;&#x5B9E;&#x9645;&#x7684;&#x3002;</p><p>&#x56E0;&#x6B64;&#xFF0C;&#x5728;&#x9ED8;&#x8BA4;&#x4F7F;&#x7528; InnoDB &#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x65F6;&#xFF0C;&#x6570;&#x636E;&#x5E93;&#x4E2D;&#x53EA;&#x6709;&#x975E;&#x5E38;&#x5C0F;&#x7684; MyISAM &#x8868;&#x65F6;&#xFF0C;&#x53EA;&#x9700;&#x8981;&#x914D;&#x7F6E;key-buffe-size&#x4E8E;&#x4E00;&#x4E2A;&#x5F88;&#x5C0F;&#x7684;&#x503C; (32M) &#x4EE5;&#x53CA;myisam-recover=BACKUP,FORCE&#x3002;&#x5F53;&#x6570;&#x636E;&#x5E93;&#x4E2D;&#x5927;&#x90E8;&#x5206;&#x8868;&#x4E3A; MyISAM &#x8868;&#x65F6;&#xFF0C;&#x8BF7;&#x6839;&#x636E;&#x4E0A;&#x6587;&#x7684;&#x516C;&#x5F0F;&#x5408;&#x7406;&#x914D;&#x7F6E;key-buffer-size&#xFF0C;&#x800C;myisam-recover&#x5219;&#x53EF;&#x4EE5;&#x5173;&#x95ED;&#xFF0C;&#x5728;&#x542F;&#x52A8;&#x540E;&#x4F7F;&#x7528;CHECK TABLES&#x548C;REPAIR TABLES&#x547D;&#x4EE4;&#x6765;&#x505A;&#x68C0;&#x67E5;&#x548C;&#x4FEE;&#x590D;&#xFF0C;&#x8FD9;&#x6837;&#x5BF9;&#x670D;&#x52A1;&#x5668;&#x7684;&#x5F71;&#x54CD;&#x6BD4;&#x8F83;&#x5C0F;&#x3002;</p><h4 id="SAFETY"><a href="#SAFETY" class="headerlink" title="SAFETY"></a>SAFETY</h4><p>&#x57FA;&#x672C;&#x914D;&#x7F6E;&#x8BBE;&#x7F6E;&#x5230;&#x4F4D;&#x540E;&#xFF0C;MySQL &#x5DF2;&#x7ECF;&#x6BD4;&#x8F83;&#x5B89;&#x5168;&#x4E86;&#xFF0C;&#x8FD9;&#x91CC;&#x4EC5;&#x4EC5;&#x5217;&#x51FA;&#x4E24;&#x4E2A;&#x9700;&#x8981;&#x6CE8;&#x610F;&#x7684;&#x914D;&#x7F6E;&#x9879;&#xFF0C;&#x5982;&#x679C;&#x9700;&#x8981;&#x542F;&#x7528;&#x4E00;&#x4E9B;&#x4F7F;&#x670D;&#x52A1;&#x5668;&#x66F4;&#x5B89;&#x5168;&#x548C;&#x53EF;&#x9760;&#x7684;&#x8BBE;&#x7F6E;&#xFF0C;&#x53EF;&#x4EE5;&#x53C2;&#x8003; MySQL &#x5B98;&#x65B9;&#x624B;&#x518C;&#xFF0C;&#x4F46;&#x9700;&#x8981;&#x6CE8;&#x610F;&#x7684;&#x662F;&#xFF0C;&#x5B83;&#x4EEC;&#x5176;&#x4E2D;&#x7684;&#x4E00;&#x4E9B;&#x9009;&#x9879;&#x53EF;&#x80FD;&#x4F1A;&#x5F71;&#x54CD;&#x6027;&#x80FD;&#xFF0C;&#x6BD5;&#x7ADF;&#x4FDD;&#x8BC1;&#x5B89;&#x5168;&#x548C;&#x53EF;&#x9760;&#x9700;&#x8981;&#x4ED8;&#x51FA;&#x4E00;&#x4E9B;&#x4EE3;&#x4EF7;&#x3002;</p><p><strong>max-allowed-packet</strong><br><code>max-allowed-packet</code>&#x9632;&#x6B62;&#x670D;&#x52A1;&#x5668;&#x53D1;&#x9001;&#x592A;&#x5927;&#x7684;&#x6570;&#x636E;&#x5305;&#xFF0C;&#x4E5F;&#x63A7;&#x5236;&#x670D;&#x52A1;&#x5668;&#x53EF;&#x4EE5;&#x63A5;&#x6536;&#x591A;&#x5927;&#x7684;&#x5305;&#x3002;&#x9ED8;&#x8BA4;&#x503C; 4M&#xFF0C;&#x53EF;&#x80FD;&#x4F1A;&#x6BD4;&#x8F83;&#x5C0F;&#x3002;&#x5982;&#x679C;&#x8BBE;&#x7F6E;&#x592A;&#x5C0F;&#xFF0C;&#x6709;&#x65F6;&#x590D;&#x5236;&#x4E0A;&#x4F1A;&#x51FA;&#x95EE;&#x9898;&#xFF0C;&#x8868;&#x73B0;&#x4E3A;&#x4ECE;&#x5E93;&#x4E0D;&#x80FD;&#x63A5;&#x6536;&#x4E3B;&#x5E93;&#x53D1;&#x8FC7;&#x6765;&#x7684;&#x590D;&#x5236;&#x6570;&#x636E;&#x3002;&#x5982;&#x679C;&#x8868;&#x4E2D;&#x6709; Blob &#x6216;&#x8005; Text &#x5B57;&#x6BB5;&#xFF0C;&#x4E14;&#x6570;&#x636E;&#x91CF;&#x8F83;&#x5927;&#x7684;&#x8BDD;&#xFF0C;&#x8981;&#x5C0F;&#x5FC3;&#xFF0C;&#x5982;&#x679C;&#x6570;&#x636E;&#x91CF;&#x8D85;&#x8FC7;&#x8FD9;&#x4E2A;&#x53D8;&#x91CF;&#x7684;&#x5927;&#x5C0F;&#xFF0C;&#x5B83;&#x4EEC;&#x53EF;&#x80FD;&#x88AB;&#x622A;&#x65AD;&#x6216;&#x8005;&#x7F6E;&#x4E3A; NULL&#xFF0C;&#x8FD9;&#x91CC;&#x5EFA;&#x8BAE;&#x8BBE;&#x7F6E;&#x4E3A; 16M&#x3002;</p><p><strong>max-connect-errors</strong><br>&#x8FD9;&#x4E2A;&#x53D8;&#x91CF;&#x662F;&#x4E00;&#x4E2A; MySQL &#x4E2D;&#x4E0E;&#x5B89;&#x5168;&#x76F8;&#x5173;&#x7684;&#x8BA1;&#x6570;&#x5668;&#x503C;&#xFF0C;&#x5B83;&#x4E3B;&#x8981;&#x9632;&#x6B62;&#x5BA2;&#x6237;&#x7AEF;&#x66B4;&#x529B;&#x7834;&#x89E3;&#x5BC6;&#x7801;&#x3002;&#x5982;&#x679C;&#x67D0;&#x4E00;&#x4E2A;&#x5BA2;&#x6237;&#x7AEF;&#x5C1D;&#x8BD5;&#x8FDE;&#x63A5; MySQL &#x670D;&#x52A1;&#x5668;&#x5931;&#x8D25;&#x8D85;&#x8FC7; n &#x6B21;&#xFF0C;&#x5219; MySQL &#x4F1A;&#x65E0;&#x6761;&#x4EF6;&#x5F3A;&#x5236;&#x963B;&#x6B62;&#x6B64;&#x5BA2;&#x6237;&#x7AEF;&#x8FDE;&#x63A5;&#xFF0C;&#x76F4;&#x5230;&#x518D;&#x6B21;&#x5237;&#x65B0;&#x4E3B;&#x673A;&#x7F13;&#x5B58;&#x6216;&#x8005;&#x91CD;&#x542F; MySQL &#x670D;&#x52A1;&#x5668;&#x3002;</p><p>&#x8FD9;&#x4E2A;&#x503C;&#x9ED8;&#x8BA4;&#x4E3A; 10&#xFF0C;&#x592A;&#x5C0F;&#x4E86;&#xFF0C;&#x6709;&#x65F6;&#x5019;&#x7F51;&#x7EDC;&#x62BD;&#x98CE;&#x6216;&#x8005;&#x5E94;&#x7528;&#x914D;&#x7F6E;&#x51FA;&#x73B0;&#x9519;&#x8BEF;&#x5BFC;&#x81F4;&#x77ED;&#x65F6;&#x95F4;&#x5185;&#x4E0D;&#x65AD;&#x5C1D;&#x8BD5;&#x91CD;&#x8FDE;&#x670D;&#x52A1;&#x5668;&#xFF0C;&#x5BA2;&#x6237;&#x7AEF;&#x5C31;&#x4F1A;&#x88AB;&#x5217;&#x5165;&#x9ED1;&#x540D;&#x5355;&#xFF0C;&#x5BFC;&#x81F4;&#x65E0;&#x6CD5;&#x8FDE;&#x63A5;&#x3002;&#x5982;&#x679C;&#x5728;&#x5185;&#x7F51;&#x73AF;&#x5883;&#xFF0C;&#x53EF;&#x4EE5;&#x786E;&#x8BA4;&#x6CA1;&#x6709;&#x5B89;&#x5168;&#x95EE;&#x9898;&#x53EF;&#x4EE5;&#x628A;&#x8FD9;&#x4E2A;&#x503C;&#x8BBE;&#x7F6E;&#x7684;&#x5927;&#x4E00;&#x70B9;&#xFF0C;&#x9ED8;&#x8BA4;&#x503C;&#x592A;&#x5BB9;&#x6613;&#x5BFC;&#x81F4;&#x95EE;&#x9898;&#x3002;</p><h4 id="LOGGING"><a href="#LOGGING" class="headerlink" title="LOGGING"></a>LOGGING</h4><p>&#x63A5;&#x4E0B;&#x6765;&#x770B;&#x4E0B;&#x65E5;&#x5FD7;&#x7684;&#x914D;&#x7F6E;&#xFF0C;&#x5BF9;&#x4E8E; MySQL &#x6765;&#x8BF4;&#xFF0C;&#x6162;&#x65E5;&#x5FD7;&#x548C; bin-log &#x662F;&#x975E;&#x5E38;&#x91CD;&#x8981;&#x7684;&#x4E24;&#x79CD;&#x65E5;&#x5FD7;&#xFF0C;&#x524D;&#x8005;&#x53EF;&#x4EE5;&#x5E2E;&#x52A9;&#x5E94;&#x7528;&#x7A0B;&#x5E8F;&#x76D1;&#x63A7;&#x6027;&#x80FD;&#x95EE;&#x9898;&#xFF0C;&#x540E;&#x8005;&#x5728;&#x6570;&#x636E;&#x540C;&#x6B65;&#x3001;&#x5907;&#x4EFD;&#x7B49;&#x65B9;&#x9762;&#x53D1;&#x6325;&#x7740;&#x975E;&#x5E38;&#x91CD;&#x8981;&#x7684;&#x4F5C;&#x7528;&#x3002;</p><p>&#x5173;&#x4E8E; bin-log &#x7684; 3 &#x4E2A;&#x914D;&#x7F6E;&#xFF0C;log-bin&#x7528;&#x4E8E;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x5B58;&#x653E;&#x8DEF;&#x5F84;&#xFF0C;expire_logs_days&#x8BA9;&#x670D;&#x52A1;&#x5668;&#x5728;&#x6307;&#x5B9A;&#x5929;&#x6570;&#x4E4B;&#x540E;&#x6E05;&#x7406;&#x65E7;&#x7684;&#x65E5;&#x5FD7;&#xFF0C;&#x5373;&#x914D;&#x7F6E;&#x4FDD;&#x7559;&#x6700;&#x8FD1;&#x591A;&#x5C11;&#x5929;&#x7684;&#x65E5;&#x5FD7;&#x3002;&#x9664;&#x975E;&#x6709;&#x8FD0;&#x7EF4;&#x624B;&#x52A8;&#x5907;&#x4EFD;&#x6E05;&#x7406; bin-log&#xFF0C;&#x5426;&#x5219;&#x5F3A;&#x70C8;&#x5EFA;&#x8BAE;&#x6253;&#x5F00;&#x6B64;&#x914D;&#x7F6E;&#xFF0C;&#x5982;&#x679C;&#x4E0D;&#x542F;&#x7528;&#xFF0C;&#x670D;&#x52A1;&#x5668;&#x7A7A;&#x95F4;&#x6700;&#x7EC8;&#x5C06;&#x4F1A;&#x88AB;&#x8017;&#x5C3D;&#xFF0C;&#x5BFC;&#x81F4;&#x670D;&#x52A1;&#x5668;&#x5361;&#x4F4F;&#x6216;&#x8005;&#x5D29;&#x6E83;&#x3002;</p><h4 id="sync-binlog"><a href="#sync-binlog" class="headerlink" title="sync-binlog"></a>sync-binlog</h4><p><code>sync-binlog</code>&#x63A7;&#x5236;&#x5F53;&#x4E8B;&#x52A1;&#x63D0;&#x4EA4;&#x4E4B;&#x540E;&#xFF0C;MySQL &#x662F;&#x5426;&#x5C06; bin-log &#x5237;&#x65B0;&#x5230;&#x78C1;&#x76D8;&#x3002;&#x5982;&#x679C;&#x5176;&#x503C;&#x7B49;&#x4E8E; 0 &#x6216;&#x8005;&#x5927;&#x4E8E; 1 &#x65F6;&#xFF0C;&#x5F53;&#x4E8B;&#x52A1;&#x63D0;&#x4EA4;&#x4E4B;&#x540E;&#xFF0C;MySQL &#x4E0D;&#x4F1A;&#x5C06; bin-log &#x5237;&#x65B0;&#x5230;&#x78C1;&#x76D8;&#xFF0C;&#x5176;&#x6027;&#x80FD;&#x6700;&#x9AD8;&#xFF0C;&#x4F46;&#x5B58;&#x5728;&#x7684;&#x98CE;&#x9669;&#x4E5F;&#x662F;&#x6700;&#x5927;&#x7684;&#xFF0C;&#x56E0;&#x4E3A;&#x4E00;&#x65E6;&#x7CFB;&#x7EDF;&#x5D29;&#x6E83;&#xFF0C;bin-log &#x5C06;&#x4F1A;&#x4E22;&#x5931;&#x3002;&#x800C;&#x5F53;&#x5176;&#x503C;&#x7B49;&#x4E8E; 1 &#x65F6;&#xFF0C;&#x662F;&#x6700;&#x5B89;&#x5168;&#x7684;&#xFF0C;&#x8FD9;&#x65F6;&#x5019;&#x5373;&#x4F7F;&#x7CFB;&#x7EDF;&#x5D29;&#x6E83;&#xFF0C;&#x6700;&#x591A;&#x4E5F;&#x5C31;&#x4E22;&#x5931;&#x672C;&#x6B21;&#x672A;&#x5B8C;&#x6210;&#x7684;&#x4E8B;&#x52A1;&#xFF0C;&#x5BF9;&#x5B9E;&#x9645;&#x7684;&#x6570;&#x636E;&#x6CA1;&#x6709;&#x5B9E;&#x8D28;&#x6027;&#x7684;&#x5F71;&#x54CD;&#xFF0C;&#x4F46;&#x6027;&#x80FD;&#x8F83;&#x5DEE;&#x3002;</p><p>&#x9700;&#x8981;&#x6CE8;&#x610F;&#x7684;&#x662F;&#xFF0C;&#x5728; 5.7.7 &#x4E4B;&#x524D;&#x7684;&#x7248;&#x672C;&#xFF0C;&#x8FD9;&#x4E2A;&#x9009;&#x62E9;&#x7684;&#x9ED8;&#x8BA4;&#x503C;&#x4E3A; 0&#xFF0C;&#x800C;&#x4E4B;&#x540E;&#x7684;&#x7248;&#x672C;&#x9ED8;&#x8BA4;&#x503C;&#x4E3A; 1&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x6700;&#x5B89;&#x5168;&#x7684;&#x7B56;&#x7565;&#x3002;&#x5BF9;&#x4E8E;&#x9AD8;&#x5E76;&#x53D1;&#x7684;&#x6027;&#x80FD;&#xFF0C;&#x9700;&#x8981;&#x5173;&#x6CE8;&#x8FD9;&#x4E00;&#x70B9;&#xFF0C;&#x9632;&#x6B62;&#x7248;&#x672C;&#x5347;&#x7EA7;&#x540E;&#x51FA;&#x73B0;&#x6027;&#x80FD;&#x95EE;&#x9898;&#x3002;</p><p>&#x5269;&#x4E0B;&#x7684; 4 &#x4E2A;&#x914D;&#x7F6E;&#x9879;&#x5C31;&#x6CA1;&#x592A;&#x591A;&#x8981;&#x8BF4;&#x7684;&#x3002;</p><ul><li>log-error&#xFF1A;&#x7528;&#x4E8E;&#x914D;&#x7F6E;&#x9519;&#x8BEF;&#x65E5;&#x5FD7;&#x7684;&#x5B58;&#x653E;&#x76EE;&#x5F55;</li><li>slow-query-log&#xFF1A;&#x6253;&#x5F00;&#x6162;&#x65E5;&#x5FD7;&#xFF0C;&#x9ED8;&#x8BA4;&#x5173;&#x95ED;</li><li>slow-query-log-file&#xFF1A;&#x914D;&#x7F6E;&#x6162;&#x65E5;&#x5FD7;&#x7684;&#x5B58;&#x653E;&#x76EE;&#x5F55;</li><li>log-queries-not-using-indexes&#xFF1A;&#x5982;&#x679C;&#x8BE5; sql &#x6CA1;&#x6709;&#x4F7F;&#x7528;&#x7D22;&#x5F15;&#xFF0C;&#x4F1A;&#x5C06;&#x5176;&#x5199;&#x5165;&#x5230;&#x6162;&#x65E5;&#x5FD7;&#xFF0C;&#x4F46;&#x662F;&#x5426;&#x771F;&#x7684;&#x6267;&#x884C;&#x5F88;&#x6162;&#xFF0C;&#x9700;&#x8981;&#x533A;&#x5206;&#xFF0C;&#x9ED8;&#x8BA4;&#x5173;&#x95ED;&#x3002;</li></ul><h4 id="CACHES-AND-LIMITS"><a href="#CACHES-AND-LIMITS" class="headerlink" title="CACHES AND LIMITS"></a>CACHES AND LIMITS</h4><p><strong>tmp-table-size &amp;&amp; max-heap-table-size</strong><br>&#x8FD9;&#x4E24;&#x4E2A;&#x914D;&#x7F6E;&#x63A7;&#x5236;&#x4F7F;&#x7528; Memory &#x5F15;&#x64CE;&#x7684;&#x5185;&#x5B58;&#x4E34;&#x65F6;&#x8868;&#x53EF;&#x4EE5;&#x4F7F;&#x7528;&#x591A;&#x5927;&#x7684;&#x5185;&#x5B58;&#x3002;&#x5982;&#x679C;&#x9690;&#x5F0F;&#x5185;&#x5B58;&#x4E34;&#x65F6;&#x8868;&#x7684;&#x5927;&#x5C0F;&#x8D85;&#x8FC7;&#x8FD9;&#x4E24;&#x4E2A;&#x503C;&#xFF0C;&#x5C06;&#x4F1A;&#x88AB;&#x8F6C;&#x4E3A;&#x78C1;&#x76D8; MyISAM &#x8868; (&#x9690;&#x5F0F;&#x4E34;&#x65F6;&#x8868;&#x7531;&#x670D;&#x52A1;&#x5668;&#x521B;&#x5EFA;&#xFF0C;&#x7528;&#x6237;&#x4FDD;&#x5B58;&#x6267;&#x884C;&#x4E2D;&#x7684;&#x67E5;&#x8BE2;&#x7684;&#x4E2D;&#x95F4;&#x7ED3;&#x679C;)&#x3002;</p><p>&#x5982;&#x679C;&#x67E5;&#x8BE2;&#x8BED;&#x53E5;&#x6CA1;&#x6709;&#x521B;&#x5EFA;&#x5E9E;&#x5927;&#x7684;&#x4E34;&#x65F6;&#x8868; (&#x901A;&#x8FC7;&#x5408;&#x7406;&#x7684;&#x7D22;&#x5F15;&#x548C;&#x67E5;&#x8BE2;&#x8BBE;&#x8BA1;&#x6765;&#x907F;&#x514D;)&#xFF0C;&#x53EF;&#x4EE5;&#x628A;&#x8FD9;&#x4E2A;&#x503C;&#x8BBE;&#x5927;&#x4E00;&#x70B9;&#xFF0C;&#x4EE5;&#x514D;&#x9700;&#x8981;&#x628A;&#x5185;&#x5B58;&#x4E34;&#x65F6;&#x8868;&#x8F6C;&#x6362;&#x4E3A;&#x78C1;&#x76D8;&#x4E34;&#x65F6;&#x8868;&#x3002;&#x4F46;&#x8981;&#x8C28;&#x9632;&#x8FD9;&#x4E2A;&#x503C;&#x8BBE;&#x7F6E;&#x5F97;&#x8FC7;&#x5927;&#xFF0C;&#x5982;&#x679C;&#x67E5;&#x8BE2;&#x786E;&#x5B9E;&#x4F1A;&#x521B;&#x5EFA;&#x5F88;&#x5927;&#x7684;&#x4E34;&#x65F6;&#x8868;&#xFF0C;&#x90A3;&#x4E48;&#x8FD8;&#x662F;&#x4F7F;&#x7528;&#x78C1;&#x76D8;&#x6BD4;&#x8F83;&#x597D;&#xFF0C;&#x6BD5;&#x7ADF;&#x5E76;&#x53D1;&#x6570;&#x4E00;&#x8D77;&#x6765;&#xFF0C;&#x6240;&#x9700;&#x8981;&#x7684;&#x5185;&#x5B58;&#x5C31;&#x4F1A;&#x6025;&#x5267;&#x589E;&#x957F;&#x3002;</p><p>&#x5E94;&#x8BE5;&#x7B80;&#x5355;&#x7684;&#x628A;&#x8FD9;&#x4E24;&#x4E2A;&#x53D8;&#x91CF;&#x8BBE;&#x4E3A;&#x540C;&#x6837;&#x7684;&#x503C;&#xFF0C;&#x8FD9;&#x91CC;&#x9009;&#x62E9;&#x4E86; 32M&#xFF0C;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x4ED4;&#x7EC6;&#x68C0;&#x67E5;created-tmp-disk-tables&#x548C;created-tmp-tables&#x4E24;&#x4E2A;&#x53D8;&#x91CF;&#x6765;&#x6307;&#x5BFC;&#x4F60;&#x8BBE;&#x7F6E;&#xFF0C;&#x8FD9;&#x4E24;&#x4E2A;&#x53D8;&#x91CF;&#x7684;&#x503C;&#x5C06;&#x5C55;&#x793A;&#x4E34;&#x65F6;&#x8868;&#x7684;&#x521B;&#x5EFA;&#x6709;&#x591A;&#x9891;&#x7E41;&#x3002;</p><p><strong>max-connections</strong></p><p>&#x7528;&#x4E8E;&#x8BBE;&#x7F6E;&#x7528;&#x6237;&#x7684;&#x6700;&#x5927;&#x8FDE;&#x63A5;&#x6570;&#xFF0C;&#x4FDD;&#x8BC1;&#x670D;&#x52A1;&#x5668;&#x4E0D;&#x4F1A;&#x5E94;&#x4E3A;&#x5E94;&#x7528;&#x7A0B;&#x5E8F;&#x6FC0;&#x589E;&#x7684;&#x8FDE;&#x63A5;&#x800C;&#x4E0D;&#x582A;&#x91CD;&#x8D1F;&#x3002;&#x5982;&#x679C;&#x5E94;&#x7528;&#x7A0B;&#x5E8F;&#x6709;&#x95EE;&#x9898;&#xFF0C;&#x6216;&#x8005;&#x670D;&#x52A1;&#x5668;&#x9047;&#x5230;&#x8FDE;&#x63A5;&#x5EF6;&#x8FDF;&#x95EE;&#x9898;&#xFF0C;&#x4F1A;&#x521B;&#x5EFA;&#x5F88;&#x591A;&#x65B0;&#x8FDE;&#x63A5;&#x3002;&#x4F46;&#x5982;&#x679C;&#x8FD9;&#x4E9B;&#x8FDE;&#x63A5;&#x4E0D;&#x80FD;&#x6267;&#x884C;&#x67E5;&#x8BE2;&#xFF0C;&#x90A3;&#x6253;&#x5F00;&#x4E00;&#x4E2A;&#x8FDE;&#x63A5;&#x6CA1;&#x4EC0;&#x4E48;&#x597D;&#x5904;&#xFF0C;&#x6240;&#x4EE5;&#x88AB; &#x201C;&#x592A;&#x591A;&#x7684;&#x8FDE;&#x63A5;&#x201D; &#x9519;&#x8BEF;&#x62D2;&#x7EDD;&#x662F;&#x4E00;&#x79CD;&#x5FEB;&#x901F;&#x800C;&#x4E14;&#x4EE3;&#x4EF7;&#x5C0F;&#x7684;&#x5931;&#x8D25;&#x65B9;&#x5F0F;&#x3002;</p><p>&#x5728;&#x670D;&#x52A1;&#x5668;&#x8D44;&#x6E90;&#x5141;&#x8BB8;&#x7684;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x53EF;&#x4EE5;&#x628A;<code>max-connections</code>&#x8BBE;&#x7F6E;&#x7684;&#x8DB3;&#x591F;&#x5927;&#xFF0C;&#x4EE5;&#x5BB9;&#x7EB3;&#x6B63;&#x5E38;&#x53EF;&#x80FD;&#x8FBE;&#x5230;&#x7684;&#x8D1F;&#x8F7D;&#x3002;&#x82E5;&#x8BA4;&#x4E3A;&#x6B63;&#x5E38;&#x60C5;&#x51B5;&#x5C06;&#x6709; <code>300</code> &#x6216;&#x8005;&#x66F4;&#x591A;&#x8FDE;&#x63A5;&#xFF0C;&#x53EF;&#x4EE5;&#x8BBE;&#x7F6E;&#x4E3A; <code>500</code> &#x6216;&#x8005;&#x66F4;&#x591A; (&#x5E94;&#x5BF9;&#x9AD8;&#x5CF0;&#x671F;)&#x3002;&#x9ED8;&#x8BA4;&#x503C;&#x662F; <code>100</code>&#xFF0C;&#x592A;&#x5C0F;&#x4E86;&#xFF0C;&#x8FD9;&#x91CC;&#x8BBE;&#x7F6E;&#x4E3A; <code>500</code>&#xFF0C;&#x4F46;&#x5E76;&#x4E0D;&#x610F;&#x5473;&#x7740;&#x5176;&#x662F;&#x4E00;&#x4E2A;&#x5408;&#x7406;&#x7684;&#x503C;&#xFF0C;&#x5E94;&#x8BE5;&#x76D1;&#x63A7;&#x5E94;&#x7528;&#x6709;&#x591A;&#x5C11;&#x8FDE;&#x63A5;&#xFF0C;&#x7136;&#x540E;&#x6839;&#x636E;&#x76D1;&#x63A7;&#x503C; (&#x89C2;&#x5BDF;<code>max_used_connections</code>&#x968F;&#x65F6;&#x95F4;&#x7684;&#x53D8;&#x5316;) &#x6765;&#x8BBE;&#x7F6E;&#x3002;</p><p><strong>thread-cache-size</strong></p><p>&#x7EBF;&#x7A0B;&#x7F13;&#x5B58;&#x4FDD;&#x5B58;&#x90A3;&#x4E9B;&#x5F53;&#x524D;&#x6CA1;&#x6709;&#x4E0E;&#x8FDE;&#x63A5;&#x5173;&#x8054;&#x4F46;&#x662F;&#x51C6;&#x5907;&#x4E3A;&#x540E;&#x9762;&#x65B0;&#x8FDE;&#x63A5;&#x670D;&#x52A1;&#x7684;&#x7EBF;&#x7A0B;&#x3002;&#x5F53;&#x4E00;&#x4E2A;&#x65B0;&#x7684;&#x8FDE;&#x63A5;&#x521B;&#x5EFA;&#x65F6;&#xFF0C;&#x5982;&#x679C;&#x7F13;&#x5B58;&#x4E2D;&#x6709;&#x7EBF;&#x7A0B;&#x5B58;&#x5728;&#xFF0C;MySQL &#x5219;&#x4ECE;&#x7F13;&#x5B58;&#x4E2D;&#x5220;&#x9664;&#x4E00;&#x4E2A;&#x7EBF;&#x7A0B;&#xFF0C;&#x5E76;&#x4E14;&#x628A;&#x5B83;&#x5206;&#x914D;&#x7ED9;&#x8FD9;&#x4E2A;&#x65B0;&#x8FDE;&#x63A5;&#x3002;&#x5F53;&#x8FDE;&#x63A5;&#x5173;&#x95ED;&#x65F6;&#xFF0C;&#x5982;&#x679C;&#x7EBF;&#x7A0B;&#x7F13;&#x5B58;&#x8FD8;&#x6709;&#x7A7A;&#x95F4;&#x7684;&#x8BDD;&#xFF0C;MySQL &#x53C8;&#x4F1A;&#x628A;&#x7EBF;&#x7A0B;&#x653E;&#x56DE;&#x7F13;&#x5B58;&#x3002;&#x5982;&#x679C;&#x6CA1;&#x6709;&#x7A7A;&#x95F4;&#x7684;&#x8BDD;&#xFF0C;MySQL &#x4F1A;&#x9500;&#x6BC1;&#x8FD9;&#x4E2A;&#x7EBF;&#x7A0B;&#x3002;&#x53EA;&#x8981; MySQL &#x5728;&#x7F13;&#x5B58;&#x91CC;&#x8FD8;&#x6709;&#x7A7A;&#x95F2;&#x7684;&#x7EBF;&#x7A0B;&#xFF0C;&#x5B83;&#x5C31;&#x53EF;&#x4EE5;&#x8FC5;&#x901F;&#x54CD;&#x5E94;&#x8FDE;&#x63A5;&#x8BF7;&#x6C42;&#xFF0C;&#x56E0;&#x4E3A;&#x8FD9;&#x6837;&#x5C31;&#x4E0D;&#x7528;&#x4E3A;&#x6BCF;&#x4E2A;&#x8FDE;&#x63A5;&#x521B;&#x5EFA;&#x65B0;&#x7EBF;&#x7A0B;&#x3002;<code>thread-cache-size</code>&#x6307;&#x5B9A; MySQL &#x53EF;&#x4EE5;&#x4FDD;&#x5B58;&#x5728;&#x7F13;&#x5B58;&#x4E2D;&#x7684;&#x7EBF;&#x7A0B;&#x6570;&#x91CF;&#x3002;&#x5982;&#x679C;&#x670D;&#x52A1;&#x5668;&#x6CA1;&#x6709;&#x5F88;&#x591A;&#x7684;&#x8FDE;&#x63A5;&#x8BF7;&#x6C42;&#xFF0C;&#x4E00;&#x822C;&#x4E0D;&#x9700;&#x8981;&#x914D;&#x7F6E;&#x8FD9;&#x4E2A;&#x503C;&#x3002;</p><p>&#x5982;&#x4F55;&#x5224;&#x65AD;&#x8FD9;&#x4E2A;&#x503C;&#x8BE5;&#x8BBE;&#x7F6E;&#x591A;&#x5927;&#xFF1F;</p><p>&#x89C2;&#x5BDF;threads-connected&#x53D8;&#x91CF;&#xFF0C;&#x5982;&#x679C;threads-connected&#x5728; 100-120&#xFF0C;&#x90A3;&#x4E48;thread-cache-size&#x8BBE;&#x7F6E;&#x4E3A; 20&#x3002;&#x5982;&#x679C;&#x5B83;&#x4FDD;&#x6301;&#x5728; 500-700&#xFF0C;200 &#x7684;&#x7EBF;&#x7A0B;&#x7F13;&#x5B58;&#x5E94;&#x8BE5;&#x8DB3;&#x591F;&#x5927;&#x4E86;&#x3002;&#x53EF;&#x4EE5;&#x8FD9;&#x4E48;&#x7406;&#x89E3;&#xFF1A;&#x5F53;&#x540C;&#x65F6;&#x6709; 700 &#x4E2A;&#x8FDE;&#x63A5;&#x65F6;&#xFF0C;&#x53EF;&#x80FD;&#x7F13;&#x5B58;&#x4E2D;&#x6CA1;&#x6709;&#x7EBF;&#x7A0B;&#x3002;&#x5728; 500 &#x4E2A;&#x8FDE;&#x63A5;&#x65F6;&#xFF0C;&#x6709; 200 &#x4E2A;&#x7F13;&#x5B58;&#x7684;&#x7EBF;&#x7A0B;&#x51C6;&#x5907;&#x4E3A;&#x8D1F;&#x8F7D;&#x518D;&#x6B21;&#x589E;&#x52A0;&#x5230; 700 &#x4E2A;&#x8FDE;&#x63A5;&#x65F6;&#x4F7F;&#x7528;&#x3002;</p><p><strong>open-files-limit</strong></p><p>&#x5728;&#x7C7B; Uinux &#x7CFB;&#x7EDF;&#x4E0A;&#x6211;&#x4EEC;&#x628A;&#x5B83;&#x8BBE;&#x7F6E;&#x5F97;&#x5C3D;&#x53EF;&#x80FD;&#x5927;&#x3002;&#x73B0;&#x4EE3; OS &#x4E2D;&#x6253;&#x5F00;&#x53E5;&#x67C4;&#x5F00;&#x9500;&#x90FD;&#x5F88;&#x5C0F;&#xFF0C;&#x5982;&#x679C;&#x6B64;&#x53C2;&#x6570;&#x8BBE;&#x7F6E;&#x8FC7;&#x5C0F;&#xFF0C;&#x53EF;&#x80FD;&#x4F1A;&#x9047;&#x5230; &#x201C;&#x6253;&#x5F00;&#x7684;&#x6587;&#x4EF6;&#x592A;&#x591A; (too many open files)&#x201D; &#x9519;&#x8BEF;&#x3002;</p><p><strong>table_cache_size</strong></p><p>&#x8868;&#x7F13;&#x5B58;&#x8DDF;&#x7EBF;&#x7A0B;&#x7F13;&#x5B58;&#x7C7B;&#x4F3C;&#xFF0C;&#x4F46;&#x5B58;&#x50A8;&#x7684;&#x5BF9;&#x8C61;&#x662F;&#x8868;&#xFF0C;&#x5176;&#x5305;&#x542B;&#x8868;. frm &#x6587;&#x4EF6;&#x7684;&#x89E3;&#x6790;&#x7ED3;&#x679C;&#x548C;&#x4E00;&#x4E9B;&#x5176;&#x4ED6;&#x6570;&#x636E;&#x3002;&#x51C6;&#x786E;&#x7684;&#x8BF4;&#xFF0C;&#x7F13;&#x5B58;&#x7684;&#x6570;&#x636E;&#x4F9D;&#x8D56;&#x4E8E;&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#xFF0C;&#x6BD4;&#x5982;&#xFF0C;&#x5BF9;&#x4E8E; MyISAM&#xFF0C;&#x7F13;&#x5B58;&#x8868;&#x7684;&#x6570;&#x636E;&#x548C;&#x7D22;&#x5F15;&#x7684;&#x6587;&#x4EF6;&#x63CF;&#x8FF0;&#x7B26;&#x3002;&#x8868;&#x7F13;&#x5B58;&#x5BF9; InnoDB &#x7684;&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x6765;&#x8BF4;&#xFF0C;&#x91CD;&#x8981;&#x6027;&#x4F1A;&#x5C0F;&#x5F88;&#x591A;&#xFF0C;&#x56E0;&#x4E3A; InnoDB &#x4E0D;&#x4F9D;&#x8D56;&#x5B83;&#x6765;&#x505A;&#x90A3;&#x4E48;&#x591A;&#x7684;&#x4E8B;&#x3002;</p><p>&#x4ECE; 5.1 &#x7248;&#x672C;&#x53CA;&#x4EE5;&#x540E;&#xFF0C;&#x8868;&#x7F13;&#x5B58;&#x5C31;&#x88AB;&#x5206;&#x4E3A;&#x4E24;&#x4E2A;&#x90E8;&#x5206;&#xFF1A;&#x6253;&#x5F00;&#x8868;&#x7F13;&#x5B58;&#x548C;&#x5B9A;&#x4E49;&#x8868;&#x7F13;&#x5B58;&#xFF0C;&#x5206;&#x522B;&#x901A;&#x8FC7;table-open-cache-size&#x548C;table-definition-cache-size&#x53D8;&#x91CF;&#x6765;&#x914D;&#x7F6E;&#x3002;&#x901A;&#x5E38;&#x53EF;&#x4EE5;&#x628A;table-definition-cache-size&#x8BBE;&#x7F6E;&#x5F97;&#x8DB3;&#x591F;&#x9AD8;&#xFF0C;&#x4EE5;&#x7F13;&#x5B58;&#x6240;&#x6709;&#x7684;&#x8868;&#x5B9A;&#x4E49;&#xFF0C;&#x56E0;&#x4E3A;&#x5927;&#x90E8;&#x5206;&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#x90FD;&#x80FD;&#x4ECE;table-definition-cache&#x83B7;&#x76CA;&#x3002;</p><p><strong>InnoDB</strong></p><p>InnoDB &#x5E94;&#x8BE5;&#x662F;&#x4F7F;&#x7528;&#x6700;&#x5E7F;&#x53D1;&#x7684;&#x5B58;&#x50A8;&#x5F15;&#x64CE;&#xFF0C;&#x6700;&#x91CD;&#x8981;&#x7684;&#x914D;&#x7F6E;&#x9009;&#x9879;&#x662F;&#x4E0B;&#x9762;&#x8FD9;&#x4E24;&#x4E2A;&#xFF1A;innodb-buffer-pool-size&#x4E0E;innodb-log-file-size&#xFF0C;&#x89E3;&#x51B3;&#x8FD9;&#x4E24;&#x4E2A;&#x914D;&#x7F6E;&#x57FA;&#x672C;&#x4E0A;&#x5C31;&#x89E3;&#x51B3;&#x4E86;&#x771F;&#x5B9E;&#x573A;&#x666F;&#x4E0B;&#x7684;&#x5927;&#x90E8;&#x5206;&#x914D;&#x7F6E;&#x95EE;&#x9898;&#x3002;</p><p><strong>innodb-buffer-pool-size</strong></p><p>&#x5982;&#x679C;&#x5927;&#x90E8;&#x5206;&#x662F; InnoDB &#x8868;&#xFF0C;&#x90A3;&#x4E48; InnoDB &#x7F13;&#x51B2;&#x6C60;&#x6216;&#x8BB8;&#x6BD4;&#x5176;&#x4ED6;&#x4EFB;&#x4F55;&#x4E1C;&#x897F;&#x90FD;&#x66F4;&#x9700;&#x8981;&#x5185;&#x5B58;&#xFF0C;InnoDB &#x7F13;&#x51B2;&#x6C60;&#x7F13;&#x51B2;&#x7684;&#x6570;&#x636E;&#xFF1A;&#x7D22;&#x5F15;&#x3001;&#x884C;&#x6570;&#x636E;&#x3001;&#x81EA;&#x9002;&#x5E94;&#x54C8;&#x5E0C;&#x7D22;&#x5F15;&#x3001;&#x63D2;&#x5165;&#x7F13;&#x51B2;&#x3001;&#x9501;&#x4EE5;&#x53CA;&#x5176;&#x4ED6;&#x5185;&#x90E8;&#x6570;&#x636E;&#x7ED3;&#x6784;&#x3002;InnoDB &#x8FD8;&#x4F7F;&#x7528;&#x7F13;&#x51B2;&#x6C60;&#x6765;&#x5E2E;&#x52A9;&#x5EF6;&#x8FDF;&#x5199;&#x5165;&#xFF0C;&#x8FD9;&#x6837;&#x5C31;&#x53EF;&#x4EE5;&#x5408;&#x5E76;&#x591A;&#x4E2A;&#x5199;&#x5165;&#x64CD;&#x4F5C;&#xFF0C;&#x7136;&#x540E;&#x4E00;&#x8D77;&#x987A;&#x5E8F;&#x5199;&#x5165;&#xFF0C;&#x63D0;&#x5347;&#x6027;&#x80FD;&#x3002;&#x603B;&#x4E4B;&#xFF0C;InnoDB &#x4E25;&#x91CD;&#x4F9D;&#x8D56;&#x7F13;&#x51B2;&#x6C60;&#xFF0C;&#x5FC5;&#x987B;&#x4E3A;&#x5176;&#x5206;&#x914D;&#x8DB3;&#x591F;&#x7684;&#x5185;&#x5B58;&#x3002;</p><p>&#x5F53;&#x7136;&#xFF0C;&#x5982;&#x679C;&#x6570;&#x636E;&#x91CF;&#x4E0D;&#x5927;&#x4E14;&#x4E0D;&#x4F1A;&#x5FEB;&#x901F;&#x589E;&#x957F;&#xFF0C;&#x5C31;&#x6CA1;&#x6709;&#x5FC5;&#x8981;&#x4E3A;&#x7F13;&#x51B2;&#x6C60;&#x5206;&#x914D;&#x8FC7;&#x591A;&#x7684;&#x5185;&#x5B58;&#xFF0C;&#x628A;&#x7F13;&#x51B2;&#x6C60;&#x914D;&#x7F6E;&#x5F97;&#x6BD4;&#x9700;&#x8981;&#x7F13;&#x5B58;&#x7684;&#x8868;&#x548C;&#x7D22;&#x5F15;&#x8FD8;&#x8981;&#x5927;&#x5F88;&#x591A;&#xFF0C;&#x5B9E;&#x9645;&#x4E0A;&#x4E5F;&#x6CA1;&#x6709;&#x4EC0;&#x4E48;&#x610F;&#x4E49;&#x3002;&#x5F88;&#x5927;&#x7684;&#x7F13;&#x51B2;&#x6C60;&#x4E5F;&#x4F1A;&#x5E26;&#x6765;&#x4E00;&#x4E9B;&#x6311;&#x6218;&#xFF0C;&#x4F8B;&#x5982;&#xFF0C;&#x9884;&#x70ED;&#x548C;&#x5173;&#x95ED;&#x90FD;&#x4F1A;&#x82B1;&#x8D39;&#x5F88;&#x957F;&#x7684;&#x65F6;&#x95F4;&#x3002;&#x5982;&#x679C;&#x6709;&#x5F88;&#x591A;&#x810F;&#x9875;&#x5728;&#x7F13;&#x51B2;&#x6C60;&#x91CC;&#xFF0C;InnoDB &#x5173;&#x95ED;&#x65F6;&#x53EF;&#x80FD;&#x4F1A;&#x82B1;&#x5F88;&#x957F;&#x65F6;&#x95F4;&#x6765;&#x628A;&#x810F;&#x9875;&#x5199;&#x56DE;&#x6570;&#x636E;&#x6587;&#x4EF6;&#x3002;&#x867D;&#x7136;&#x53EF;&#x4EE5;&#x5FEB;&#x901F;&#x5173;&#x95ED;&#xFF0C;&#x4F46;&#x662F;&#x5728;&#x542F;&#x52A8;&#x65F6;&#x9700;&#x8981;&#x505A;&#x66F4;&#x591A;&#x7684;&#x6062;&#x590D;&#x5DE5;&#x4F5C;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x8BF4;&#x6211;&#x4EEC;&#x65E0;&#x6CD5;&#x540C;&#x65F6;&#x52A0;&#x901F;&#x5173;&#x95ED;&#x548C;&#x91CD;&#x542F;&#x4E24;&#x4E2A;&#x64CD;&#x4F5C;&#x3002;&#x5F53;&#x6709;&#x4E00;&#x4E2A;&#x5F88;&#x5927;&#x7684;&#x7F13;&#x51B2;&#x6C60;&#xFF0C;&#x91CD;&#x542F;&#x670D;&#x52A1;&#x9700;&#x8981;&#x82B1;&#x8D39;&#x5F88;&#x957F;&#x65F6;&#x95F4;&#xFF08;&#x51E0;&#x5C0F;&#x65F6;&#x6216;&#x8005;&#x51E0;&#x5929;&#xFF09;&#x6765;&#x9884;&#x70ED;&#xFF0C;&#x5C24;&#x5176;&#x662F;&#x78C1;&#x76D8;&#x5F88;&#x6162;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x5982;&#x679C;&#x60F3;&#x52A0;&#x5FEB;&#x9884;&#x70ED;&#x65F6;&#x95F4;&#xFF0C;&#x53EF;&#x4EE5;&#x5728;&#x91CD;&#x542F;&#x540E;&#x7ACB;&#x523B;&#x8FDB;&#x884C;&#x5168;&#x8868;&#x626B;&#x63CF;&#x6216;&#x8005;&#x7D22;&#x5F15;&#x626B;&#x63CF;&#xFF0C;&#x628A;&#x7D22;&#x5F15;&#x8F7D;&#x5165;&#x7F13;&#x51B2;&#x6C60;&#x3002;</p><p>&#x53EF;&#x4EE5;&#x770B;&#x5230;&#x793A;&#x4F8B;&#x7684;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x4E2D;&#x628A;&#x8FD9;&#x4E2A;&#x503C;&#x914D;&#x7F6E;&#x4E3A; 12G&#xFF0C;&#x8FD9;&#x4E0D;&#x662F;&#x4E00;&#x4E2A;&#x6807;&#x51C6;&#x914D;&#x7F6E;&#xFF0C;&#x9700;&#x8981;&#x6839;&#x636E;&#x5177;&#x4F53;&#x7684;&#x786C;&#x4EF6;&#x6765;&#x4F30;&#x7B97;&#x3002;&#x90A3;&#x5982;&#x4F55;&#x4F30;&#x7B97;&#xFF1F;</p><p>&#x524D;&#x9762;&#x7684;&#x5C0F;&#x8282;&#xFF0C;&#x6211;&#x4EEC;&#x8BF4;&#x5230;&#xFF0C;MySQL &#x4E2D;&#x6700;&#x91CD;&#x8981;&#x7684;&#x7F13;&#x5B58;&#x6709; 5 &#x79CD;&#xFF0C;&#x53EF;&#x4EE5;&#x7B80;&#x5355;&#x7684;&#x4F7F;&#x7528;&#x4E0B;&#x9762;&#x7684;&#x516C;&#x5F0F;&#x8BA1;&#x7B97;&#xFF1A;</p><p><em><strong>InnoDB &#x7F13;&#x51B2;&#x6C60; = &#x670D;&#x52A1;&#x5668;&#x603B;&#x5185;&#x5B58; - OS &#x9884;&#x7559; - &#x670D;&#x52A1;&#x5668;&#x4E0A;&#x7684;&#x5176;&#x4ED6;&#x5E94;&#x7528;&#x5360;&#x7528;&#x5185;&#x5B58; - MySQL &#x81EA;&#x8EAB;&#x9700;&#x8981;&#x7684;&#x5185;&#x5B58; - InnoDB &#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x5360;&#x7528;&#x5185;&#x5B58; - &#x5176;&#x5B83;&#x5185;&#x5B58; (MyISAM &#x952E;&#x7F13;&#x5B58;&#x3001;&#x67E5;&#x8BE2;&#x7F13;&#x5B58;&#x7B49;)</strong></em></p><p>&#x5177;&#x4F53;&#x6765;&#x770B;&#xFF0C;&#x81F3;&#x5C11;&#x9700;&#x8981;&#x4E3A; OS &#x4FDD;&#x7559; 1~2G &#x5185;&#x5B58;&#xFF0C;&#x5982;&#x679C;&#x673A;&#x5668;&#x5185;&#x5B58;&#x5927;&#x7684;&#x8BDD;&#x53EF;&#x4EE5;&#x9884;&#x7559;&#x591A;&#x4E00;&#x4E9B;&#xFF0C;&#x5EFA;&#x8BAE; 2GB &#x548C;&#x603B;&#x5185;&#x5B58;&#x7684; 5% &#x4E3A;&#x57FA;&#x51C6;&#xFF0C;&#x4EE5;&#x8F83;&#x5927;&#x8005;&#x4E3A;&#x51C6;&#xFF0C;&#x5982;&#x679C;&#x673A;&#x5668;&#x4E0A;&#x8FD8;&#x8FD0;&#x884C;&#x7740;&#x4E00;&#x4E9B;&#x5185;&#x5B58;&#x5BC6;&#x96C6;&#x578B;&#x4EFB;&#x52A1;&#xFF0C;&#x6BD4;&#x5982;&#xFF0C;&#x5907;&#x4EFD;&#x4EFB;&#x52A1;&#xFF0C;&#x90A3;&#x4E48;&#x53EF;&#x4EE5;&#x4E3A; OS &#x518D;&#x9884;&#x7559;&#x591A;&#x4E00;&#x4E9B;&#x5185;&#x5B58;&#x3002;&#x4E0D;&#x8981;&#x4E3A; OS &#x7F13;&#x5B58;&#x589E;&#x52A0;&#x4EFB;&#x4F55;&#x5185;&#x5B58;&#xFF0C;&#x56E0;&#x4E3A; OS &#x901A;&#x5E38;&#x4F1A;&#x5229;&#x7528;&#x6240;&#x6709;&#x5269;&#x4E0B;&#x7684;&#x5185;&#x5B58;&#x6765;&#x505A;&#x6587;&#x4EF6;&#x7F13;&#x5B58;&#x3002;</p><p>&#x4E00;&#x822C;&#x6765;&#x8BF4;&#xFF0C;&#x8FD0;&#x884C; MySQL &#x7684;&#x670D;&#x52A1;&#x5668;&#x5F88;&#x5C11;&#x4F1A;&#x8FD0;&#x884C;&#x5176;&#x4ED6;&#x5E94;&#x7528;&#x7A0B;&#x5E8F;&#xFF0C;&#x4F46;&#x5982;&#x679C;&#x6709;&#x7684;&#x8BDD;&#xFF0C;&#x8BF7;&#x4E3A;&#x8FD9;&#x4E9B;&#x5E94;&#x7528;&#x7A0B;&#x5E8F;&#x9884;&#x7559;&#x8DB3;&#x591F;&#x591A;&#x7684;&#x5185;&#x5B58;&#x3002;</p><p>MySQL &#x81EA;&#x8EAB;&#x8FD0;&#x884C;&#x8FD8;&#x9700;&#x8981;&#x4E00;&#x4E9B;&#x5185;&#x5B58;&#xFF0C;&#x4F46;&#x901A;&#x5E38;&#x90FD;&#x4E0D;&#x4F1A;&#x592A;&#x5927;&#x3002;&#x9700;&#x8981;&#x8003;&#x8651; MySQL &#x6BCF;&#x4E2A;&#x8FDE;&#x63A5;&#x9700;&#x8981;&#x7684;&#x5185;&#x5B58;&#xFF0C;&#x867D;&#x7136;&#x6BCF;&#x4E2A;&#x8FDE;&#x63A5;&#x9700;&#x8981;&#x7684;&#x5185;&#x5B58;&#x90FD;&#x5F88;&#x5C11;&#xFF0C;&#x4F46;&#x5B83;&#x8FD8;&#x8981;&#x6C42;&#x4E00;&#x4E2A;&#x57FA;&#x672C;&#x91CF;&#x7684;&#x5185;&#x5B58;&#x6765;&#x6267;&#x884C;&#x4EFB;&#x4F55;&#x7ED9;&#x5B9A;&#x7684;&#x67E5;&#x8BE2;&#xFF0C;&#x800C;&#x4E14;&#x67E5;&#x8BE2;&#x8FC7;&#x7A0B;&#x4E2D;&#x8FD8;&#x9700;&#x8981;&#x4E3A;&#x6392;&#x5E8F;&#x3001;GROUP BY &#x7B49;&#x64CD;&#x4F5C;&#x5206;&#x914D;&#x4E34;&#x65F6;&#x8868;&#x5185;&#x5B58;&#xFF0C;&#x56E0;&#x6B64;&#x9700;&#x8981;&#x4E3A;&#x9AD8;&#x5CF0;&#x671F;&#x6267;&#x884C;&#x5927;&#x91CF;&#x7684;&#x67E5;&#x8BE2;&#x9884;&#x7559;&#x8DB3;&#x591F;&#x7684;&#x5185;&#x5B58;&#x3002;&#x8FD9;&#x4E2A;&#x5185;&#x5B58;&#x6709;&#x591A;&#x5927;&#xFF1F;&#x53EA;&#x80FD;&#x5728;&#x8FD0;&#x884C;&#x8FC7;&#x7A0B;&#x4E2D;&#x76D1;&#x63A7;&#x3002;</p><p>&#x5982;&#x679C;&#x5927;&#x90E8;&#x5206;&#x8868;&#x90FD;&#x662F; InnoDB&#xFF0C;MyISAM &#x952E;&#x7F13;&#x5B58;&#x914D;&#x7F6E;&#x4E00;&#x4E2A;&#x5F88;&#x5C0F;&#x503C;&#x8DB3;&#x77E3;&#xFF0C;&#x67E5;&#x8BE2;&#x7F13;&#x5B58;&#x4E5F;&#x5EFA;&#x8BAE;&#x5173;&#x95ED;&#x3002;</p><p>&#x516C;&#x5F0F;&#x4E2D;&#x5C31;&#x5269;&#x4E0B; InnoDB &#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x4E86;&#xFF0C;&#x8FD9;&#x5C31;&#x662F;&#x6211;&#x4EEC;&#x63A5;&#x4E0B;&#x6765;&#x8981;&#x8BF4;&#x7684;&#x3002;</p><p><strong>innodb-log-file-size &amp;&amp; innodb-log-files-in-group</strong></p><p>&#x5982;&#x679C;&#x5BF9; InnoDB &#x6570;&#x636E;&#x8868;&#x6709;&#x5927;&#x91CF;&#x7684;&#x5199;&#x5165;&#x64CD;&#x4F5C;&#xFF0C;&#x90A3;&#x4E48;&#x9009;&#x62E9;&#x5408;&#x9002;&#x7684;innodb-log-file-size&#x503C;&#x5BF9;&#x63D0;&#x5347; MySQL &#x6027;&#x80FD;&#x5F88;&#x91CD;&#x8981;&#x3002;InnoDB &#x4F7F;&#x7528;&#x65E5;&#x5FD7;&#x6765;&#x51CF;&#x5C11;&#x63D0;&#x4EA4;&#x4E8B;&#x52A1;&#x65F6;&#x7684;&#x5F00;&#x9500;&#x3002;&#x65E5;&#x5FD7;&#x4E2D;&#x8BB0;&#x5F55;&#x4E86;&#x4E8B;&#x52A1;&#xFF0C;&#x5C31;&#x65E0;&#x987B;&#x5728;&#x6BCF;&#x4E2A;&#x4E8B;&#x52A1;&#x63D0;&#x4EA4;&#x65F6;&#x628A;&#x7F13;&#x51B2;&#x6C60;&#x7684;&#x810F;&#x5757; (&#x7F13;&#x5B58;&#x4E2D;&#x4E0E;&#x78C1;&#x76D8;&#x4E0A;&#x6570;&#x636E;&#x4E0D;&#x4E00;&#x81F4;&#x7684;&#x9875;) &#x5237;&#x65B0;&#x5230;&#x78C1;&#x76D8;&#x3002;&#x4E8B;&#x52A1;&#x4FEE;&#x6539;&#x7684;&#x6570;&#x636E;&#x548C;&#x7D22;&#x5F15;&#x901A;&#x5E38;&#x4F1A;&#x6620;&#x5C04;&#x5230;&#x8868;&#x7A7A;&#x95F4;&#x7684;&#x968F;&#x673A;&#x4F4D;&#x7F6E;&#xFF0C;&#x6240;&#x4EE5;&#x5237;&#x65B0;&#x8FD9;&#x4E9B;&#x53D8;&#x66F4;&#x5230;&#x78C1;&#x76D8;&#x9700;&#x8981;&#x5F88;&#x591A;&#x968F;&#x673A; I/O&#x3002;&#x4E00;&#x65E6;&#x65E5;&#x5FD7;&#x5B89;&#x5168;&#x7684;&#x5199;&#x5165;&#x78C1;&#x76D8;&#xFF0C;&#x4E8B;&#x52A1;&#x5C31;&#x6301;&#x4E45;&#x5316;&#x4E86;&#xFF0C;&#x5373;&#x4F7F;&#x53D8;&#x66F4;&#x8FD8;&#x6CA1;&#x6709;&#x5199;&#x5230;&#x6570;&#x636E;&#x6587;&#x4EF6;&#xFF0C;&#x5728;&#x4E00;&#x4E9B;&#x610F;&#x5916;&#x60C5;&#x51B5;&#x53D1;&#x751F;&#x65F6; (&#x6BD4;&#x5982;&#x65AD;&#x7535;&#x4E86;)&#xFF0C;InnoDB &#x53EF;&#x4EE5;&#x91CD;&#x653E;&#x65E5;&#x5FD7;&#x5E76;&#x4E14;&#x6062;&#x590D;&#x5DF2;&#x7ECF;&#x63D0;&#x4EA4;&#x7684;&#x4E8B;&#x52A1;&#x3002;</p><p>InnoDB &#x4F7F;&#x7528;&#x4E00;&#x4E2A;&#x540E;&#x53F0;&#x7EBF;&#x7A0B;&#x667A;&#x80FD;&#x5730;&#x5237;&#x65B0;&#x8FD9;&#x4E9B;&#x53D8;&#x66F4;&#x5230;&#x6570;&#x636E;&#x6587;&#x4EF6;&#x3002;&#x5B9E;&#x9645;&#x4E0A;&#xFF0C;&#x4E8B;&#x52A1;&#x65E5;&#x5FD7;&#x628A;&#x6570;&#x636E;&#x6587;&#x4EF6;&#x7684;&#x968F;&#x673A; I/O &#x8F6C;&#x6362;&#x4E3A;&#x51E0;&#x4E4E;&#x987A;&#x5E8F;&#x5730;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x548C;&#x6570;&#x636E;&#x6587;&#x4EF6; I/O&#xFF0C;&#x8BA9;&#x5237;&#x65B0;&#x64CD;&#x4F5C;&#x5728;&#x540E;&#x53F0;&#x53EF;&#x4EE5;&#x66F4;&#x5FEB;&#x7684;&#x5B8C;&#x6210;&#xFF0C;&#x5E76;&#x4E14;&#x7F13;&#x5B58; I/O &#x538B;&#x529B;&#x3002;</p><p>&#x6574;&#x4F53;&#x7684;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x5927;&#x5C0F;&#x53D7;&#x63A7;&#x4E8E;<code>innodb-log-file-size</code>&#x548C;<code>innodb-log-files-in-group</code>&#x4E24;&#x4E2A;&#x53C2;&#x6570;&#xFF0C;&#x8FD9;&#x5BF9;&#x5199;&#x6027;&#x80FD;&#x975E;&#x5E38;&#x91CD;&#x8981;&#x3002;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x7684;&#x603B;&#x5927;&#x5C0F;&#x662F;&#x6BCF;&#x4E2A;&#x6587;&#x4EF6;&#x7684;&#x5927;&#x5C0F;&#x4E4B;&#x548C;&#x3002;&#x9ED8;&#x8BA4;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x53EA;&#x6709;&#x4E24;&#x4E2A; 5M &#x7684;&#x6587;&#x4EF6;&#xFF0C;&#x603B;&#x5171; 10M&#xFF0C;&#x5BF9;&#x9AD8;&#x6027;&#x80FD;&#x5DE5;&#x4F5C;&#x6765;&#x8BF4;&#x592A;&#x5C0F;&#x4E86;&#xFF0C;&#x81F3;&#x5C11;&#x9700;&#x8981;&#x51E0;&#x767E; M &#x6216;&#x8005;&#x4E0A; G &#x7684;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x3002;&#x8FD9;&#x91CC;&#x8981;&#x6CE8;&#x610F;<code>innodb-log-files-in-group</code>&#x8FD9;&#x4E2A;&#x53C2;&#x6570;&#xFF0C;&#x5B83;&#x63A7;&#x5236;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x7684;&#x6570;&#x91CF;&#xFF0C;&#x4ECE;&#x540D;&#x5B57;&#x4E0A;&#x770B;&#x597D;&#x4F3C;&#x914D;&#x7F6E;&#x4E00;&#x4E2A;&#x65E5;&#x5FD7;&#x7EC4;&#x6709;&#x51E0;&#x4E2A;&#x6587;&#x4EF6;&#xFF0C;&#x5B9E;&#x9645;&#x4E0A;&#xFF0C;log group&#x8868;&#x793A;&#x4E00;&#x4E2A;&#x91CD;&#x505A;&#x65E5;&#x5FD7;&#x7684;&#x6587;&#x4EF6;&#x96C6;&#x5408;&#xFF0C;&#x6CA1;&#x6709;&#x53C2;&#x6570;&#x4E5F;&#x6CA1;&#x6709;&#x5FC5;&#x8981;&#x914D;&#x7F6E;&#x6709;&#x591A;&#x5C11;&#x4E2A;&#x65E5;&#x5FD7;&#x7EC4;&#x3002;</p><p>&#x4FEE;&#x6539;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x7684;&#x5927;&#x5C0F;&#xFF0C;&#x9700;&#x8981;&#x5B8C;&#x5168;&#x5173;&#x95ED; MySQL&#xFF0C;&#x7136;&#x540E;&#x5C06;&#x65E7;&#x7684;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x8FC1;&#x79FB;&#x5230;&#x5176;&#x4ED6;&#x5730;&#x65B9;&#xFF0C;&#x91CD;&#x65B0;&#x914D;&#x7F6E;&#x53C2;&#x6570;&#xFF0C;&#x7136;&#x540E;&#x91CD;&#x542F;&#x3002;&#x91CD;&#x542F;&#x65F6;&#x9700;&#x8981;&#x5C06;&#x65E7;&#x7684;&#x65E5;&#x5FD7;&#x8FC1;&#x79FB;&#x56DE;&#x6765;&#xFF0C;&#x7136;&#x540E;&#x7B49;&#x5F85; MySQL &#x6062;&#x590D;&#x6570;&#x636E;&#x540E;&#xFF0C;&#x518D;&#x5220;&#x9664;&#x65E7;&#x7684;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#xFF0C;&#x8BF7;&#x4E00;&#x5B9A;&#x8981;&#x67E5;&#x770B;&#x9519;&#x8BEF;&#x65E5;&#x5FD7;&#xFF0C;&#x786E;&#x8BA4; MySQL &#x91CD;&#x542F;&#x6210;&#x529F;&#x540E;&#x518D;&#x5220;&#x9664;&#x65E7;&#x7684;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x3002;</p><p>&#x60F3;&#x8981;&#x786E;&#x5B9A;&#x7406;&#x60F3;&#x7684;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x5927;&#x5C0F;&#xFF0C;&#x9700;&#x8981;&#x6743;&#x8861;&#x6B63;&#x5E38;&#x6570;&#x636E;&#x53D8;&#x66F4;&#x7684;&#x5F00;&#x9500;&#xFF0C;&#x4EE5;&#x53CA;&#x5D29;&#x6E83;&#x65F6;&#x6062;&#x590D;&#x9700;&#x8981;&#x7684;&#x65F6;&#x95F4;&#x3002;&#x5982;&#x679C;&#x65E5;&#x5FD7;&#x592A;&#x5C0F;&#xFF0C;InnoDB &#x5C06;&#x5FC5;&#x987B;&#x8981;&#x505A;&#x66F4;&#x591A;&#x7684;&#x68C0;&#x67E5;&#x70B9;&#xFF0C;&#x5BFC;&#x81F4;&#x66F4;&#x591A;&#x7684;&#x65E5;&#x5FD7;&#x5199;&#xFF0C;&#x5728;&#x6781;&#x4E2A;&#x522B;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x5199;&#x8BED;&#x53E5;&#x8FD8;&#x4F1A;&#x88AB;&#x62D6;&#x7D2F;&#xFF0C;&#x5728;&#x65E5;&#x5FD7;&#x6CA1;&#x6709;&#x7A7A;&#x95F4;&#x7EE7;&#x7EED;&#x5199;&#x5165;&#x524D;&#xFF0C;&#x5FC5;&#x987B;&#x7B49;&#x5F85;&#x53D8;&#x66F4;&#x88AB;&#x5237;&#x65B0;&#x5230;&#x6570;&#x636E;&#x6587;&#x4EF6;&#x3002;&#x53E6;&#x4E00;&#x65B9;&#x9762;&#xFF0C;&#x5982;&#x679C;&#x65E5;&#x5FD7;&#x592A;&#x5927;&#xFF0C;&#x5728;&#x5D29;&#x6E83;&#x65F6;&#x6062;&#x590D;&#x5C31;&#x5F97;&#x505A;&#x5927;&#x91CF;&#x7684;&#x5DE5;&#x4F5C;&#xFF0C;&#x8FD9;&#x53EF;&#x80FD;&#x589E;&#x5927;&#x6062;&#x590D;&#x65F6;&#x95F4;&#x3002;InnoDB &#x4F1A;&#x91C7;&#x7528; checkpoint &#x673A;&#x5236;&#x6765;&#x5237;&#x65B0;&#x548C;&#x6062;&#x590D;&#x6570;&#x636E;&#xFF0C;&#x8FD9;&#x4F1A;&#x52A0;&#x5FEB;&#x6062;&#x590D;&#x6570;&#x636E;&#x7684;&#x65F6;&#x95F4;&#xFF0C;&#x5177;&#x4F53;&#x53EF;&#x4EE5;&#x53C2;&#x8003;&#xFF1A;</p><ul><li><a href="http://www.cnblogs.com/cuisi/p/6590281.html" target="_blank" rel="noopener">MySQL-checkpoint &#x6280;&#x672F;</a></li><li><a href="https://www.xaprb.com/blog/2011/01/29/how-innodb-performs-a-checkpoint/" target="_blank" rel="noopener">How InnoDB performs a checkpoint</a></li></ul><p><strong>innodb-flush-log-at-trx-commit</strong></p><p>&#x524D;&#x9762;&#x8BA8;&#x8BBA;&#x4E86;&#x5F88;&#x591A;&#x7F13;&#x5B58;&#xFF0C;InnoDB &#x65E5;&#x5FD7;&#x4E5F;&#x662F;&#x6709;&#x7F13;&#x5B58;&#x7684;&#x3002;&#x5F53; InnoDB &#x53D8;&#x66F4;&#x4EFB;&#x4F55;&#x6570;&#x636E;&#x65F6;&#xFF0C;&#x4F1A;&#x5199;&#x4E00;&#x6761;&#x53D8;&#x66F4;&#x8BB0;&#x5F55;&#x5230;&#x65E5;&#x5FD7;&#x7F13;&#x5B58;&#x533A;&#x3002;&#x5728;&#x7F13;&#x51B2;&#x6162;&#x7684;&#x65F6;&#x5019;&#x3001;&#x4E8B;&#x52A1;&#x63D0;&#x4EA4;&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x6216;&#x8005;&#x6BCF;&#x4E00;&#x79D2;&#x949F;&#xFF0C;InnoDB &#x90FD;&#x4F1A;&#x5C06;&#x7F13;&#x51B2;&#x533A;&#x7684;&#x65E5;&#x5FD7;&#x5237;&#x65B0;&#x5230;&#x78C1;&#x76D8;&#x7684;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x3002;&#x5982;&#x679C;&#x6709;&#x5927;&#x4E8B;&#x52A1;&#xFF0C;&#x589E;&#x52A0;&#x65E5;&#x5FD7;&#x7F13;&#x51B2;&#x533A;&#x5927;&#x5C0F;&#x53EF;&#x4EE5;&#x5E2E;&#x52A9;&#x51CF;&#x5C11; I/O&#xFF0C;&#x53D8;&#x91CF;innodb-log-buffer-size&#x53EF;&#x4EE5;&#x63A7;&#x5236;&#x65E5;&#x5FD7;&#x7F13;&#x51B2;&#x533A;&#x7684;&#x5927;&#x5C0F;&#x3002;&#x901A;&#x5E38;&#x4E0D;&#x9700;&#x8981;&#x628A;&#x65E5;&#x5FD7;&#x7F13;&#x51B2;&#x533A;&#x8BBE;&#x7F6E;&#x7684;&#x975E;&#x5E38;&#x5927;&#xFF0C;&#x6BD5;&#x7ADF;&#x4E0A;&#x8FF0; 3 &#x4E2A;&#x6761;&#x4EF6;&#xFF0C;&#x4EFB;&#x4E00;&#x6761;&#x4EF6;&#x5148;&#x89E6;&#x53D1;&#x90FD;&#x4F1A;&#x628A;&#x7F13;&#x51B2;&#x533A;&#x7684;&#x5185;&#x5BB9;&#x5237;&#x65B0;&#x5230;&#x78C1;&#x76D8;&#xFF0C;&#x6240;&#x4EE5;&#x7F13;&#x51B2;&#x533A;&#x7684;&#x6570;&#x636E;&#x80AF;&#x5B9A;&#x4E0D;&#x4F1A;&#x592A;&#x591A;&#xFF0C;&#x51FA;&#x5165;&#x4F60;&#x7684;&#x6570;&#x636E;&#x4E2D;&#x6709;&#x5F88;&#x591A;&#x76F8;&#x5F53;&#x5927;&#x7684; BLOB &#x8BB0;&#x5F55;&#x3002;&#x901A;&#x5E38;&#x6765;&#x8BF4;&#xFF0C;&#x914D;&#x7F6E; 1M~8M &#x5373;&#x53EF;&#x3002;</p><p>&#x65E2;&#x7136;&#x5B58;&#x5728;&#x7F13;&#x51B2;&#x533A;&#xFF0C;&#x600E;&#x6837;&#x5237;&#x65B0;&#x65E5;&#x5FD7;&#x7F13;&#x51B2;&#x5C31;&#x662F;&#x6211;&#x4EEC;&#x9700;&#x8981;&#x5173;&#x6CE8;&#x7684;&#x95EE;&#x9898;&#x3002;&#x65E5;&#x5FD7;&#x7F13;&#x51B2;&#x5FC5;&#x987B;&#x5237;&#x65B0;&#x5230;&#x78C1;&#x76D8;&#xFF0C;&#x4EE5;&#x786E;&#x4FDD;&#x63D0;&#x4EA4;&#x7684;&#x4E8B;&#x52A1;&#x5B8C;&#x5168;&#x88AB;&#x6301;&#x4E45;&#x5316;&#x3002;&#x5982;&#x679C;&#x548C;&#x6301;&#x4E45;&#x5316;&#x76F8;&#x6BD4;&#xFF0C;&#x66F4;&#x5728;&#x4E4E;&#x6027;&#x80FD;&#xFF0C;&#x53EF;&#x4EE5;&#x4FEE;&#x6539; innodb-flush-log-at-trx-commit &#x53D8;&#x91CF;&#x6765;&#x63A7;&#x5236;&#x65E5;&#x5FD7;&#x7F13;&#x51B2;&#x5237;&#x65B0;&#x7684;&#x9891;&#x7387;&#x3002;</p><ul><li>0&#xFF1A;&#x6BCF; 1 &#x79D2;&#x949F;&#x5C06;&#x65E5;&#x5FD7;&#x7F13;&#x51B2;&#x5199;&#x5230;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x5E76;&#x5237;&#x65B0;&#x5230;&#x78C1;&#x76D8;&#xFF0C;&#x4E8B;&#x52A1;&#x63D0;&#x4EA4;&#x65F6;&#x4E0D;&#x505A;&#x4EFB;&#x4F55;&#x5904;&#x7406;</li><li>1&#xFF1A;&#x6BCF;&#x6B21;&#x4E8B;&#x52A1;&#x63D0;&#x4EA4;&#x65F6;&#xFF0C;&#x5C06;&#x65E5;&#x5FD7;&#x7F13;&#x51B2;&#x5199;&#x5230;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x5E76;&#x5237;&#x65B0;&#x5230;&#x78C1;&#x76D8;</li><li>2&#xFF1A;&#x6BCF;&#x6B21;&#x4E8B;&#x52A1;&#x63D0;&#x4EA4;&#x65F6;&#xFF0C;&#x5C06;&#x65E5;&#x5FD7;&#x7F13;&#x51B2;&#x5199;&#x5230;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#xFF0C;&#x7136;&#x540E;&#x6BCF;&#x79D2;&#x5237;&#x65B0;&#x4E00;&#x6B21;&#x5230;&#x78C1;&#x76D8;</li></ul><blockquote><p>1 &#x662F;&#x6700;&#x5B89;&#x5168;&#x7684;&#x8BBE;&#x7F6E;&#xFF0C;&#x4FDD;&#x8BC1;&#x4E0D;&#x4F1A;&#x4E22;&#x5931;&#x4EFB;&#x4F55;&#x5DF2;&#x7ECF;&#x63D0;&#x4EA4;&#x7684;&#x4E8B;&#x52A1;&#xFF0C;&#x8FD9;&#x4E5F;&#x662F;&#x9ED8;&#x8BA4;&#x7684;&#x8BBE;&#x7F6E;&#x3002;</p></blockquote><blockquote><p>0 &#x548C; 2 &#x6700;&#x4E3B;&#x8981;&#x7684;&#x533A;&#x522B;&#x662F;&#xFF0C;&#x5982;&#x679C; MySQL &#x6302;&#x4E86;&#xFF0C;2 &#x4E0D;&#x4F1A;&#x4E22;&#x5931;&#x4E8B;&#x52A1;&#xFF0C;&#x4F46; 0 &#x6709;&#x53EF;&#x80FD;&#xFF0C;</p></blockquote><blockquote><p>2 &#x5728;&#x6BCF;&#x6B21;&#x4E8B;&#x52A1;&#x63D0;&#x4EA4;&#x65F6;&#xFF0C;&#x81F3;&#x5C11;&#x5C06;&#x65E5;&#x5FD7;&#x7F13;&#x51B2;&#x5237;&#x65B0;&#x5230;&#x64CD;&#x4F5C;&#x7CFB;&#x7EDF;&#x7684;&#x7F13;&#x5B58;&#xFF0C;&#x800C; 0 &#x5219;&#x4E0D;&#x4F1A;&#x3002;&#x5982;&#x679C;&#x6574;&#x4E2A;&#x670D;&#x52A1;&#x5668;&#x6302;&#x4E86;&#x6216;&#x8005;&#x65AD;&#x7535;&#x4E86;&#xFF0C;&#x5219;&#x8FD8;&#x662F;&#x53EF;&#x80FD;&#x4F1A;&#x4E22;&#x5931;&#x4E00;&#x4E9B;&#x4E8B;&#x52A1;&#x3002;</p></blockquote><p><strong>innodb-flush-method</strong></p><p>&#x524D;&#x9762;&#x90FD;&#x5728;&#x8BA8;&#x8BBA;&#x4F7F;&#x7528;&#x4EC0;&#x4E48;&#x6837;&#x7684;&#x7B56;&#x7565;&#x5237;&#x65B0;&#x3001;&#x4EE5;&#x53CA;&#x4F55;&#x65F6;&#x5237;&#x65B0;&#x65E5;&#x5FD7;&#x6216;&#x8005;&#x6570;&#x636E;&#xFF0C;&#x90A3; InnoDB &#x5177;&#x4F53;&#x662F;&#x600E;&#x6837;&#x5237;&#x65B0;&#x6570;&#x636E;&#x7684;&#xFF1F;&#x4F7F;&#x7528;innodb-flush-method&#x9009;&#x9879;&#x53EF;&#x4EE5;&#x914D;&#x7F6E; InnoDB &#x5982;&#x4F55;&#x8DDF;&#x6587;&#x4EF6;&#x7CFB;&#x7EDF;&#x76F8;&#x4E92;&#x4F5C;&#x7528;&#x3002;&#x4ECE;&#x540D;&#x5B57;&#x4E0A;&#x770B;&#xFF0C;&#x4F1A;&#x4EE5;&#x4E3A;&#x53EA;&#x80FD;&#x5F71;&#x54CD; InnoDB &#x600E;&#x4E48;&#x5199;&#x6570;&#x636E;&#xFF0C;&#x5B9E;&#x9645;&#x4E0A;&#x8FD8;&#x5F71;&#x54CD;&#x4E86; InnoDB Windows &#x548C;&#x975E; Windows &#x64CD;&#x4F5C;&#x7CFB;&#x7EDF;&#x4E0B;&#x8FD9;&#x4E2A;&#x9009;&#x9879;&#x7684;&#x503C;&#x662F;&#x4E92;&#x65A5;&#x7684;&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x8BF4;&#x6709;&#x4E9B;&#x503C;&#x53EA;&#x80FD; Windows &#x4E0B;&#x4F7F;&#x7528;&#xFF0C;&#x6709;&#x4E9B;&#x53EA;&#x80FD;&#x5728;&#x975E; Windows &#x4E0B;&#x4F7F;&#x7528;&#xFF0C;&#x5176;&#x4E2D; Windows &#x4E0B;&#x53EF;&#x53D6;&#x503C;&#xFF1A;async_unbuffered&#x3001;unbuffered&#x3001;normal&#x3001;Nosync&#x4E0E;littlesync&#xFF0C;&#x975E; Windows &#x53D6;&#x503C;&#xFF1A;fdatasync&#x3001;0_DIRECT&#x3001; 0_DSYNC&#x3002;</p><p>&#x8FD9;&#x4E2A;&#x9009;&#x9879;&#x65E2;&#x4F1A;&#x5F71;&#x54CD;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#xFF0C;&#x4E5F;&#x4F1A;&#x5F71;&#x54CD;&#x6570;&#x636E;&#x6587;&#x4EF6;&#xFF0C;&#x800C;&#x4E14;&#x6709;&#x65F6;&#x5019;&#x5BF9;&#x4E0D;&#x540C;&#x7C7B;&#x578B;&#x7684;&#x6587;&#x4EF6;&#x7684;&#x5904;&#x7406;&#x4E5F;&#x4E0D;&#x4E00;&#x6837;&#xFF0C;&#x5BFC;&#x81F4;&#x8FD9;&#x4E2A;&#x9009;&#x9879;&#x6709;&#x4E9B;&#x96BE;&#x4EE5;&#x7406;&#x89E3;&#x3002;&#x5982;&#x679C;&#x6709;&#x4E00;&#x4E2A;&#x9009;&#x9879;&#x6765;&#x914D;&#x7F6E;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#xFF0C;&#x4E00;&#x4E2A;&#x9009;&#x9879;&#x6765;&#x914D;&#x7F6E;&#x6570;&#x636E;&#x6587;&#x4EF6;&#xFF0C;&#x5E94;&#x8BE5;&#x4F1A;&#x66F4;&#x597D;&#xFF0C;&#x4F46;&#x5B9E;&#x9645;&#x4E0A;&#x5B83;&#x4EEC;&#x6DF7;&#x5408;&#x5728;&#x540C;&#x4E00;&#x4E2A;&#x914D;&#x7F6E;&#x9879;&#x4E2D;&#x3002;&#x8FD9;&#x91CC;&#x53EA;&#x4ECB;&#x7ECD;&#x7C7B; Unix &#x64CD;&#x4F5C;&#x7CFB;&#x7EDF;&#x4E0B;&#x7684;&#x9009;&#x9879;&#x3002;</p><p><strong>fdatasync</strong></p><p>InnoDB &#x8C03;&#x7528;fsync()&#x548C;fdatasync()&#x51FD;&#x6570;&#x6765;&#x5237;&#x65B0;&#x6570;&#x636E;&#x548C;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#xFF0C;&#x5176;&#x4E2D;fdatasync()&#x53EA;&#x5237;&#x6587;&#x4EF6;&#x7684;&#x6570;&#x636E;&#xFF0C;&#x4F46;&#x4E0D;&#x5305;&#x542B;&#x5143;&#x6570;&#x636E; (&#x6BD4;&#x5982;&#xFF1A;&#x8BBF;&#x95EE;&#x6743;&#x9650;&#x3001;&#x6587;&#x4EF6;&#x62E5;&#x6709;&#x8005;&#x3001;&#x6700;&#x540E;&#x4FEE;&#x6539;&#x65F6;&#x95F4;&#x7B49;&#x63CF;&#x8FF0;&#x6587;&#x4EF6;&#x7279;&#x5F81;&#x7684;&#x7CFB;&#x7EDF;&#x6570;&#x636E;)&#xFF0C;&#x56E0;&#x6B64;fsync()&#x76F8;&#x6BD4;fdatasync()&#x4F1A;&#x4EA7;&#x751F;&#x66F4;&#x591A;&#x7684; I/O&#xFF0C;&#x4F46;&#x5728;&#x67D0;&#x4E9B;&#x573A;&#x666F;&#x4E0B;fdatasync()&#x4F1A;&#x5BFC;&#x81F4;&#x6570;&#x636E;&#x635F;&#x574F;&#xFF0C;&#x56E0;&#x6B64; InnoDB &#x5F00;&#x53D1;&#x8005;&#x51B3;&#x5B9A;&#x7528;fsync()&#x6765;&#x4EE3;&#x66FF;fdatasync()&#x3002;</p><p>fsync()&#x7684;&#x7F3A;&#x70B9;&#x662F;&#x64CD;&#x4F5C;&#x7CFB;&#x7EDF;&#x4F1A;&#x5728;&#x81EA;&#x5DF1;&#x7684;&#x7F13;&#x5B58;&#x4E2D;&#x7F13;&#x51B2;&#x4E00;&#x4E9B;&#x6570;&#x636E;&#xFF0C;&#x7406;&#x8BBA;&#x4E0A;&#x53CC;&#x91CD;&#x7F13;&#x51B2;&#x662F;&#x6D6A;&#x8D39;&#x7684;&#xFF0C;&#x56E0;&#x4E3A; InnoDB &#x81EA;&#x5DF1;&#x4F1A;&#x7BA1;&#x7406;&#x7F13;&#x51B2;&#xFF0C;&#x800C;&#x4E14;&#x6BD4;&#x64CD;&#x4F5C;&#x7CFB;&#x7EDF;&#x66F4;&#x52A0;&#x667A;&#x80FD;&#x3002;&#x4F46;&#x5982;&#x679C;&#x6587;&#x4EF6;&#x7CFB;&#x7EDF;&#x80FD;&#x6709;&#x66F4;&#x667A;&#x80FD;&#x7684; I/O &#x8C03;&#x5EA6;&#x548C;&#x6279;&#x91CF;&#x64CD;&#x4F5C;&#xFF0C;&#x53CC;&#x91CD;&#x7F13;&#x51B2;&#x4E5F;&#x5E76;&#x4E0D;&#x4E00;&#x5B9A;&#x662F;&#x574F;&#x4E8B;&#xFF1A;</p><ul><li>&#x6709;&#x7684;&#x6587;&#x4EF6;&#x7CFB;&#x7EDF;&#x548C; os &#x53EF;&#x4EE5;&#x7D2F;&#x79EF;&#x5199;&#x64CD;&#x4F5C;&#x540E;&#x5408;&#x5E76;&#x6267;&#x884C;&#xFF0C;&#x901A;&#x8FC7;&#x5BF9; I/O &#x7684;&#x91CD;&#x6392;&#x5E8F;&#x6765;&#x63D0;&#x5347;&#x6548;&#x7387;&#x3001;&#x6216;&#x8005;&#x5E76;&#x53D1;&#x5199;&#x5165;&#x591A;&#x4E2A;&#x8BBE;&#x5907;</li><li>&#x6709;&#x7684;&#x8FD8;&#x53EF;&#x4EE5;&#x505A;&#x9884;&#x8BFB;&#x4F18;&#x5316;&#xFF0C;&#x6BD4;&#x5982;&#x8FDE;&#x7EED;&#x8BF7;&#x6C42;&#x51E0;&#x4E2A;&#x987A;&#x5E8F;&#x7684;&#x5757;&#xFF0C;&#x5B83;&#x4F1A;&#x901A;&#x77E5;&#x786C;&#x76D8;&#x9884;&#x8BFB;&#x4E0B;&#x4E00;&#x4E2A;&#x5757;</li></ul><p>&#x8FD9;&#x4E9B;&#x4F18;&#x5316;&#x5728;&#x7279;&#x5B9A;&#x7684;&#x573A;&#x666F;&#x4E0B;&#x624D;&#x4F1A;&#x8D77;&#x4F5C;&#x7528;&#xFF0C;fdatasync&#x4E3A;innodb-flush-method&#x7684;&#x9ED8;&#x8BA4;&#x503C;&#x3002;</p><p><strong>0_DIRCET</strong></p><p>&#x8FD9;&#x4E2A;&#x8BBE;&#x7F6E;&#x4E0D;&#x5F71;&#x54CD;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#x5E76;&#x4E14;&#x4E0D;&#x662F;&#x6240;&#x6709;&#x7684;&#x7C7B; Unix &#x7CFB;&#x7EDF;&#x90FD;&#x6709;&#x6548;&#xFF0C;&#x4F46;&#x81F3;&#x5C11;&#x5728; Linux&#x3001;FreeBSD &#x4EE5;&#x53CA; Solaris &#x662F;&#x652F;&#x6301;&#x7684;&#x3002;&#x8FD9;&#x4E2A;&#x8BBE;&#x7F6E;&#x4F9D;&#x7136;&#x4F7F;&#x7528; fsync &#x6765;&#x5237;&#x65B0;&#x6587;&#x4EF6;&#x5230;&#x78C1;&#x76D8;&#xFF0C;&#x4F46;&#x662F;&#x5B83;&#x5B8C;&#x5168;&#x5173;&#x95ED;&#x4E86;&#x64CD;&#x4F5C;&#x7CFB;&#x7EDF;&#x7F13;&#x5B58;&#xFF0C;&#x5E76;&#x4E14;&#x662F;&#x6240;&#x6709;&#x7684;&#x8BFB;&#x548C;&#x5199;&#x90FD;&#x76F4;&#x63A5;&#x901A;&#x8FC7;&#x5B58;&#x50A8;&#x8BBE;&#x7F6E;&#xFF0C;&#x907F;&#x514D;&#x4E86;&#x53CC;&#x91CD;&#x7F13;&#x51B2;&#x3002;&#x5982;&#x679C;&#x5B58;&#x50A8;&#x8BBE;&#x5907;&#x652F;&#x6301;&#x5199;&#x7F13;&#x51B2;&#x6216;&#x9884;&#x8BFB;&#xFF0C;&#x90A3;&#x4E48;&#x8FD9;&#x4E2A;&#x9009;&#x9879;&#x5E76;&#x4E0D;&#x4F1A;&#x5F71;&#x54CD;&#x5230;&#x8BBE;&#x5907;&#x7684;&#x8BBE;&#x7F6E;&#xFF0C;&#x6BD4;&#x5982; RAID &#x5361;&#x3002;</p><p><strong>0_DSYNC</strong></p><p>&#x8FD9;&#x4E2A;&#x9009;&#x9879;&#x4F7F;&#x5F97;&#x6240;&#x6709;&#x7684;&#x5199;&#x540C;&#x6B65;&#xFF0C;&#x5373;&#x53EA;&#x6709;&#x6570;&#x636E;&#x5199;&#x5230;&#x78C1;&#x76D8;&#x540E;&#x5199;&#x64CD;&#x4F5C;&#x624D;&#x8FD4;&#x56DE;&#xFF0C;&#x4F46;&#x5B83;&#x53EA;&#x5F71;&#x54CD;&#x65E5;&#x5FD7;&#x6587;&#x4EF6;&#xFF0C;&#x800C;&#x4E0D;&#x5F71;&#x54CD;&#x6570;&#x636E;&#x6587;&#x4EF6;&#x3002;</p><p>&#x8BF4;&#x5B8C;&#x4E86;&#x6BCF;&#x4E2A;&#x914D;&#x7F6E;&#x7684;&#x4F5C;&#x7528;&#xFF0C;&#x6700;&#x540E;&#x662F;&#x4E00;&#x4E9B;&#x5EFA;&#x8BAE;&#xFF1A;&#x5982;&#x679C;&#x4F7F;&#x7528;&#x7C7B; Unix &#x64CD;&#x4F5C;&#x7CFB;&#x7EDF;&#x5E76;&#x4E14; RAID &#x63A7;&#x5236;&#x5668;&#x5E26;&#x6709;&#x7535;&#x6C60;&#x4FDD;&#x62A4;&#x7684;&#x5199;&#x7F13;&#x5B58;&#xFF0C;&#x5EFA;&#x8BAE;&#x4F7F;&#x7528; 0_DIRECT&#xFF0C;&#x5982;&#x679C;&#x4E0D;&#x662F;&#xFF0C;&#x9ED8;&#x8BA4;&#x503C;&#x6216;&#x8005; 0_DIRECT &#x90FD;&#x53EF;&#x80FD;&#x662F;&#x6700;&#x597D;&#x7684;&#x9009;&#x62E9;&#x3002;</p><p><strong>innodb-file-per-table</strong></p><p>&#x6700;&#x540E;&#x4E00;&#x4E2A;&#x914D;&#x7F6E;&#xFF0C;&#x8BF4;&#x8BF4; InnoDB &#x8868;&#x7A7A;&#x95F4;&#xFF0C;InnoDB &#x628A;&#x6570;&#x636E;&#x4FDD;&#x5B58;&#x5728;&#x8868;&#x7A7A;&#x95F4;&#x5185;&#xFF0C;&#x5B83;&#x672C;&#x8D28;&#x4E0A;&#x662F;&#x4E00;&#x4E2A;&#x7531;&#x4E00;&#x4E2A;&#x6216;&#x8005;&#x591A;&#x4E2A;&#x78C1;&#x76D8;&#x6587;&#x4EF6;&#x7EC4;&#x6210;&#x7684;&#x865A;&#x62DF;&#x6587;&#x4EF6;&#x7CFB;&#x7EDF;&#x3002;InnoDB &#x8868;&#x7A7A;&#x95F4;&#x5E76;&#x4E0D;&#x53EA;&#x662F;&#x5B58;&#x50A8;&#x8868;&#x548C;&#x7D22;&#x5F15;&#xFF0C;&#x5B83;&#x8FD8;&#x4FDD;&#x5B58;&#x4E86;&#x56DE;&#x6EDA;&#x65E5;&#x5FD7;&#x3001;&#x63D2;&#x5165;&#x7F13;&#x51B2;&#x3001;&#x53CC;&#x5199;&#x7F13;&#x51B2;&#x4EE5;&#x53CA;&#x5176;&#x4ED6;&#x5185;&#x90E8;&#x6570;&#x636E;&#x7ED3;&#x6784;&#xFF0C;&#x9664;&#x6B64;&#x4E4B;&#x5916;&#xFF0C;&#x8868;&#x7A7A;&#x95F4;&#x8FD8;&#x5B9E;&#x73B0;&#x4E86;&#x5F88;&#x591A;&#x5176;&#x5B83;&#x7684;&#x529F;&#x80FD;&#x3002;&#x53EF;&#x4EE5;&#x901A;&#x8FC7; innodb-data-file-path &#x914D;&#x7F6E;&#x9879;&#x5B9A;&#x5236;&#x8868;&#x7A7A;&#x95F4;&#x6587;&#x4EF6;&#xFF0C;innodb-data-home-dir&#x914D;&#x7F6E;&#x8868;&#x7A7A;&#x95F4;&#x6587;&#x4EF6;&#x5B58;&#x653E;&#x7684;&#x4F4D;&#x7F6E;&#xFF0C;&#x6BD4;&#x5982;&#xFF1A;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">innodb-data-home-dir = /var/lib/mysql</span><br><span class="line">innodb-data-file-path = ibdata1:1G;ibdata2:1G;ibdata3:1G</span><br></pre></td></tr></tbody></table></figure><p></p><p>&#x8FD9;&#x91CC;&#x5728; 3 &#x4E2A;&#x6587;&#x4EF6;&#x4E2D;&#x521B;&#x5EFA;&#x4E86; 3G &#x8868;&#x7A7A;&#x95F4;&#xFF0C;&#x4E3A;&#x4E86;&#x5141;&#x8BB8;&#x8868;&#x7A7A;&#x95F4;&#x5728;&#x8D85;&#x8FC7;&#x4E86;&#x5206;&#x914D;&#x7684;&#x7A7A;&#x95F4;&#x65F6;&#x8FD8;&#x80FD;&#x589E;&#x957F;&#xFF0C;&#x53EF;&#x4EE5;&#x50CF;&#x8FD9;&#x6837;&#x914D;&#x7F6E;&#x6700;&#x540E;&#x4E00;&#x4E2A;&#x6587;&#x4EF6;&#x81EA;&#x52A8;&#x6269;&#x5C55;<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">innodb-data-file-path = ibdata1:1G;ibdata2:1G;ibdata3:1G:autoextend</span><br></pre></td></tr></tbody></table></figure><p></p><p><code>innodb-file-per-table</code>&#x9009;&#x9879;&#x8BA9; InnoDB &#x4E3A;&#x6BCF;&#x5F20;&#x8868;&#x4F7F;&#x7528;&#x4E00;&#x4E2A;&#x6587;&#x4EF6;&#xFF0C;&#x8FD9;&#x4F7F;&#x5F97;&#x5728;&#x5220;&#x9664;&#x4E00;&#x5F20;&#x8868;&#x65F6;&#x56DE;&#x6536;&#x7A7A;&#x95F4;&#x5BB9;&#x6613;&#x5F88;&#x591A;&#xFF0C;&#x800C;&#x4E14;&#x7279;&#x522B;&#x5BB9;&#x6613;&#x7BA1;&#x7406;&#xFF0C;&#x5E76;&#x4E14;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x67E5;&#x770B;&#x6587;&#x4EF6;&#x5927;&#x5C0F;&#x6765;&#x786E;&#x5B9A;&#x8868;&#x5927;&#x5C0F;&#xFF0C;&#x6240;&#x4EE5;&#x8FD9;&#x91CC;&#x5EFA;&#x8BAE;&#x6253;&#x5F00;&#x8FD9;&#x4E2A;&#x914D;&#x7F6E;&#x3002;</p><h2 id="&#x603B;&#x7ED3;"><a href="#&#x603B;&#x7ED3;" class="headerlink" title="&#x603B;&#x7ED3;"></a>&#x603B;&#x7ED3;</h2><p>MySQL &#x6709;&#x592A;&#x591A;&#x7684;&#x914D;&#x7F6E;&#x9879;&#xFF0C;&#x8FD9;&#x91CC;&#x6CA1;&#x6709;&#x529E;&#x6CD5;&#x4E00;&#x4E00;&#x5217;&#x4E3E;&#xFF0C;&#x91CD;&#x8981;&#x7684;&#x662F;&#x4E86;&#x89E3;&#x6BCF;&#x4E2A;&#x914D;&#x7F6E;&#x7684;&#x5DE5;&#x4F5C;&#x539F;&#x7406;&#xFF0C;&#x4ECE;&#x4E00;&#x4E2A;&#x57FA;&#x7840;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x5F00;&#x59CB;&#xFF0C;&#x8BBE;&#x7F6E;&#x7B26;&#x5408;&#x670D;&#x52A1;&#x5668;&#x8F6F;&#x786C;&#x4EF6;&#x73AF;&#x5883;&#x4E0E;&#x5DE5;&#x4F5C;&#x8D1F;&#x8F7D;&#x7684;&#x57FA;&#x672C;&#x9009;&#x9879;&#x3002;</p><h2 id="&#x53C2;&#x8003;&#x8D44;&#x6599;"><a href="#&#x53C2;&#x8003;&#x8D44;&#x6599;" class="headerlink" title="&#x53C2;&#x8003;&#x8D44;&#x6599;"></a>&#x53C2;&#x8003;&#x8D44;&#x6599;</h2><p>&#x9AD8;&#x6027;&#x80FD; MySQL(&#x7B2C; 3 &#x7248;)</p><script>
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-center-simple.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/xiaoxin-01.png?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+<script>(function(T,h,i,n,k,P,a,g,e){g=function(){P=h.createElement(i);a=h.getElementsByTagName(i)[0];P.src=k;P.charset="utf-8";P.async=1;a.parentNode.insertBefore(P,a)};T["ThinkPageWeatherWidgetObject"]=n;T[n]||(T[n]=function(){(T[n].q=T[n].q||[]).push(arguments)});T[n].l=+new Date();if(T.attachEvent){T.attachEvent("onload",g)}else{T.addEventListener("load",g,false)}}(window,document,"script","tpwidget","//widget.seniverse.com/widget/chameleon.js"))</script>
+<script>tpwidget("init", {
+    "flavor": "bubble",
+    "location": "WX4FBXXFKE4F",
+    "geolocation": "enabled",
+    "position": "top-right",
+    "margin": "10px 10px",
+    "language": "auto",
+    "unit": "c",
+    "theme": "chameleon",
+    "uid": "U6899A955F",
+    "hash": "3537a35c8bfe0f65e5d773944596793a"
+});
+tpwidget("show");</script>
+
+  <meta name="description" content="戴上它。都几十岁的人了，你看你多贱，你没尊严啊？我不想看见你，快点戴上，然后去看医生。  前言聊聊 MySQL 配置。 大多数开发者可能不太会关注 MySQL 的配置，毕竟在基本配置没有问题的情况下，把更多的精力放在 schema 设计、索引优化和 SQL 优化上，是非常务实的策略。这时，如果再花力气去优化配置项，获得的收益通常都比较小。更多的时候，基于安全因素的考量，普通开发者很少能够接触到生">
+<meta name="keywords" content="MySQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL 优化原理(三)">
+<meta property="og:url" content="https://jiemin.wang/2019/03/29/mysql-optimization-principle-3/index.html">
+<meta property="og:site_name" content="Jamin Blog">
+<meta property="og:description" content="戴上它。都几十岁的人了，你看你多贱，你没尊严啊？我不想看见你，快点戴上，然后去看医生。  前言聊聊 MySQL 配置。 大多数开发者可能不太会关注 MySQL 的配置，毕竟在基本配置没有问题的情况下，把更多的精力放在 schema 设计、索引优化和 SQL 优化上，是非常务实的策略。这时，如果再花力气去优化配置项，获得的收益通常都比较小。更多的时候，基于安全因素的考量，普通开发者很少能够接触到生">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://jiemin.wang/2019/03/29/mysql-optimization-principle-3/timg.jpeg">
+<meta property="og:updated_time" content="2019-03-29T08:33:32.356Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL 优化原理(三)">
+<meta name="twitter:description" content="戴上它。都几十岁的人了，你看你多贱，你没尊严啊？我不想看见你，快点戴上，然后去看医生。  前言聊聊 MySQL 配置。 大多数开发者可能不太会关注 MySQL 的配置，毕竟在基本配置没有问题的情况下，把更多的精力放在 schema 设计、索引优化和 SQL 优化上，是非常务实的策略。这时，如果再花力气去优化配置项，获得的收益通常都比较小。更多的时候，基于安全因素的考量，普通开发者很少能够接触到生">
+<meta name="twitter:image" content="https://jiemin.wang/2019/03/29/mysql-optimization-principle-3/timg.jpeg">
+
+
+
+
+
+
+  <link rel="canonical" href="https://jiemin.wang/2019/03/29/mysql-optimization-principle-3/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>MySQL 优化原理(三) | Jamin Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jamin Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">一个不聊技术的 DBA 不是一个好厨子...</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-life">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/coffee" rel="section"><i class="menu-item-icon fa fa-fw fa-coffee"></i> <br>生活中的美好</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>Search</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="Searching..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://jiemin.wang/2019/03/29/mysql-optimization-principle-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Wang Jiemin">
+      <meta itemprop="description" content="我从不生产BUG, 我是BUG的搬运工~">
+      <meta itemprop="image" content="/images/XIAOXIN.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jamin Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">MySQL 优化原理(三)
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-03-29 14:57:29 / Modified: 16:33:32" itemprop="dateCreated datePublished" datetime="2019-03-29T14:57:29+08:00">2019-03-29</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/03/29/mysql-optimization-principle-3/" class="leancloud_visitors" data-flag-title="MySQL 优化原理(三)">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Views: </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+                 <span>℃</span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <span itemprop="image" itemscope itemtype="http://schema.org/ImageObject"><img itemprop="url image" src="timg.jpeg" class="full-image" alt="alt" title="title"><meta itemprop="width" content="auto"><meta itemprop="height" content="auto"></span>
+<blockquote class="blockquote-center"><p><strong>戴上它。都几十岁的人了，你看你多贱，你没尊严啊？我不想看见你，快点戴上，然后去看医生。</strong></p>
+</blockquote>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>聊聊 MySQL 配置。</p>
+<p>大多数开发者可能不太会关注 MySQL 的配置，毕竟在基本配置没有问题的情况下，把更多的精力放在 schema 设计、索引优化和 SQL 优化上，是非常务实的策略。这时，如果再花力气去优化配置项，获得的收益通常都比较小。更多的时候，基于安全因素的考量，普通开发者很少能够接触到生产环境的 MySQL 配置。正是这样，导致开发者（包括我）对 MySQL 的配置不甚了解，希望本文能帮你更好的了解 MySQL 配置。</p>
+<p>如果让你在某种环境上安装配置 MySQL，你会怎么做？安装后，直接 copy 修改示例配置文件，应该是大多数人的做法。但强烈建议不要怎么做，首先，示例配置文件有非常多注释掉的配置项，它可能会诱使你打开一个你并不了解的配置，而且这些注释还不一定准确。其次，MySQL 的一些配置对于现代化的硬件和工作负载来说，有点过时了。</p>
+<p>MySQL 有非常多的配置项可以修改，但大多数情况下，你都不应该随便修改它，因为错误或者没用的配置导致的潜在风险非常大，而且还很难定位问题。确保基本配置正确，然后小心诊断问题，确认问题恰好可以通过某个配置项解决，紧接着再修改这个配置吧。</p>
+<p>其实，创建一个好的配置，最快方法不是从学习配置项开始，也不是问哪个配置项应该怎么设置或者怎么修改开始，更不是从检查服务器行为和询问哪个配置项可以提升性能开始。最好是从理解 MySQL 内核和行为开始，然后利用这些知识来指导你配置 MySQL。</p>
+<p>就从理解 MySQL 配置的工作原理开始吧。</p>
+<h2 id="MySQL-配置的工作原理"><a href="#MySQL-配置的工作原理" class="headerlink" title="MySQL 配置的工作原理"></a>MySQL 配置的工作原理</h2><p>MySQL 从哪儿获得配置信息：命令行参数和配置文件。类 Unix 系统中，配置文件一般位于 /etc/my.cnf 或者 /etc/mysql/my.cnf。在启动时，可以通过命令行参数指定配置文件的位置，当然命令行中也可以指定其它参数，服务器会读取配置文件的内容，删除所有注释和换行，然后和命令行选项一起处理。</p>
+<p>任何打算长期使用的配置项都应该写入配置文件，而不是在命令行中指定。一定要清楚的知道 MySQL 使用的配置文件位置，在修改时不能想当然，比如，修改了 /etc/my.cnf 的配置项，但 MySQL 实际并未使用这个配置文件。如果你不知道当前使用的配置文件路径，可以尝试：<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">which</span> mysqld</span><br><span class="line">/usr/sbin/mysqld</span><br><span class="line">$ /usr/sbin/mysqld --verbose --<span class="built_in">help</span> |grep -A 1 <span class="string">'Default options'</span></span><br><span class="line">Default options are <span class="built_in">read</span> from the following files <span class="keyword">in</span> the given order:</span><br><span class="line">/etc/my.cnf /etc/mysql/my.cnf ~/.my.cnf</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>一个典型的配置文件包含多个部分，每个部分的开头是一个方括号括起来的分段名称。MySQL 程序通常读取跟它同名的分段部分，比如，许多客户端程序读取[client]部分。服务器通常读取[mysqld]这一段，一定要确认配置项放在了文件正确的分段中，否则配置是不会生效的。</p>
+<p>MySQL 每一个配置项均使用小写，单词之间用下划线或者横线隔开，虽然我们常用的分隔符是下划线，但如果在命令行或者配置文件中见到如下配置，你要知道，它们其实是等价的：<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置文件</span></span><br><span class="line">max_connections=5000</span><br><span class="line">max-connections=5000</span><br><span class="line"><span class="comment"># 命令行</span></span><br><span class="line">/usr/sbin/mysqld --max_connections=5000</span><br><span class="line">/usr/sbin/mysqld --max-connections=5000</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>配置项可以有多个作用域：全局作用域、会话作用域 (每个连接作用不同)、对象作用域。很多会话级配置项跟全局配置相等，可以认为是默认值，如果改变会话级配置项，它只影响改动的当前连接，当连接关闭时，所有的参数变更都会失效。下面有几个示例配置项：</p>
+<ul>
+<li><code>query-cache-size</code> 全局配置项</li>
+<li><code>sort-buffer-size</code> 默认全局相同，但每个线程里也可以设置</li>
+<li><code>join-buffer-size</code> 默认全局，且每个线程也可以设置。但若一个查询中关联多张表，可以为每个关联分配一个关联缓存 (join-buffer)，所以一个查询可能有多个关联缓冲。</li>
+</ul>
+<p>配置文件中的变量 (配置项) 有很多 (但不是所有) 可以在服务器运行时修改，MySQL 把这些归为动态配置变量：<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">-- 设置全局变量，GLOBAL和@@global作用是一样的</span><br><span class="line"><span class="built_in">set</span>   GLOBAL   sort-buffer-size  = <value></value></span><br><span class="line"><span class="built_in">set</span>   @@global.sort-buffer-size := <value></value></span><br><span class="line"></span><br><span class="line">-- 设置会话级变量，下面6种方式作用是一样的</span><br><span class="line">-- 即：没有修饰符、SESSION、LOCAL等修饰符作用是一致的</span><br><span class="line"><span class="built_in">set</span>  SESSION   sort-buffer-size  = <value></value></span><br><span class="line"><span class="built_in">set</span>  @@session.sort-buffer-size := <value></value></span><br><span class="line"><span class="built_in">set</span>          @@sort-buffer-size  = <value></value></span><br><span class="line"><span class="built_in">set</span>  LOCAL     sort-buffer-size  = <value></value></span><br><span class="line"><span class="built_in">set</span>     @@ocal.sort-buffer-size := <value></value></span><br><span class="line"><span class="built_in">set</span>            sort-buffer-size  = <value></value></span><br><span class="line"></span><br><span class="line">-- <span class="built_in">set</span>命令可以同时设置多个变量，但其中只要有一个变量设置失败，所有的变量都未生效</span><br><span class="line">SET GLOBAL sort-buffer-size = 100, SESSION sort-buffer-size = 1000;</span><br><span class="line">SET GLOBAL max-connections = 1000, sort-buffer-size = 1000000;</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>动态的设置变量，MySQL 关闭时这些变量都会失效。如果在服务器运行时修改了变量的全局值，这个值对当前会话和其他任何已经存在的会话都不起效果，这是因为会话的变量值是在连接创建时从全局值初始化而来的。注意，在配置修改后，需要确认是否修改成功。</p>
+<p>你可能注意到，上面的示例中，有些使用 ‘=’，有些使用 ‘:=’。对于 set 命令本身来说，两种赋值运算符没有任何区别，在命令行中使用任一运算符符，均可以生效。而在其他语句中，赋值运算符必须是 ‘:=’，因为在非 set 语句中 ‘=’ 被视为比较运算符。具体可以参考如下示例：</p>
+<p>详细示例可以参考：<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">-- @exp 表示用户变量，上面的示例均是系统变量</span><br><span class="line">-- 错误</span><br><span class="line"><span class="built_in">set</span> @user = 123456;</span><br><span class="line"><span class="built_in">set</span> @group = select GROUP from USER <span class="built_in">where</span> User = @user;</span><br><span class="line">select * from USER <span class="built_in">where</span> GROUP = @group;</span><br><span class="line"></span><br><span class="line">-- 正确</span><br><span class="line">SET @user := 123456;</span><br><span class="line">SELECT @group := `group` FROM user WHERE user = @user;</span><br><span class="line">SELECT * FROM user WHERE `group` = @group;</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>有一些配置使用了不同的单位，比如table-cache变量指定表可以被缓存的数量，而不是表可以被缓存的字节数。而<code>key-buffer-size</code>则是以字节为单位。</p>
+<p>还有一些配置可以指定后缀单位，比如1M=1024<em>1024字节，但需要注意的是，这只能在配置文件或者作为命令行参数时有效。当使用 SQL 的 SET 命令时，必须使用数字值 1048576 或者 1024</em>1024 这样的表达式，但在配置文件中不能使用表达式。</p>
+<p><strong>小心翼翼的配置 MySQL</strong><br>我们常常动态的修改配置，但请务必小心，因为它们可能导致数据库做大量耗时的工作，从而影响数据库的整体性能。比如从缓存中刷新脏块，不同的刷新方式对 I/O 的影响差别很大 (后文会具体说明)。最好把一些好的习惯作为规范合并到工作流程中去，就比如：</p>
+<p><strong>好习惯 1：不要通过配置项的名称来推断一个变量的作用</strong></p>
+<p>不要通过配置项的名称来推断一个变量的作用，因为它可能跟你想象的完全不一样。比如：</p>
+<ul>
+<li><code>read-buffer-size</code>：当 MySQL 需要顺序读取数据时，如无法使用索引，其将进行全表扫描或者全索引扫描。这时，MySQL 按照数据的存储顺序依次读取数据块，每次读取的数据块首先会暂存在缓存中，当缓存空间被写满或者全部数据读取结束后，再将缓存中的数据返回给上层调用者，以提高效率。</li>
+<li><code>read-rnd-buffer-size</code>：和顺序读取相对应，当 MySQL 进行非顺序读取（随机读取）数据块的时候，会利用这个缓冲区暂存读取的数据。比如：根据索引信息读取表数据、根据排序后的结果集与表进行 Join 等等。总的来说，就是当数据块的读取需要满足一定的顺序的情况下，MySQL 就需要产生随机读取，进而使用到read-rnd-buffer-size参数所设置的内存缓冲区。</li>
+</ul>
+<p>这两个配置都是在扫描 MyISAM 表时有效，且 MySQL 会为每个线程分配内存。对于前者，MySQL 只会在查询需要使用时才会为该缓存分配内存，并且一次性分配该参数指定大小的全部内存，而后者同样是需要时才分配内存，但只分配需要的内存大小而不是参数指定的数值，max-read-rnd-buffer-size(实际上没有这个配置项) 这个名字更能表达这个变量的实际含义。</p>
+<p><strong>好习惯 2：不要轻易在全局修改会话级别的配置</strong></p>
+<p>对于某些会话级别的设置，不要轻易的在全局增加它们的值，除非你确认这样做是对的。比如：<code>sort-buffer-size</code>，该参数控制排序操作的缓存大小，MySQL 只会在查询需要做排序操作时才会为该缓冲分配内存，一旦需要排序，就会一次性分配指定大小的内存，即使是非常小的排序操作。因此在配置文件中应该配置的小一些，然后在某些查询需要排序时，再在连接中把它调大。比如：<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SET @@seession.sort-buffer-size := <value></value></span><br><span class="line">-- 执行查询的sql</span><br><span class="line">SET @@seession.sort-buffer-size := DEFAULT -- 恢复默认值</span><br><span class="line">-- 可以将类似的代码封装在函数中方便使用。</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p><strong>好习惯 3：配置变量时，并不是值越大越好</strong><br>配置变量时，并不是值越大越好，而且如果设置的值太高，可能更容易导致内存问题。在修改完成后，应该通过监控来确认变量的修改对服务器整体性能的影响。</p>
+<p><strong>好习惯 4：规范注释，版本控制</strong><br>在配置文件中写好注释，可能会节省自己和同事大量的工作，一个更好的习惯是把配置文件置于版本控制之下。</p>
+<p>说完了好习惯，再来说说不好的习惯。</p>
+<p><strong>坏习惯 1：根据一些 “比率” 来调优</strong><br>一个经典的按 “比率” 调优的经验法则是，缓存的命中率应该高于某个百分比，如果命中率过低，则应该增加缓存的大小。这是非常错误的意见，大家可以仔细思考一下：缓存的命中率跟缓存大小有必然联系吗？(分母变大，值就变大了？) 除非确实是缓存太小了。关于 MyISAM 键缓冲命中率，下文会详细说明。</p>
+<p><strong>坏习惯 2：随便使用调优脚本</strong><br>尽量不要使用调优脚本！不同的业务场景、不同的硬件环境对 MySQL 的性能要求是不一样的。比如有些业务对数据的完整性要求较高，那么就一定要保证数据不丢失，出现故障后可恢复数据，而有些业务却对数据的完整性要求没那么高，但对性能要求更高。因此，即使是同一个变量，在这两个不同场景下，其配置的值也应该是不同的。那你还能放心的使用网上找到的脚本吗 ？</p>
+<blockquote>
+<p>本小节示例的几个配置项，仅用于举例说明，并不代表它们有多么重要，请根据实际应用场景配置它们。就比如<code>sort-buffer-size</code>，你真的需要 100M 内存来缓存 10 行数据？</p>
+</blockquote>
+<h4 id="分段"><a href="#分段" class="headerlink" title="分段"></a>分段</h4><p>MySQL 配置文件的格式为集中式，通常会分成好几部分，可以为多个程序提供配置，如<code>[client]</code>、<code>[mysqld]</code>、<code>[mysql]</code>等等。MySQL 程序通常是读取与它同名的分段部分。</p>
+<ul>
+<li><code>[client]</code>客户端默认设置内容</li>
+<li><code>[mysql]</code>使用 mysql 命令登录 MySQL 数据库时的默认设置</li>
+<li><code>[mysqld]</code>数据库本身的默认设置</li>
+</ul>
+<p>例如服务器 mysqld 通常读取<code>[mysqld]</code>分段下的相关配置项。如果配置项位置不正确，该配置是不会生效的。</p>
+<h4 id="GENERAL"><a href="#GENERAL" class="headerlink" title="GENERAL"></a>GENERAL</h4><p>首先创建一个用户 mysql 来运行 mysqld 进程，请确保这个用户拥有操作数据目录的权限。设置默认端口为 3306，有时为了安全，可能会修改一下。默认选择 Innodb 存储引擎，在大多数情况下是最好的选择。但如果默认是 InnoDB，却需要使用 MyISAM 存储引擎，请显式地进行配置。许多用户认为其数据库使用了某种存储引擎但实际上却使用的是另外一种，就是因为默认配置的问题。</p>
+<p>接着设置数据文件的位置，这里把 pid 文件和 socket 文件放到相同的位置，当然也可以选择其它位置，但要注意的是不要将 socket 文件和 pid 文件放到 MySQL 编译的默认位置，因为不同版本的 MySQL，这两个文件的默认路径可能会不一致，最好明确地设置这些文件的位置，以免版本升级时出现问题。</p>
+<blockquote>
+<p>在类 UNIX 系统下本地连接 MySQL 可以采用 UNIX 域套接字方式，这种方式需要一个套接字（socket）文件，即配置中的mysql.sock文件。</p>
+</blockquote>
+<blockquote>
+<p>当 MySQL 实例启动时，会将自己的进程 ID 写入一个文件中——该文件即为 pid 文件。该文件可由参数pid-file控制，默认位于数据库目录下，文件名为主机名.pid。</p>
+</blockquote>
+<h4 id="DATA-STORAGE"><a href="#DATA-STORAGE" class="headerlink" title="DATA STORAGE"></a>DATA STORAGE</h4><p>datadir用于配置数据文件的存储位置，没有什么好说的。</p>
+<p><strong>为缓存分配内存</strong><br>接下来有许多涉及到缓存的配置项，缓存设置多大，最直接的因素肯定是服务器内存的大小。如果服务器只运行 MySQL，所有不需要为 OS 以及查询处理保留的内存都可以用在 MySQL 缓存。为 MySQL 缓存分配更多内存，可以有效的避免磁盘访问，提升数据库性能。大部分情况来说最为重要的缓存：</p>
+<ul>
+<li>InnoDB 缓冲池</li>
+<li>InnoDB 日志文件和 MyISAM 数据的操作系统缓存 (MyISAM 依赖于 OS 缓存数据)</li>
+<li>MyISAM 键缓存</li>
+<li>查询缓存</li>
+<li>无法配置的缓存，比如：bin-log 或者表定义文件的 OS 缓存</li>
+</ul>
+<p>还有一些其他缓存，但它们通常不会使用太多内存。关于查询缓存，前面文章 (参考本系列的第一篇) 已有介绍，大多数情况下我们不建议开启查询缓存，因此上文的配置中query-cache-type=0表示禁用了查询缓存，相应的查询缓存大小query-cache-size=0。除开查询缓存，剩下关于 InnoDB 和 MyISAM 的相关缓存，在接下来会做详细介绍。</p>
+<p>如果只使用单一存储引擎，配置服务器就会简单许多。如果只使用 MyISAM 表，就可以完全关闭 InnoDB，而如果只使用 InnoDB，就只需要分配最少的资源给 MyISAM（MySQL 内部系统表使用 MyISAM 引擎）。但如果是混合使用各种存储引擎，就很难在他们之间找到恰当的平衡，因此只能根据业务做一个猜测，然后在运行中观察服务器运行状况后做出调整。</p>
+<h4 id="MyISAM"><a href="#MyISAM" class="headerlink" title="MyISAM"></a>MyISAM</h4><p><strong>key-buffer-size</strong></p>
+<p><code>key-buffer-size</code>用于配置 <code>MyISAM</code>键缓存大小，默认只有一个键缓存，但是可以创建多个。MyISAM 自身只缓存索引，不缓存数据 (依赖 OS 缓存数据)。如果大部分表都是 <code>MyISAM</code>，那么应该为键缓存设置较多的内存。但如何确定该设置多大？<br>假设整个数据库中表的索引大小为 X，肯定不需要把缓存设置得比 X 还大，所以当前的索引大小就成为这个配置项的重要依据。可以通过下面两种方式来查询当前索引的大小：</p>
+<p>1.通过 SQL 语句查询<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT SUM(INDEX_LENGTH) FROM INFORMATION_SCHEMA.TABLES WHERE ENGINE = <span class="string">'MYISAM'</span></span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>2.统计索引文件的大小<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ du -sch `find /path/to/mysql/data/directory/ -name <span class="string">"*.MYI"</span>`</span><br><span class="line">比如：</span><br><span class="line">root@dev-msc3:<span class="comment"># du -sch `find /var/lib/mysql -name "*.MYI"`</span></span><br><span class="line">72K        /var/lib/mysql/static/t_global_region.MYI</span><br><span class="line">40K        /var/lib/mysql/mysql/db.MYI</span><br><span class="line">12K        /var/lib/mysql/mysql/proxies_priv.MYI</span><br><span class="line">12K        /var/lib/mysql/mysql/tables_priv.MYI</span><br><span class="line">4.0K       /var/lib/mysql/mysql/func.MYI</span><br><span class="line">4.0K       /var/lib/mysql/mysql/columns_priv.MYI</span><br><span class="line">4.0K       /var/lib/mysql/mysql/proc.MYI</span><br><span class="line">4.0K       /var/lib/mysql/mysql/event.MYI</span><br><span class="line">4.0K       /var/lib/mysql/mysql/user.MYI</span><br><span class="line">4.0K       /var/lib/mysql/mysql/procs_priv.MYI</span><br><span class="line">4.0K       /var/lib/mysql/mysql/ndb_binlog_index.MYI</span><br><span class="line">164K       total</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>你可能会问，刚创建好的数据库，根本就没什么数据，索引文件大小为 0，那如何配置键缓存大小？这时候只能根据经验值：不超过为操作系统缓存保留内存的 25% ~ 50%。设置一个基本值，等运行一段时间后，根据运行情况来调整键缓存大小。总结来说，索引大小与 OS 缓存的 25%~50% 两者间取小者。当然还可以计算键缓存的使用情况，如果一段时间后还是没有使用完所有的键缓存，就可以把缓冲区调小一点，计算缓存区的使用率可以通过以下公式：<br><strong>(key_blocks_unused * key_cache_block_size) / key_buffer_size</strong></p>
+<blockquote>
+<p>说明：</p>
+</blockquote>
+<blockquote>
+<p>key_blocks_unused 的值可以通过 SHOW STATUS 获取</p>
+</blockquote>
+<blockquote>
+<p>key_cache_block_size 的值可以通过 SHOW VARIABLES 获取</p>
+</blockquote>
+<p>键缓存块大小是一个比较重要的值，因为它影响 MyISAM、OS 缓存以及文件系统之间的交互。如果缓存块太小，可能会碰到写时读取 (OS 在写数据之前必须先从磁盘上读取一些数据)，关于写时读取的相关知识，大家可以自行查阅。</p>
+<p>关于缓存命中率，这里再说一点。缓存命中率有什么意义？其实这个数字没太大的作用。比如 99% 和 99.9% 之间看起来差距很小，但实际上代表了 10 倍的差距。缓存命中率的实际意义与应用也有很大关系，有些应用可以在命中率 99% 下良好的工作，有些 I/O 密集型应用，可能需要 99.99%。所以从经验上来说，每秒未命中次数这个指标实际上会更有用一些。比如每秒 5 次未命中可能不会导致 IO 繁忙，但每秒 100 次缓存未命中则可能出现问题。</p>
+<p>MyISAM 键缓存的每秒未命中次数可以通过如下命令监控：<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 计算每隔10s缓存未命中次数的增量</span></span><br><span class="line"><span class="comment"># 使用此命令时请带上用户和密码参数：mysqladmin -uroot -pxxx extended-status -r -i 10 | grep Key_reads</span></span><br><span class="line">$ mysqladmin extended-status -r -i 10 | grep Key_reads</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>最后，即使没有使用任何 MyISAM 表，依然需要将key-buffer-size设置为较小值，比如 32M，因为 MySQL 内部会使用 MyISAM 表，比如 GROUP BY 语句可能会创建 MyISAM 临时表。</p>
+<h4 id="myisam-recover"><a href="#myisam-recover" class="headerlink" title="myisam-recover"></a>myisam-recover</h4><p>myisam-recover选项用于配置 MyISAM 怎样寻找和修复错误。打开这个选项会通知 MySQL 在打开表时，检查表是否损坏，并在找到问题时进行修复，它可以设置如下值：    </p>
+<ul>
+<li>DEFAULT：表示不设置，会尝试修复崩溃或者未完全关闭的表，但在恢复数据时不会执行其它动作</li>
+<li>BACKUP：将数据文件备份到. bak 文件，以便随后进行检查</li>
+<li>FORCE：即使. myd 文件中丢失的数据超过 1 行，也让恢复动作继续执行</li>
+<li>QUICK：除非有删除块，否则跳过恢复</li>
+</ul>
+<p>可以设置多个值，每个值用逗号隔开，比如配置文件中的BACKUP,FORCE会强制恢复并且创建备份，这样配置在只有一些小的 MyISAM 表时有用，因为服务器运行着一些损坏的 MyISAM 表是非常危险的，它们有时可能会导致更多数据损坏，甚至服务器崩溃。然而如果有很大的表，它会导致服务器打开所有的 MyISAM 表时都检查和修复，大表的检查和修复可能会耗费大量时间，且在这段时间里，MySQL 会阻止这个连接做其它任何操作，这显然是不切实际的。</p>
+<p>因此，在默认使用 InnoDB 存储引擎时，数据库中只有非常小的 MyISAM 表时，只需要配置key-buffe-size于一个很小的值 (32M) 以及myisam-recover=BACKUP,FORCE。当数据库中大部分表为 MyISAM 表时，请根据上文的公式合理配置key-buffer-size，而myisam-recover则可以关闭，在启动后使用CHECK TABLES和REPAIR TABLES命令来做检查和修复，这样对服务器的影响比较小。</p>
+<h4 id="SAFETY"><a href="#SAFETY" class="headerlink" title="SAFETY"></a>SAFETY</h4><p>基本配置设置到位后，MySQL 已经比较安全了，这里仅仅列出两个需要注意的配置项，如果需要启用一些使服务器更安全和可靠的设置，可以参考 MySQL 官方手册，但需要注意的是，它们其中的一些选项可能会影响性能，毕竟保证安全和可靠需要付出一些代价。</p>
+<p><strong>max-allowed-packet</strong><br><code>max-allowed-packet</code>防止服务器发送太大的数据包，也控制服务器可以接收多大的包。默认值 4M，可能会比较小。如果设置太小，有时复制上会出问题，表现为从库不能接收主库发过来的复制数据。如果表中有 Blob 或者 Text 字段，且数据量较大的话，要小心，如果数据量超过这个变量的大小，它们可能被截断或者置为 NULL，这里建议设置为 16M。</p>
+<p><strong>max-connect-errors</strong><br>这个变量是一个 MySQL 中与安全相关的计数器值，它主要防止客户端暴力破解密码。如果某一个客户端尝试连接 MySQL 服务器失败超过 n 次，则 MySQL 会无条件强制阻止此客户端连接，直到再次刷新主机缓存或者重启 MySQL 服务器。</p>
+<p>这个值默认为 10，太小了，有时候网络抽风或者应用配置出现错误导致短时间内不断尝试重连服务器，客户端就会被列入黑名单，导致无法连接。如果在内网环境，可以确认没有安全问题可以把这个值设置的大一点，默认值太容易导致问题。</p>
+<h4 id="LOGGING"><a href="#LOGGING" class="headerlink" title="LOGGING"></a>LOGGING</h4><p>接下来看下日志的配置，对于 MySQL 来说，慢日志和 bin-log 是非常重要的两种日志，前者可以帮助应用程序监控性能问题，后者在数据同步、备份等方面发挥着非常重要的作用。</p>
+<p>关于 bin-log 的 3 个配置，log-bin用于配置文件存放路径，expire_logs_days让服务器在指定天数之后清理旧的日志，即配置保留最近多少天的日志。除非有运维手动备份清理 bin-log，否则强烈建议打开此配置，如果不启用，服务器空间最终将会被耗尽，导致服务器卡住或者崩溃。</p>
+<h4 id="sync-binlog"><a href="#sync-binlog" class="headerlink" title="sync-binlog"></a>sync-binlog</h4><p><code>sync-binlog</code>控制当事务提交之后，MySQL 是否将 bin-log 刷新到磁盘。如果其值等于 0 或者大于 1 时，当事务提交之后，MySQL 不会将 bin-log 刷新到磁盘，其性能最高，但存在的风险也是最大的，因为一旦系统崩溃，bin-log 将会丢失。而当其值等于 1 时，是最安全的，这时候即使系统崩溃，最多也就丢失本次未完成的事务，对实际的数据没有实质性的影响，但性能较差。</p>
+<p>需要注意的是，在 5.7.7 之前的版本，这个选择的默认值为 0，而之后的版本默认值为 1，也就是最安全的策略。对于高并发的性能，需要关注这一点，防止版本升级后出现性能问题。</p>
+<p>剩下的 4 个配置项就没太多要说的。</p>
+<ul>
+<li>log-error：用于配置错误日志的存放目录</li>
+<li>slow-query-log：打开慢日志，默认关闭</li>
+<li>slow-query-log-file：配置慢日志的存放目录</li>
+<li>log-queries-not-using-indexes：如果该 sql 没有使用索引，会将其写入到慢日志，但是否真的执行很慢，需要区分，默认关闭。</li>
+</ul>
+<h4 id="CACHES-AND-LIMITS"><a href="#CACHES-AND-LIMITS" class="headerlink" title="CACHES AND LIMITS"></a>CACHES AND LIMITS</h4><p><strong>tmp-table-size && max-heap-table-size</strong><br>这两个配置控制使用 Memory 引擎的内存临时表可以使用多大的内存。如果隐式内存临时表的大小超过这两个值，将会被转为磁盘 MyISAM 表 (隐式临时表由服务器创建，用户保存执行中的查询的中间结果)。</p>
+<p>如果查询语句没有创建庞大的临时表 (通过合理的索引和查询设计来避免)，可以把这个值设大一点，以免需要把内存临时表转换为磁盘临时表。但要谨防这个值设置得过大，如果查询确实会创建很大的临时表，那么还是使用磁盘比较好，毕竟并发数一起来，所需要的内存就会急剧增长。</p>
+<p>应该简单的把这两个变量设为同样的值，这里选择了 32M，可以通过仔细检查created-tmp-disk-tables和created-tmp-tables两个变量来指导你设置，这两个变量的值将展示临时表的创建有多频繁。</p>
+<p><strong>max-connections</strong></p>
+<p>用于设置用户的最大连接数，保证服务器不会应为应用程序激增的连接而不堪重负。如果应用程序有问题，或者服务器遇到连接延迟问题，会创建很多新连接。但如果这些连接不能执行查询，那打开一个连接没什么好处，所以被 “太多的连接” 错误拒绝是一种快速而且代价小的失败方式。</p>
+<p>在服务器资源允许的情况下，可以把<code>max-connections</code>设置的足够大，以容纳正常可能达到的负载。若认为正常情况将有 <code>300</code> 或者更多连接，可以设置为 <code>500</code> 或者更多 (应对高峰期)。默认值是 <code>100</code>，太小了，这里设置为 <code>500</code>，但并不意味着其是一个合理的值，应该监控应用有多少连接，然后根据监控值 (观察<code>max_used_connections</code>随时间的变化) 来设置。</p>
+<p><strong>thread-cache-size</strong></p>
+<p>线程缓存保存那些当前没有与连接关联但是准备为后面新连接服务的线程。当一个新的连接创建时，如果缓存中有线程存在，MySQL 则从缓存中删除一个线程，并且把它分配给这个新连接。当连接关闭时，如果线程缓存还有空间的话，MySQL 又会把线程放回缓存。如果没有空间的话，MySQL 会销毁这个线程。只要 MySQL 在缓存里还有空闲的线程，它就可以迅速响应连接请求，因为这样就不用为每个连接创建新线程。<code>thread-cache-size</code>指定 MySQL 可以保存在缓存中的线程数量。如果服务器没有很多的连接请求，一般不需要配置这个值。</p>
+<p>如何判断这个值该设置多大？</p>
+<p>观察threads-connected变量，如果threads-connected在 100-120，那么thread-cache-size设置为 20。如果它保持在 500-700，200 的线程缓存应该足够大了。可以这么理解：当同时有 700 个连接时，可能缓存中没有线程。在 500 个连接时，有 200 个缓存的线程准备为负载再次增加到 700 个连接时使用。</p>
+<p><strong>open-files-limit</strong></p>
+<p>在类 Uinux 系统上我们把它设置得尽可能大。现代 OS 中打开句柄开销都很小，如果此参数设置过小，可能会遇到 “打开的文件太多 (too many open files)” 错误。</p>
+<p><strong>table_cache_size</strong></p>
+<p>表缓存跟线程缓存类似，但存储的对象是表，其包含表. frm 文件的解析结果和一些其他数据。准确的说，缓存的数据依赖于存储引擎，比如，对于 MyISAM，缓存表的数据和索引的文件描述符。表缓存对 InnoDB 的存储引擎来说，重要性会小很多，因为 InnoDB 不依赖它来做那么多的事。</p>
+<p>从 5.1 版本及以后，表缓存就被分为两个部分：打开表缓存和定义表缓存，分别通过table-open-cache-size和table-definition-cache-size变量来配置。通常可以把table-definition-cache-size设置得足够高，以缓存所有的表定义，因为大部分存储引擎都能从table-definition-cache获益。</p>
+<p><strong>InnoDB</strong></p>
+<p>InnoDB 应该是使用最广发的存储引擎，最重要的配置选项是下面这两个：innodb-buffer-pool-size与innodb-log-file-size，解决这两个配置基本上就解决了真实场景下的大部分配置问题。</p>
+<p><strong>innodb-buffer-pool-size</strong></p>
+<p>如果大部分是 InnoDB 表，那么 InnoDB 缓冲池或许比其他任何东西都更需要内存，InnoDB 缓冲池缓冲的数据：索引、行数据、自适应哈希索引、插入缓冲、锁以及其他内部数据结构。InnoDB 还使用缓冲池来帮助延迟写入，这样就可以合并多个写入操作，然后一起顺序写入，提升性能。总之，InnoDB 严重依赖缓冲池，必须为其分配足够的内存。</p>
+<p>当然，如果数据量不大且不会快速增长，就没有必要为缓冲池分配过多的内存，把缓冲池配置得比需要缓存的表和索引还要大很多，实际上也没有什么意义。很大的缓冲池也会带来一些挑战，例如，预热和关闭都会花费很长的时间。如果有很多脏页在缓冲池里，InnoDB 关闭时可能会花很长时间来把脏页写回数据文件。虽然可以快速关闭，但是在启动时需要做更多的恢复工作，也就是说我们无法同时加速关闭和重启两个操作。当有一个很大的缓冲池，重启服务需要花费很长时间（几小时或者几天）来预热，尤其是磁盘很慢的时候，如果想加快预热时间，可以在重启后立刻进行全表扫描或者索引扫描，把索引载入缓冲池。</p>
+<p>可以看到示例的配置文件中把这个值配置为 12G，这不是一个标准配置，需要根据具体的硬件来估算。那如何估算？</p>
+<p>前面的小节，我们说到，MySQL 中最重要的缓存有 5 种，可以简单的使用下面的公式计算：</p>
+<p><em><strong>InnoDB 缓冲池 = 服务器总内存 - OS 预留 - 服务器上的其他应用占用内存 - MySQL 自身需要的内存 - InnoDB 日志文件占用内存 - 其它内存 (MyISAM 键缓存、查询缓存等)</strong></em></p>
+<p>具体来看，至少需要为 OS 保留 1~2G 内存，如果机器内存大的话可以预留多一些，建议 2GB 和总内存的 5% 为基准，以较大者为准，如果机器上还运行着一些内存密集型任务，比如，备份任务，那么可以为 OS 再预留多一些内存。不要为 OS 缓存增加任何内存，因为 OS 通常会利用所有剩下的内存来做文件缓存。</p>
+<p>一般来说，运行 MySQL 的服务器很少会运行其他应用程序，但如果有的话，请为这些应用程序预留足够多的内存。</p>
+<p>MySQL 自身运行还需要一些内存，但通常都不会太大。需要考虑 MySQL 每个连接需要的内存，虽然每个连接需要的内存都很少，但它还要求一个基本量的内存来执行任何给定的查询，而且查询过程中还需要为排序、GROUP BY 等操作分配临时表内存，因此需要为高峰期执行大量的查询预留足够的内存。这个内存有多大？只能在运行过程中监控。</p>
+<p>如果大部分表都是 InnoDB，MyISAM 键缓存配置一个很小值足矣，查询缓存也建议关闭。</p>
+<p>公式中就剩下 InnoDB 日志文件了，这就是我们接下来要说的。</p>
+<p><strong>innodb-log-file-size && innodb-log-files-in-group</strong></p>
+<p>如果对 InnoDB 数据表有大量的写入操作，那么选择合适的innodb-log-file-size值对提升 MySQL 性能很重要。InnoDB 使用日志来减少提交事务时的开销。日志中记录了事务，就无须在每个事务提交时把缓冲池的脏块 (缓存中与磁盘上数据不一致的页) 刷新到磁盘。事务修改的数据和索引通常会映射到表空间的随机位置，所以刷新这些变更到磁盘需要很多随机 I/O。一旦日志安全的写入磁盘，事务就持久化了，即使变更还没有写到数据文件，在一些意外情况发生时 (比如断电了)，InnoDB 可以重放日志并且恢复已经提交的事务。</p>
+<p>InnoDB 使用一个后台线程智能地刷新这些变更到数据文件。实际上，事务日志把数据文件的随机 I/O 转换为几乎顺序地日志文件和数据文件 I/O，让刷新操作在后台可以更快的完成，并且缓存 I/O 压力。</p>
+<p>整体的日志文件大小受控于<code>innodb-log-file-size</code>和<code>innodb-log-files-in-group</code>两个参数，这对写性能非常重要。日志文件的总大小是每个文件的大小之和。默认情况下，只有两个 5M 的文件，总共 10M，对高性能工作来说太小了，至少需要几百 M 或者上 G 的日志文件。这里要注意<code>innodb-log-files-in-group</code>这个参数，它控制日志文件的数量，从名字上看好似配置一个日志组有几个文件，实际上，log group表示一个重做日志的文件集合，没有参数也没有必要配置有多少个日志组。</p>
+<p>修改日志文件的大小，需要完全关闭 MySQL，然后将旧的日志文件迁移到其他地方，重新配置参数，然后重启。重启时需要将旧的日志迁移回来，然后等待 MySQL 恢复数据后，再删除旧的日志文件，请一定要查看错误日志，确认 MySQL 重启成功后再删除旧的日志文件。</p>
+<p>想要确定理想的日志文件大小，需要权衡正常数据变更的开销，以及崩溃时恢复需要的时间。如果日志太小，InnoDB 将必须要做更多的检查点，导致更多的日志写，在极个别情况下，写语句还会被拖累，在日志没有空间继续写入前，必须等待变更被刷新到数据文件。另一方面，如果日志太大，在崩溃时恢复就得做大量的工作，这可能增大恢复时间。InnoDB 会采用 checkpoint 机制来刷新和恢复数据，这会加快恢复数据的时间，具体可以参考：</p>
+<ul>
+<li><a href="http://www.cnblogs.com/cuisi/p/6590281.html" target="_blank" rel="noopener">MySQL-checkpoint 技术</a></li>
+<li><a href="https://www.xaprb.com/blog/2011/01/29/how-innodb-performs-a-checkpoint/" target="_blank" rel="noopener">How InnoDB performs a checkpoint</a></li>
+</ul>
+<p><strong>innodb-flush-log-at-trx-commit</strong></p>
+<p>前面讨论了很多缓存，InnoDB 日志也是有缓存的。当 InnoDB 变更任何数据时，会写一条变更记录到日志缓存区。在缓冲慢的时候、事务提交的时候，或者每一秒钟，InnoDB 都会将缓冲区的日志刷新到磁盘的日志文件。如果有大事务，增加日志缓冲区大小可以帮助减少 I/O，变量innodb-log-buffer-size可以控制日志缓冲区的大小。通常不需要把日志缓冲区设置的非常大，毕竟上述 3 个条件，任一条件先触发都会把缓冲区的内容刷新到磁盘，所以缓冲区的数据肯定不会太多，出入你的数据中有很多相当大的 BLOB 记录。通常来说，配置 1M~8M 即可。</p>
+<p>既然存在缓冲区，怎样刷新日志缓冲就是我们需要关注的问题。日志缓冲必须刷新到磁盘，以确保提交的事务完全被持久化。如果和持久化相比，更在乎性能，可以修改 innodb-flush-log-at-trx-commit 变量来控制日志缓冲刷新的频率。</p>
+<ul>
+<li>0：每 1 秒钟将日志缓冲写到日志文件并刷新到磁盘，事务提交时不做任何处理</li>
+<li>1：每次事务提交时，将日志缓冲写到日志文件并刷新到磁盘</li>
+<li>2：每次事务提交时，将日志缓冲写到日志文件，然后每秒刷新一次到磁盘</li>
+</ul>
+<blockquote>
+<p>1  是最安全的设置，保证不会丢失任何已经提交的事务，这也是默认的设置。</p>
+</blockquote>
+<blockquote>
+<p>0 和 2 最主要的区别是，如果 MySQL 挂了，2 不会丢失事务，但 0 有可能，</p>
+</blockquote>
+<blockquote>
+<p>2 在每次事务提交时，至少将日志缓冲刷新到操作系统的缓存，而 0 则不会。如果整个服务器挂了或者断电了，则还是可能会丢失一些事务。</p>
+</blockquote>
+<p><strong>innodb-flush-method</strong></p>
+<p>前面都在讨论使用什么样的策略刷新、以及何时刷新日志或者数据，那 InnoDB 具体是怎样刷新数据的？使用innodb-flush-method选项可以配置 InnoDB 如何跟文件系统相互作用。从名字上看，会以为只能影响 InnoDB 怎么写数据，实际上还影响了 InnoDB Windows 和非 Windows 操作系统下这个选项的值是互斥的，也就是说有些值只能 Windows 下使用，有些只能在非 Windows 下使用，其中 Windows 下可取值：async_unbuffered、unbuffered、normal、Nosync与littlesync，非 Windows 取值：fdatasync、0_DIRECT、 0_DSYNC。</p>
+<p>这个选项既会影响日志文件，也会影响数据文件，而且有时候对不同类型的文件的处理也不一样，导致这个选项有些难以理解。如果有一个选项来配置日志文件，一个选项来配置数据文件，应该会更好，但实际上它们混合在同一个配置项中。这里只介绍类 Unix 操作系统下的选项。</p>
+<p><strong>fdatasync</strong></p>
+<p>InnoDB 调用fsync()和fdatasync()函数来刷新数据和日志文件，其中fdatasync()只刷文件的数据，但不包含元数据 (比如：访问权限、文件拥有者、最后修改时间等描述文件特征的系统数据)，因此fsync()相比fdatasync()会产生更多的 I/O，但在某些场景下fdatasync()会导致数据损坏，因此 InnoDB 开发者决定用fsync()来代替fdatasync()。</p>
+<p>fsync()的缺点是操作系统会在自己的缓存中缓冲一些数据，理论上双重缓冲是浪费的，因为 InnoDB 自己会管理缓冲，而且比操作系统更加智能。但如果文件系统能有更智能的 I/O 调度和批量操作，双重缓冲也并不一定是坏事：</p>
+<ul>
+<li>有的文件系统和 os 可以累积写操作后合并执行，通过对 I/O 的重排序来提升效率、或者并发写入多个设备</li>
+<li>有的还可以做预读优化，比如连续请求几个顺序的块，它会通知硬盘预读下一个块</li>
+</ul>
+<p>这些优化在特定的场景下才会起作用，fdatasync为innodb-flush-method的默认值。</p>
+<p><strong>0_DIRCET</strong></p>
+<p>这个设置不影响日志文件并且不是所有的类 Unix 系统都有效，但至少在 Linux、FreeBSD 以及 Solaris 是支持的。这个设置依然使用 fsync 来刷新文件到磁盘，但是它完全关闭了操作系统缓存，并且是所有的读和写都直接通过存储设置，避免了双重缓冲。如果存储设备支持写缓冲或预读，那么这个选项并不会影响到设备的设置，比如 RAID 卡。</p>
+<p><strong>0_DSYNC</strong></p>
+<p>这个选项使得所有的写同步，即只有数据写到磁盘后写操作才返回，但它只影响日志文件，而不影响数据文件。</p>
+<p>说完了每个配置的作用，最后是一些建议：如果使用类 Unix 操作系统并且 RAID 控制器带有电池保护的写缓存，建议使用 0_DIRECT，如果不是，默认值或者 0_DIRECT 都可能是最好的选择。</p>
+<p><strong>innodb-file-per-table</strong></p>
+<p>最后一个配置，说说 InnoDB 表空间，InnoDB 把数据保存在表空间内，它本质上是一个由一个或者多个磁盘文件组成的虚拟文件系统。InnoDB 表空间并不只是存储表和索引，它还保存了回滚日志、插入缓冲、双写缓冲以及其他内部数据结构，除此之外，表空间还实现了很多其它的功能。可以通过 innodb-data-file-path 配置项定制表空间文件，innodb-data-home-dir配置表空间文件存放的位置，比如：<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">innodb-data-home-dir = /var/lib/mysql</span><br><span class="line">innodb-data-file-path = ibdata1:1G;ibdata2:1G;ibdata3:1G</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>这里在 3 个文件中创建了 3G 表空间，为了允许表空间在超过了分配的空间时还能增长，可以像这样配置最后一个文件自动扩展<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">innodb-data-file-path = ibdata1:1G;ibdata2:1G;ibdata3:1G:autoextend</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p><code>innodb-file-per-table</code>选项让 InnoDB 为每张表使用一个文件，这使得在删除一张表时回收空间容易很多，而且特别容易管理，并且可以通过查看文件大小来确定表大小，所以这里建议打开这个配置。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>MySQL 有太多的配置项，这里没有办法一一列举，重要的是了解每个配置的工作原理，从一个基础配置文件开始，设置符合服务器软硬件环境与工作负载的基本选项。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>高性能 MySQL(第 3 版)</p>
+<script>
         document.querySelectorAll('.github-emoji')
           .forEach(el => {
             if (!el.dataset.src) { return; }
@@ -16,7 +731,524 @@
             });
             document.body.appendChild(img);
           });
-      </script></div><div><div><div style="text-align:center;color:#ccc;font-size:14px">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div></div></div><div><div class="my_post_copyright"><script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script><script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script><script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script><p><span>本文标题:</span><a href="/2019/03/29/mysql-optimization-principle-3/">MySQL 优化原理(三)</a></p><p><span>文章作者:</span><a href="/" title="访问 Wang Jiemin 的个人博客">Wang Jiemin</a></p><p><span>发布时间:</span>2019年03月29日 - 14:03</p><p><span>最后更新:</span>2019年03月29日 - 16:03</p><p><span>原始链接:</span><a href="/2019/03/29/mysql-optimization-principle-3/" title="MySQL 优化原理(三)">https://jiemin.wang/2019/03/29/mysql-optimization-principle-3/</a><span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://jiemin.wang/2019/03/29/mysql-optimization-principle-3/" aria-label="复制成功！"></i></span></p><p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p></div><script>var clipboard=new Clipboard(".fa-clipboard");$(".fa-clipboard").click(function(){clipboard.on("success",function(){swal({title:"",text:"复制成功",icon:"success",showConfirmButton:!0})})})</script></div><div><div style="padding:10px 0;margin:20px auto;width:90%;text-align:center"><div></div> <button id="rewardButton" disable="enable" onclick='var qr=document.getElementById("QR");"none"===qr.style.display?qr.style.display="block":qr.style.display="none"'> <span>Donate</span></button><div id="QR" style="display:none"><div id="alipay" style="display:inline-block"> <img id="alipay_qr" src="/images/alipay.jpeg" alt="Wang Jiemin Alipay"><p>Alipay</p></div></div></div></div><footer class="post-footer"><div class="post-tags"><a href="/tags/MySQL/" rel="tag"><i class="fa fa-angellist" aria-hidden="true"></i> MySQL</a></div><div class="post-nav"><div class="post-nav-next post-nav-item"><a href="/2019/03/29/mysql-optimization-principle-2/" rel="next" title="MySQL 优化原理(二)"><i class="fa fa-chevron-left"></i> MySQL 优化原理(二)</a></div><span class="post-nav-divider"></span><div class="post-nav-prev post-nav-item"> <a href="/2019/04/02/linux-screen/" rel="prev" title="linux 技巧：使用 screen 管理你的远程会话">linux 技巧：使用 screen 管理你的远程会话<i class="fa fa-chevron-right"></i></a></div></div></footer></div></article></div></div></div><div class="sidebar-toggle"><div class="sidebar-toggle-line-wrap"><span class="sidebar-toggle-line sidebar-toggle-line-first"></span><span class="sidebar-toggle-line sidebar-toggle-line-middle"></span><span class="sidebar-toggle-line sidebar-toggle-line-last"></span></div></div><aside id="sidebar" class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap"> Table of Contents</li><li class="sidebar-nav-overview" data-target="site-overview-wrap"> Overview</li></ul><div class="site-overview-wrap sidebar-panel"><div class="site-overview"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"> <img class="site-author-image" itemprop="image" src="/images/XIAOXIN.jpg" alt="Wang Jiemin"><p class="site-author-name" itemprop="name">Wang Jiemin</p><p class="site-description motion-element" itemprop="description">我从不生产BUG, 我是BUG的搬运工~</p></div><nav class="site-state motion-element"><div class="site-state-item site-state-posts"> <a href="/archives/"><span class="site-state-item-count">27</span> <span class="site-state-item-name">posts</span></a></div><div class="site-state-item site-state-categories"> <a href="/categories/index.html"><span class="site-state-item-count">8</span> <span class="site-state-item-name">categories</span></a></div><div class="site-state-item site-state-tags"> <a href="/tags/index.html"><span class="site-state-item-count">6</span> <span class="site-state-item-name">tags</span></a></div></nav><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/WangJiemin" title="GitHub &rarr; https://github.com/WangJiemin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i> GitHub</a></span><span class="links-of-author-item"><a href="mailto:278667010@qq.com" title="E-Mail &rarr; mailto:278667010@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i> E-Mail</a></span></div><div class="links-of-blogroll motion-element links-of-blogroll-block"><div class="links-of-blogroll-title"><i class="fa fa-fw fa-link"></i> 友情链接</div><ul class="links-of-blogroll-list"><li class="links-of-blogroll-item"> <a href="https://zhengshun.wang" title="https://zhengshun.wang" rel="noopener" target="_blank">順子の杂货铺</a></li><li class="links-of-blogroll-item"> <a href="http://blog.chopmoon.com" title="http://blog.chopmoon.com" rel="noopener" target="_blank">龚义杰BLOG</a></li></ul></div></div></div><div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active"><div class="post-toc"><div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL-配置的工作原理"><span class="nav-number">2.</span> <span class="nav-text">MySQL 配置的工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#分段"><span class="nav-number">2.0.1.</span> <span class="nav-text">分段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#GENERAL"><span class="nav-number">2.0.2.</span> <span class="nav-text">GENERAL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DATA-STORAGE"><span class="nav-number">2.0.3.</span> <span class="nav-text">DATA STORAGE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MyISAM"><span class="nav-number">2.0.4.</span> <span class="nav-text">MyISAM</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#myisam-recover"><span class="nav-number">2.0.5.</span> <span class="nav-text">myisam-recover</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SAFETY"><span class="nav-number">2.0.6.</span> <span class="nav-text">SAFETY</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LOGGING"><span class="nav-number">2.0.7.</span> <span class="nav-text">LOGGING</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#sync-binlog"><span class="nav-number">2.0.8.</span> <span class="nav-text">sync-binlog</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CACHES-AND-LIMITS"><span class="nav-number">2.0.9.</span> <span class="nav-text">CACHES AND LIMITS</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></div></div></div><div id="music163player"><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="298" height="52" src="//music.163.com/outchain/player?type=0&id=2162667159&auto=1&height=32"></iframe></div></div></aside></div></main><footer id="footer" class="footer"><div class="footer-inner"><div class="copyright">&copy; <span itemprop="copyrightYear">2019</span><span class="with-love" id="animate"><i class="fa fa-heart" aria-hidden="true"></i></span> <span class="author" itemprop="copyrightHolder">Wang Jiemin</span></div></div></footer><div class="back-to-top"><i class="fa fa-arrow-up"></i> <span id="scrollpercent"><span>0</span>%</span></div></div><script type="text/javascript" src="//libs.baidu.com/jquery/1.8.3/jquery.min.js"></script><script type="text/javascript">var windowWidth=$(window).width();480<windowWidth&&document.write('<script type="text/javascript" src="/js/src/snow.js"><\/script>')</script><script>"[object Function]"!==Object.prototype.toString.call(window.Promise)&&(window.Promise=null)</script><script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script><script src="/lib/jquery/index.js?v=2.1.3"></script><script src="/lib/velocity/velocity.min.js?v=1.2.1"></script><script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script><script src="/lib/three/three.min.js"></script><script src="true"></script><script src="/js/src/utils.js?v=6.7.0"></script><script src="/js/src/motion.js?v=6.7.0"></script><script src="/js/src/affix.js?v=6.7.0"></script><script src="/js/src/schemes/pisces.js?v=6.7.0"></script><script src="/js/src/scrollspy.js?v=6.7.0"></script><script src="/js/src/post-details.js?v=6.7.0"></script><script src="/js/src/bootstrap.js?v=6.7.0"></script><script>
+      </script>
+      
+    </div>
+
+    
+
+    
+    
+    
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+
+    <div>
+          
+            
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>本文标题:</span><a href="/2019/03/29/mysql-optimization-principle-3/">MySQL 优化原理(三)</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 Wang Jiemin 的个人博客">Wang Jiemin</a></p>
+  <p><span>发布时间:</span>2019年03月29日 - 14:03</p>
+  <p><span>最后更新:</span>2019年03月29日 - 16:03</p>
+  <p><span>原始链接:</span><a href="/2019/03/29/mysql-optimization-principle-3/" title="MySQL 优化原理(三)">https://jiemin.wang/2019/03/29/mysql-optimization-principle-3/</a>
+    <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://jiemin.wang/2019/03/29/mysql-optimization-principle-3/" aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>
+</div>
+<script>
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({
+          title: "",
+          text: '复制成功',
+          icon: "success",
+          showConfirmButton: true
+          });
+    });
+    });
+</script>
+
+
+          
+    </div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpeg" alt="Wang Jiemin Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MySQL/" rel="tag"><i class="fa fa-angellist" aria-hidden="true"></i> MySQL</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/29/mysql-optimization-principle-2/" rel="next" title="MySQL 优化原理(二)">
+                <i class="fa fa-chevron-left"></i> MySQL 优化原理(二)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/02/linux-screen/" rel="prev" title="linux 技巧：使用 screen 管理你的远程会话">
+                linux 技巧：使用 screen 管理你的远程会话 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/XIAOXIN.jpg" alt="Wang Jiemin">
+            
+              <p class="site-author-name" itemprop="name">Wang Jiemin</p>
+              <p class="site-description motion-element" itemprop="description">我从不生产BUG, 我是BUG的搬运工~</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">28</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/WangJiemin" title="GitHub &rarr; https://github.com/WangJiemin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:278667010@qq.com" title="E-Mail &rarr; mailto:278667010@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://zhengshun.wang" title="https://zhengshun.wang" rel="noopener" target="_blank">順子の杂货铺</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.chopmoon.com" title="http://blog.chopmoon.com" rel="noopener" target="_blank">龚义杰BLOG</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL-配置的工作原理"><span class="nav-number">2.</span> <span class="nav-text">MySQL 配置的工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#分段"><span class="nav-number">2.0.1.</span> <span class="nav-text">分段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#GENERAL"><span class="nav-number">2.0.2.</span> <span class="nav-text">GENERAL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DATA-STORAGE"><span class="nav-number">2.0.3.</span> <span class="nav-text">DATA STORAGE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MyISAM"><span class="nav-number">2.0.4.</span> <span class="nav-text">MyISAM</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#myisam-recover"><span class="nav-number">2.0.5.</span> <span class="nav-text">myisam-recover</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SAFETY"><span class="nav-number">2.0.6.</span> <span class="nav-text">SAFETY</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LOGGING"><span class="nav-number">2.0.7.</span> <span class="nav-text">LOGGING</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#sync-binlog"><span class="nav-number">2.0.8.</span> <span class="nav-text">sync-binlog</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CACHES-AND-LIMITS"><span class="nav-number">2.0.9.</span> <span class="nav-text">CACHES AND LIMITS</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+      <div id="music163player">
+         <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="298" height="52" src="//music.163.com/outchain/player?type=0&id=2162667159&auto=1&height=32"></iframe>
+      </div>
+
+    </div>
+  </aside>
+ 
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart" aria-hidden="true"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wang Jiemin</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  <!-- 雪花特效 -->
+  <script type="text/javascript" src="//libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
+  <script type="text/javascript">
+    var windowWidth = $(window).width();
+    if (windowWidth > 480) {
+      document.write('<script type="text/javascript" src="/js/src/snow.js"><\/script>');
+    }
+  </script>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/three/three.min.js"></script>
+
+  
+  <script src="true"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.7.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.7.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script>
     // Popup Window;
     var isfetched = false;
     var isXml = true;
@@ -349,7 +1581,16 @@
         onPopupClose();
       }
     });
-  </script><script>
+  </script>
+
+
+
+
+
+  
+
+  
+  <script>
     
     function addCount(Counter) {
       var $visitors = $(".leancloud_visitors");
@@ -405,4 +1646,117 @@
           
         })
     });
-  </script><style>.copy-btn{display:inline-block;padding:6px 12px;font-size:13px;font-weight:700;line-height:20px;color:#333;white-space:nowrap;vertical-align:middle;cursor:pointer;background-color:#eee;background-image:linear-gradient(#fcfcfc,#eee);border:1px solid #d5d5d5;border-radius:3px;user-select:none;outline:0}.highlight-wrap .copy-btn{transition:opacity .3s ease-in-out;opacity:0;padding:2px 6px;position:absolute;right:4px;top:8px}.highlight-wrap .copy-btn:focus,.highlight-wrap:hover .copy-btn{opacity:1}.highlight-wrap{position:relative}</style><script>$(".highlight").each(function(e,t){var n=$("<div>").addClass("highlight-wrap");$(t).after(n),n.append($("<button>").addClass("copy-btn").append("Copy").on("click",function(e){var t=$(this).parent().find(".code").find(".line").map(function(e,t){return $(t).text()}).toArray().join("\n"),n=document.createElement("textarea"),o=document.createRange(),a=window.getSelection(),i=window.pageYOffset||document.documentElement.scrollTop;n.style.top=i+"px",n.style.position="absolute",n.style.opacity="0",n.value=t,n.textContent=t,n.contentEditable=!0,n.readOnly=!1,document.body.appendChild(n),o.selectNode(n),a.removeAllRanges(),a.addRange(o),n.setSelectionRange(0,t.length),document.execCommand("copy")?$(this).text("Copied"):$(this).text("Copy failed"),n.blur(),$(this).blur()})).on("mouseleave",function(e){var t=$(this).find(".copy-btn");setTimeout(function(){t.text("Copy")},300)}).append(t)})</script></body></html>
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <style>
+    .copy-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 20px;
+      color: #333;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      background-color: #eee;
+      background-image: linear-gradient(#fcfcfc, #eee);
+      border: 1px solid #d5d5d5;
+      border-radius: 3px;
+      user-select: none;
+      outline: 0;
+    }
+
+    .highlight-wrap .copy-btn {
+      transition: opacity .3s ease-in-out;
+      opacity: 0;
+      padding: 2px 6px;
+      position: absolute;
+      right: 4px;
+      top: 8px;
+    }
+
+    .highlight-wrap:hover .copy-btn,
+    .highlight-wrap .copy-btn:focus {
+      opacity: 1
+    }
+
+    .highlight-wrap {
+      position: relative;
+    }
+  </style>
+  <script>
+    $('.highlight').each(function (i, e) {
+      var $wrap = $('<div>').addClass('highlight-wrap');
+      $(e).after($wrap);
+      $wrap.append($('<button>').addClass('copy-btn').append('Copy').on('click', function (e) {
+        var code = $(this).parent().find('.code').find('.line').map(function (i, e) {
+          return $(e).text();
+        }).toArray().join('\n');
+        var ta = document.createElement('textarea');
+        var range = document.createRange(); //For Chrome
+        var sel = window.getSelection(); //For Chrome
+        var yPosition = window.pageYOffset || document.documentElement.scrollTop;
+        ta.style.top = yPosition + 'px'; //Prevent page scroll
+        ta.style.position = 'absolute';
+        ta.style.opacity = '0';
+        ta.value = code;
+        ta.textContent = code; //For FireFox
+        ta.contentEditable = true;
+        ta.readOnly = false;
+        document.body.appendChild(ta);
+        range.selectNode(ta);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        ta.setSelectionRange(0, code.length);
+        var result = document.execCommand('copy');
+        
+          if (result) $(this).text('Copied');
+          else $(this).text('Copy failed');
+        
+        ta.blur(); //For iOS
+        $(this).blur();
+      })).on('mouseleave', function (e) {
+        var $b = $(this).find('.copy-btn');
+        setTimeout(function () {
+          $b.text('Copy');
+        }, 300);
+      }).append(e);
+    })
+  </script>
+
+
+  
+
+</body>
+</html>
