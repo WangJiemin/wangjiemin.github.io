@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://jiemin.wang/2019/03/25/nc/</loc>
+    
+    <lastmod>2019-04-18T01:54:29.464Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://jiemin.wang/2019/04/17/mongodb-creata-index/</loc>
     
     <lastmod>2019-04-17T09:38:07.216Z</lastmod>
@@ -47,13 +54,6 @@
     <loc>https://jiemin.wang/2019/04/02/linux-screen/</loc>
     
     <lastmod>2019-04-02T11:04:10.233Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://jiemin.wang/2019/03/25/nc/</loc>
-    
-    <lastmod>2019-04-01T03:45:11.879Z</lastmod>
     
   </url>
   

@@ -126,7 +126,7 @@ tpwidget("show");</script>
 <meta property="og:site_name" content="Jamin Blog">
 <meta property="og:description" content="前言netcat是网络工具中的瑞士军刀，它能通过TCP和UDP在网络中读写数据。通过与其他工具结合和重定向，你可以在脚本中以多种方式使用它。使用netcat命令所能完成的事情令人惊讶。它的下载地址 netcat所做的就是在两台电脑之间建立链接并返回两个数据流，在这之后所能做的事就看你的想像力了。你能建立一个服务器，传输文件，与朋友聊天，传输流媒体或者用它作为其它协议的独立客户端。123456789">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-04-01T03:45:11.879Z">
+<meta property="og:updated_time" content="2019-04-18T01:54:29.464Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux Netcat 命令 - 网络中的瑞士军刀">
 <meta name="twitter:description" content="前言netcat是网络工具中的瑞士军刀，它能通过TCP和UDP在网络中读写数据。通过与其他工具结合和重定向，你可以在脚本中以多种方式使用它。使用netcat命令所能完成的事情令人惊讶。它的下载地址 netcat所做的就是在两台电脑之间建立链接并返回两个数据流，在这之后所能做的事就看你的想像力了。你能建立一个服务器，传输文件，与朋友聊天，传输流媒体或者用它作为其它协议的独立客户端。123456789">
@@ -472,7 +472,7 @@ tpwidget("show");</script>
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-04-01 11:45:11" itemprop="dateModified" datetime="2019-04-01T11:45:11+08:00">2019-04-01</time>
+                <time title="Modified: 2019-04-18 09:54:29" itemprop="dateModified" datetime="2019-04-18T09:54:29+08:00">2019-04-18</time>
               
             
           </span>
@@ -565,8 +565,8 @@ tpwidget("show");</script>
 <p>Client<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ nc 192.168.10.10 10010</span><br></pre></td></tr></tbody></table></figure><p></p>
 <p>不管你在机器B上键入什么都会出现在机器A上。</p>
 <h4 id="文件传输"><a href="#文件传输" class="headerlink" title="文件传输"></a>文件传输</h4><p>大部分时间中，我们都在试图通过网络或者其他工具传输文件。有很多种方法，比如FTP,SCP,SMB等等，但是当你只是需要临时或者一次传输文件，真的值得浪费时间来安装配置一个软件到你的机器上嘛。假设，你想要传一个文件testfile.txt 从A 到B。A或者B都可以作为服务器或者客户端，以下，让A作为服务器，B为客户端。</p>
-<p>Server<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ nc -l 10010 < testfile.txt</span><br></pre></td></tr></tbody></table></figure><p></p>
-<p>Client<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ nc -n 192.168.10.10 10010 > testfile.txt</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>Server<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ nc -l 10010 > testfile.txt</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>Client<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ nc -n 192.168.10.10 10010 < testfile.txt</span><br></pre></td></tr></tbody></table></figure><p></p>
 <p>这里我们创建了一个服务器在A上并且重定向netcat的输入为文件testfile.txt，那么当任何成功连接到该端口，netcat会发送file的文件内容。<br>在客户端我们重定向输出到testfile.txt，当B连接到A，A发送文件内容，B保存文件内容到testfile.txt.</p>
 <p>没有必要创建文件源作为Server，我们也可以相反的方法使用。像下面的我们发送文件从B到A，但是服务器创建在A上，这次我们仅需要重定向netcat的输出并且重定向B的输入文件。</p>
 <h4 id="目录传输"><a href="#目录传输" class="headerlink" title="目录传输"></a>目录传输</h4><p>发送一个文件很简单，但是如果我们想要发送多个文件，或者整个目录，一样很简单，只需要使用压缩工具tar，压缩后发送压缩包。</p>
@@ -646,7 +646,7 @@ tpwidget("show");</script>
   <p><span>本文标题:</span><a href="/2019/03/25/nc/">Linux Netcat 命令 - 网络中的瑞士军刀</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 Wang Jiemin 的个人博客">Wang Jiemin</a></p>
   <p><span>发布时间:</span>2019年03月25日 - 09:03</p>
-  <p><span>最后更新:</span>2019年04月01日 - 11:04</p>
+  <p><span>最后更新:</span>2019年04月18日 - 09:04</p>
   <p><span>原始链接:</span><a href="/2019/03/25/nc/" title="Linux Netcat 命令 - 网络中的瑞士军刀">https://jiemin.wang/2019/03/25/nc/</a>
     <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://jiemin.wang/2019/03/25/nc/" aria-label="复制成功！"></i></span>
   </p>
