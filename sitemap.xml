@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://jiemin.wang/2019/04/20/go-command/</loc>
+    
+    <lastmod>2019-04-20T08:45:39.900Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://jiemin.wang/2019/04/19/mysql-flashback-priciple-and-practice/</loc>
     
     <lastmod>2019-04-19T03:48:37.921Z</lastmod>
