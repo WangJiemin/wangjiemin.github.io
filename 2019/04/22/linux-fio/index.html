@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-center-simple.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/xiaoxin-01.png?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+<script>(function(T,h,i,n,k,P,a,g,e){g=function(){P=h.createElement(i);a=h.getElementsByTagName(i)[0];P.src=k;P.charset="utf-8";P.async=1;a.parentNode.insertBefore(P,a)};T["ThinkPageWeatherWidgetObject"]=n;T[n]||(T[n]=function(){(T[n].q=T[n].q||[]).push(arguments)});T[n].l=+new Date();if(T.attachEvent){T.attachEvent("onload",g)}else{T.addEventListener("load",g,false)}}(window,document,"script","tpwidget","//widget.seniverse.com/widget/chameleon.js"))</script>
+<script>tpwidget("init", {
+    "flavor": "bubble",
+    "location": "WX4FBXXFKE4F",
+    "geolocation": "enabled",
+    "position": "top-right",
+    "margin": "10px 10px",
+    "language": "auto",
+    "unit": "c",
+    "theme": "chameleon",
+    "uid": "U6899A955F",
+    "hash": "3537a35c8bfe0f65e5d773944596793a"
+});
+tpwidget("show");</script>
+
+  <meta name="description" content="别说你一无所长，熬夜玩手机你是一把好手。  前言安装FIO1yum install fio -y 参数说明:1234567891011bs=4k                    单次io的块文件大小为4kbsrange=512-2048         同上，提定数据块的大小范围size=5g                  本次的测试文件大小为5g，以每次4k的io进行测试numjob">
+<meta name="keywords" content="Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用FIO测试主机IOPS及写入读取速度">
+<meta property="og:url" content="https://jiemin.wang/2019/04/22/linux-fio/index.html">
+<meta property="og:site_name" content="Jamin Blog">
+<meta property="og:description" content="别说你一无所长，熬夜玩手机你是一把好手。  前言安装FIO1yum install fio -y 参数说明:1234567891011bs=4k                    单次io的块文件大小为4kbsrange=512-2048         同上，提定数据块的大小范围size=5g                  本次的测试文件大小为5g，以每次4k的io进行测试numjob">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://jiemin.wang/2019/04/22/linux-fio/timg.jpeg">
+<meta property="og:updated_time" content="2019-04-22T03:27:56.215Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用FIO测试主机IOPS及写入读取速度">
+<meta name="twitter:description" content="别说你一无所长，熬夜玩手机你是一把好手。  前言安装FIO1yum install fio -y 参数说明:1234567891011bs=4k                    单次io的块文件大小为4kbsrange=512-2048         同上，提定数据块的大小范围size=5g                  本次的测试文件大小为5g，以每次4k的io进行测试numjob">
+<meta name="twitter:image" content="https://jiemin.wang/2019/04/22/linux-fio/timg.jpeg">
+
+
+
+
+
+
+  <link rel="canonical" href="https://jiemin.wang/2019/04/22/linux-fio/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>使用FIO测试主机IOPS及写入读取速度 | Jamin Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jamin Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">一个不聊技术的 DBA 不是一个好厨子...</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-life">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/coffee" rel="section"><i class="menu-item-icon fa fa-fw fa-coffee"></i> <br>生活中的美好</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>Search</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="Searching..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://jiemin.wang/2019/04/22/linux-fio/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Wang Jiemin">
+      <meta itemprop="description" content="我从不生产BUG, 我是BUG的搬运工~">
+      <meta itemprop="image" content="/images/XIAOXIN.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jamin Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">使用FIO测试主机IOPS及写入读取速度
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-04-22 10:30:01 / Modified: 11:27:56" itemprop="dateCreated datePublished" datetime="2019-04-22T10:30:01+08:00">2019-04-22</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/04/22/linux-fio/" class="leancloud_visitors" data-flag-title="使用FIO测试主机IOPS及写入读取速度">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Views: </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+                 <span>℃</span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <span itemprop="image" itemscope itemtype="http://schema.org/ImageObject"><img itemprop="url image" src="timg.jpeg" class="full-image" alt="alt" title="title"><meta itemprop="width" content="auto"><meta itemprop="height" content="auto"></span>
+<blockquote class="blockquote-center"><p><strong>别说你一无所长，熬夜玩手机你是一把好手。</strong></p>
+</blockquote>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>安装FIO<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install fio -y</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>参数说明:<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">bs=4k                    单次io的块文件大小为4k</span><br><span class="line">bsrange=512-2048         同上，提定数据块的大小范围</span><br><span class="line">size=5g                  本次的测试文件大小为5g，以每次4k的io进行测试</span><br><span class="line">numjobs=30               本次的测试线程为30</span><br><span class="line">runtime=1000             测试时间为1000秒，如果不写则一直将5g文件分4k每次写完为止</span><br><span class="line">ioengine=psync           io引擎使用pync方式，如果要使用libaio引擎，需要yum install libaio-devel包</span><br><span class="line">rwmixwrite=30            在混合读写的模式下，写占30%</span><br><span class="line">group_reporting          关于显示结果的，汇总每个进程的信息此外</span><br><span class="line">lockmem=1g               只使用1g内存进行测试</span><br><span class="line">zero_buffers             用0初始化系统buffer</span><br><span class="line">nrfiles=8                每个进程生成文件的数量</span><br></pre></td></tr></tbody></table></figure><p></p>
+<h2 id="FIO-命令"><a href="#FIO-命令" class="headerlink" title="FIO 命令"></a>FIO 命令</h2><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">fio -direct=1 -iodepth=128 -rw=write -ioengine=libaio -bs=4k -size=100G -numjobs=1 -runtime=1000 -group_reporting -name=<span class="built_in">test</span> -filename=/data/test111</span><br><span class="line"></span><br><span class="line">运行结果：</span><br><span class="line"><span class="built_in">test</span>: (g=0): rw=write, bs=4K-4K/4K-4K/4K-4K, ioengine=libaio, iodepth=128</span><br><span class="line">fio-2.0.13</span><br><span class="line">Starting 1 process</span><br><span class="line"><span class="built_in">test</span>: Laying out IO file(s) (1 file(s) / 102400MB)</span><br><span class="line">Jobs: 1 (f=1): [W] [100.0% <span class="keyword">done</span>] [0K/129.3M/0K /s] [0 /33.1K/0  iops] [eta 00m:00s]</span><br><span class="line"><span class="built_in">test</span>: (groupid=0, <span class="built_in">jobs</span>=1): err= 0: pid=594: Mon May 14 10:27:54 2018</span><br><span class="line">  write: io=102400MB, bw=129763KB/s, iops=32440 , runt=808070msec</span><br><span class="line">    slat (usec): min=0 , max=80322 , avg=12.06, stdev=24.73</span><br><span class="line">    clat (usec): min=222 , max=254410 , avg=3932.47, stdev=5007.90</span><br><span class="line">     lat (usec): min=622 , max=254416 , avg=3944.82, stdev=5007.26</span><br><span class="line">    clat percentiles (usec):</span><br><span class="line">     |  1.00th=[ 1288],  5.00th=[ 1560], 10.00th=[ 1736], 20.00th=[ 1992],</span><br><span class="line">     | 30.00th=[ 2224], 40.00th=[ 2480], 50.00th=[ 2736], 60.00th=[ 3088],</span><br><span class="line">     | 70.00th=[ 3536], 80.00th=[ 4320], 90.00th=[ 6624], 95.00th=[ 9664],</span><br><span class="line">     | 99.00th=[21120], 99.50th=[37632], 99.90th=[54528], 99.95th=[78336],</span><br><span class="line">     | 99.99th=[177152]</span><br><span class="line">    bw (KB/s)  : min=20720, max=215424, per=100.00%, avg=129801.50, stdev=19878.75</span><br><span class="line">    lat (usec) : 250=0.01%, 750=0.01%, 1000=0.09%</span><br><span class="line">    lat (msec) : 2=20.47%, 4=56.01%, 10=18.78%, 20=3.20%, 50=1.33%</span><br><span class="line">    lat (msec) : 100=0.09%, 250=0.02%, 500=0.01%</span><br><span class="line">  cpu          : usr=4.88%, sys=36.64%, ctx=9409837, majf=0, minf=23</span><br><span class="line">  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%, >=64=100.0%</span><br><span class="line">     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%</span><br><span class="line">     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.1%</span><br><span class="line">     issued    : total=r=0/w=26214400/d=0, short=r=0/w=0/d=0</span><br><span class="line"></span><br><span class="line">Run status group 0 (all <span class="built_in">jobs</span>):</span><br><span class="line">  WRITE: io=102400MB, aggrb=129763KB/s, minb=129763KB/s, maxb=129763KB/s, mint=808070msec, maxt=808070msec</span><br><span class="line"></span><br><span class="line">Disk stats (<span class="built_in">read</span>/write):</span><br><span class="line">  vdb: ios=0/26203032, merge=0/3962, ticks=0/90681446, in_queue=90672667, util=100.00%</span><br></pre></td></tr></tbody></table></figure>
+<p>100%随机，100%读，4K<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">fio -filename=/dev/vdb1 -direct=1 -iodepth 1 -thread -rw=randread -ioengine=psync -bs=4k -size=100G -numjobs=50 -runtime=180 -group_reporting -name=rand_100read_4k</span><br><span class="line"></span><br><span class="line">运行结果：</span><br><span class="line">rand_100read_4k: (g=0): rw=randread, bs=4K-4K/4K-4K/4K-4K, ioengine=psync, iodepth=1</span><br><span class="line">...</span><br><span class="line">rand_100read_4k: (g=0): rw=randread, bs=4K-4K/4K-4K/4K-4K, ioengine=psync, iodepth=1</span><br><span class="line">fio-2.0.13</span><br><span class="line">Starting 50 threads</span><br><span class="line">Jobs: 50 (f=50): [rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr] [100.0% <span class="keyword">done</span>] [47544K/0K/0K /s] [11.9K/0 /0  iops] [eta 00m:00s]</span><br><span class="line">rand_100read_4k: (groupid=0, <span class="built_in">jobs</span>=50): err= 0: pid=25884: Mon May 14 14:59:44 2018</span><br><span class="line">  <span class="built_in">read</span> : io=8454.3MB, bw=48091KB/s, iops=12022 , runt=180018msec</span><br><span class="line">    clat (usec): min=318 , max=167471 , avg=4156.60, stdev=8363.94</span><br><span class="line">     lat (usec): min=318 , max=167472 , avg=4156.89, stdev=8363.95</span><br><span class="line">    clat percentiles (usec):</span><br><span class="line">     |  1.00th=[ 1032],  5.00th=[ 1176], 10.00th=[ 1240], 20.00th=[ 1352],</span><br><span class="line">     | 30.00th=[ 1464], 40.00th=[ 1688], 50.00th=[ 1832], 60.00th=[ 1944],</span><br><span class="line">     | 70.00th=[ 2064], 80.00th=[ 2288], 90.00th=[15808], 95.00th=[18560],</span><br><span class="line">     | 99.00th=[20608], 99.50th=[39168], 99.90th=[134144], 99.95th=[144384],</span><br><span class="line">     | 99.99th=[156672]</span><br><span class="line">    bw (KB/s)  : min=  231, max= 7248, per=2.00%, avg=961.78, stdev=384.46</span><br><span class="line">    lat (usec) : 500=0.05%, 750=0.20%, 1000=0.51%</span><br><span class="line">    lat (msec) : 2=64.37%, 4=19.62%, 10=2.88%, 20=10.62%, 50=1.52%</span><br><span class="line">    lat (msec) : 100=0.02%, 250=0.23%</span><br><span class="line">  cpu          : usr=0.00%, sys=0.02%, ctx=1813752, majf=18446744073709550866, minf=18446744073698419008</span><br><span class="line">  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%</span><br><span class="line">     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%</span><br><span class="line">     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%</span><br><span class="line">     issued    : total=r=2164296/w=0/d=0, short=r=0/w=0/d=0</span><br><span class="line"></span><br><span class="line">Run status group 0 (all <span class="built_in">jobs</span>):</span><br><span class="line">   READ: io=8454.3MB, aggrb=48090KB/s, minb=48090KB/s, maxb=48090KB/s, mint=180018msec, maxt=180018msec</span><br><span class="line"></span><br><span class="line">Disk stats (<span class="built_in">read</span>/write):</span><br><span class="line">  vdb: ios=2163559/42, merge=23/10, ticks=8925036/223, in_queue=8922540, util=99.94%</span><br><span class="line">100%随机，100%写， 4K</span><br><span class="line"></span><br><span class="line">[root@<span class="built_in">test</span>-db data]<span class="comment"># fio -filename=/dev/vdb1 -direct=1 -iodepth 1 -thread -rw=randwrite -ioengine=psync -bs=4k -size=100G -numjobs=50 -runtime=180 -group_reporting -name=rand_100write_4k</span></span><br><span class="line">运行结果：</span><br><span class="line">rand_100write_4k: (g=0): rw=randwrite, bs=4K-4K/4K-4K/4K-4K, ioengine=psync, iodepth=1</span><br><span class="line">...</span><br><span class="line">rand_100write_4k: (g=0): rw=randwrite, bs=4K-4K/4K-4K/4K-4K, ioengine=psync, iodepth=1</span><br><span class="line">fio-2.0.13</span><br><span class="line">Starting 50 threads</span><br><span class="line">Jobs: 50 (f=50): [wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww] [100.0% <span class="keyword">done</span>] [0K/47996K/0K /s] [0 /11.1K/0  iops] [eta 00m:00s]</span><br><span class="line">rand_100write_4k: (groupid=0, <span class="built_in">jobs</span>=50): err= 0: pid=25963: Mon May 14 15:08:43 2018</span><br><span class="line">  write: io=8445.5MB, bw=48039KB/s, iops=12009 , runt=180024msec</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>100%顺序，100%读 ，4K<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">fio -filename=/dev/vdb1 -direct=1 -iodepth 1 -thread -rw=<span class="built_in">read</span> -ioengine=psync -bs=4k -size=100G -numjobs=50 -runtime=180 -group_reporting -name=sqe_100read_4k</span><br><span class="line"></span><br><span class="line">运行结果：</span><br><span class="line">sqe_100read_4k: (g=0): rw=<span class="built_in">read</span>, bs=4K-4K/4K-4K/4K-4K, ioengine=psync, iodepth=1</span><br><span class="line">fio-2.0.13</span><br><span class="line">Starting 50 threads</span><br><span class="line">Jobs: 50 (f=50): [RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR] [100.0% <span class="keyword">done</span>] [59996K/0K/0K /s] [14.1K/0 /0  iops] [eta 00m:00s]</span><br><span class="line">sqe_100read_4k: (groupid=0, <span class="built_in">jobs</span>=50): err= 0: pid=26047: Mon May 14 15:13:02 2018</span><br><span class="line">  <span class="built_in">read</span> : io=10599MB, bw=60295KB/s, iops=15073 , runt=180006msec</span><br><span class="line">    clat (usec): min=253 , max=550591 , avg=3315.70, stdev=26406.30</span><br><span class="line">     lat (usec): min=254 , max=550591 , avg=3315.95, stdev=26406.30</span><br><span class="line">    clat percentiles (usec):</span><br><span class="line">     |  1.00th=[ 1176],  5.00th=[ 1240], 10.00th=[ 1256], 20.00th=[ 1288],</span><br><span class="line">     | 30.00th=[ 1336], 40.00th=[ 1368], 50.00th=[ 1416], 60.00th=[ 1480],</span><br><span class="line">     | 70.00th=[ 1528], 80.00th=[ 1592], 90.00th=[ 1736], 95.00th=[ 2800],</span><br><span class="line">     | 99.00th=[17792], 99.50th=[18816], 99.90th=[522240], 99.95th=[528384],</span><br><span class="line">     | 99.99th=[536576]</span><br><span class="line">    bw (KB/s)  : min=   15, max= 2475, per=2.00%, avg=1206.47, stdev=634.32</span><br><span class="line">    lat (usec) : 500=0.01%, 750=0.01%, 1000=0.04%</span><br><span class="line">    lat (msec) : 2=92.64%, 4=3.87%, 10=1.05%, 20=2.03%, 50=0.01%</span><br><span class="line">    lat (msec) : 250=0.01%, 500=0.17%, 750=0.15%</span><br><span class="line">  cpu          : usr=0.05%, sys=0.23%, ctx=2697397, majf=0, minf=18446744073708900853</span><br><span class="line">  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%</span><br><span class="line">     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%</span><br><span class="line">     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%</span><br><span class="line">     issued    : total=r=2713362/w=0/d=0, short=r=0/w=0/d=0</span><br><span class="line"></span><br><span class="line">Run status group 0 (all <span class="built_in">jobs</span>):</span><br><span class="line">   READ: io=10599MB, aggrb=60294KB/s, minb=60294KB/s, maxb=60294KB/s, mint=180006msec, maxt=180006msec</span><br><span class="line"></span><br><span class="line">Disk stats (<span class="built_in">read</span>/write):</span><br><span class="line">  vdb: ios=2711304/55, merge=1805/10, ticks=8899022/202, in_queue=8898860, util=100.00%</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>100%顺序，100%写 ，4K<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">fio -filename=/dev/vdb1 -direct=1 -iodepth 1 -thread -rw=write -ioengine=psync -bs=4k -size=100G -numjobs=50 -runtime=180 -group_reporting -name=sqe_100write_4k</span><br><span class="line"></span><br><span class="line">运行结果：</span><br><span class="line">sqe_100write_4k: (g=0): rw=write, bs=4K-4K/4K-4K/4K-4K, ioengine=psync, iodepth=1</span><br><span class="line">...</span><br><span class="line">sqe_100write_4k: (g=0): rw=write, bs=4K-4K/4K-4K/4K-4K, ioengine=psync, iodepth=1</span><br><span class="line">fio-2.0.13</span><br><span class="line">Starting 50 threads</span><br><span class="line">Jobs: 50 (f=50): [WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW] [100.0% <span class="keyword">done</span>] [0K/55788K/0K /s] [0 /13.1K/0  iops] [eta 00m:00s]</span><br><span class="line">sqe_100write_4k: (groupid=0, <span class="built_in">jobs</span>=50): err= 0: pid=26100: Mon May 14 15:17:24 2018</span><br><span class="line">  write: io=10002MB, bw=56896KB/s, iops=14224 , runt=180019msec</span><br><span class="line">    clat (usec): min=583 , max=457330 , avg=3513.01, stdev=9958.13</span><br><span class="line">     lat (usec): min=584 , max=457331 , avg=3513.60, stdev=9958.13</span><br><span class="line">    clat percentiles (usec):</span><br><span class="line">     |  1.00th=[ 1224],  5.00th=[ 1384], 10.00th=[ 1480], 20.00th=[ 1592],</span><br><span class="line">     | 30.00th=[ 1672], 40.00th=[ 1752], 50.00th=[ 1832], 60.00th=[ 1928],</span><br><span class="line">     | 70.00th=[ 2096], 80.00th=[ 2480], 90.00th=[ 6368], 95.00th=[12480],</span><br><span class="line">     | 99.00th=[20608], 99.50th=[37120], 99.90th=[166912], 99.95th=[268288],</span><br><span class="line">     | 99.99th=[346112]</span><br><span class="line">    bw (KB/s)  : min=  152, max= 2432, per=2.01%, avg=1141.03, stdev=401.10</span><br><span class="line">    lat (usec) : 750=0.01%, 1000=0.11%</span><br><span class="line">    lat (msec) : 2=65.06%, 4=21.62%, 10=7.36%, 20=4.40%, 50=1.24%</span><br><span class="line">    lat (msec) : 100=0.08%, 250=0.06%, 500=0.07%</span><br><span class="line">  cpu          : usr=0.05%, sys=0.38%, ctx=2547790, majf=0, minf=18446744073708899536</span><br><span class="line">  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%</span><br><span class="line">     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%</span><br><span class="line">     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%</span><br><span class="line">     issued    : total=r=0/w=2560604/d=0, short=r=0/w=0/d=0</span><br><span class="line"></span><br><span class="line">Run status group 0 (all <span class="built_in">jobs</span>):</span><br><span class="line">  WRITE: io=10002MB, aggrb=56896KB/s, minb=56896KB/s, maxb=56896KB/s, mint=180019msec, maxt=180019msec</span><br><span class="line"></span><br><span class="line">Disk stats (<span class="built_in">read</span>/write):</span><br><span class="line">  vdb: ios=63/2558949, merge=0/275, ticks=12/8897256, in_queue=8895411, util=100.00%</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>100%随机，70%读，30%写 4K<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">fio -filename=/dev/vdb1 -direct=1 -iodepth 1 -thread -rw=randrw -rwmixread=70 -ioengine=psync -bs=4k -size=100G -numjobs=50 -runtime=180 -group_reporting -name=randrw_70read_4k</span><br><span class="line"></span><br><span class="line">运行结果：</span><br><span class="line">randrw_70read_4k: (g=0): rw=randrw, bs=4K-4K/4K-4K/4K-4K, ioengine=psync, iodepth=1</span><br><span class="line">...</span><br><span class="line">randrw_70read_4k: (g=0): rw=randrw, bs=4K-4K/4K-4K/4K-4K, ioengine=psync, iodepth=1</span><br><span class="line">fio-2.0.13</span><br><span class="line">Starting 50 threads</span><br><span class="line">Jobs: 50 (f=50): [mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm] [100.0% <span class="keyword">done</span>] [48012K/20800K/0K /s] [12.3K/5200 /0  iops] [eta 00m:00s]</span><br><span class="line">randrw_70read_4k: (groupid=0, <span class="built_in">jobs</span>=50): err= 0: pid=26162: Mon May 14 15:29:18 2018</span><br><span class="line">  <span class="built_in">read</span> : io=8430.4MB, bw=47954KB/s, iops=11988 , runt=180020msec</span><br><span class="line">    clat (usec): min=304 , max=177969 , avg=3045.60, stdev=5103.08</span><br><span class="line">     lat (usec): min=304 , max=177970 , avg=3045.87, stdev=5103.08</span><br><span class="line">    clat percentiles (usec):</span><br><span class="line">     |  1.00th=[  860],  5.00th=[ 1048], 10.00th=[ 1160], 20.00th=[ 1320],</span><br><span class="line">     | 30.00th=[ 1448], 40.00th=[ 1560], 50.00th=[ 1656], 60.00th=[ 1768],</span><br><span class="line">     | 70.00th=[ 1896], 80.00th=[ 2128], 90.00th=[ 4384], 95.00th=[17792],</span><br><span class="line">     | 99.00th=[20352], 99.50th=[28544], 99.90th=[41216], 99.95th=[57088],</span><br><span class="line">     | 99.99th=[127488]</span><br><span class="line">    bw (KB/s)  : min=  206, max= 4424, per=2.00%, avg=959.77, stdev=408.18</span><br><span class="line">  write: io=3613.8MB, bw=20556KB/s, iops=5138 , runt=180020msec</span><br><span class="line">    clat (usec): min=569 , max=157336 , avg=2617.23, stdev=2821.20</span><br><span class="line">     lat (usec): min=570 , max=157337 , avg=2617.81, stdev=2821.20</span><br><span class="line">    clat percentiles (usec):</span><br><span class="line">     |  1.00th=[ 1096],  5.00th=[ 1432], 10.00th=[ 1592], 20.00th=[ 1768],</span><br><span class="line">     | 30.00th=[ 1912], 40.00th=[ 2040], 50.00th=[ 2160], 60.00th=[ 2288],</span><br><span class="line">     | 70.00th=[ 2416], 80.00th=[ 2576], 90.00th=[ 2864], 95.00th=[ 3472],</span><br><span class="line">     | 99.00th=[19328], 99.50th=[20352], 99.90th=[22400], 99.95th=[37632],</span><br><span class="line">     | 99.99th=[52992]</span><br><span class="line">    bw (KB/s)  : min=   62, max= 1888, per=2.00%, avg=411.23, stdev=178.61</span><br><span class="line">    lat (usec) : 500=0.06%, 750=0.22%, 1000=2.28%</span><br><span class="line">    lat (msec) : 2=61.13%, 4=27.68%, 10=3.02%, 20=4.48%, 50=1.07%</span><br><span class="line">    lat (msec) : 100=0.04%, 250=0.01%</span><br><span class="line">  cpu          : usr=0.01%, sys=0.08%, ctx=2743663, majf=0, minf=18446744073698904078</span><br><span class="line">  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%</span><br><span class="line">     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%</span><br><span class="line">     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%</span><br><span class="line">     issued    : total=r=2158165/w=925122/d=0, short=r=0/w=0/d=0</span><br><span class="line"></span><br><span class="line">Run status group 0 (all <span class="built_in">jobs</span>):</span><br><span class="line">   READ: io=8430.4MB, aggrb=47953KB/s, minb=47953KB/s, maxb=47953KB/s, mint=180020msec, maxt=180020msec</span><br><span class="line">  WRITE: io=3613.8MB, aggrb=20555KB/s, minb=20555KB/s, maxb=20555KB/s, mint=180020msec, maxt=180020msec</span><br><span class="line"></span><br><span class="line">Disk stats (<span class="built_in">read</span>/write):</span><br><span class="line">  vdb: ios=2154562/923535, merge=0/0, ticks=6503566/2394699, in_queue=8896553, util=99.93%</span><br></pre></td></tr></tbody></table></figure><p></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>执行结果说明:<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">io=执行了多少M的IO</span><br><span class="line">bw=平均IO带宽</span><br><span class="line">iops=IOPS</span><br><span class="line">runt=线程运行时间</span><br><span class="line">slat=提交延迟</span><br><span class="line">clat=完成延迟</span><br><span class="line">lat=响应时间</span><br><span class="line">bw=带宽</span><br><span class="line">cpu=利用率</span><br><span class="line">IO depths=io队列</span><br><span class="line">IO submit=单个IO提交要提交的IO数</span><br><span class="line">IO complete=Like the above submit number, but <span class="keyword">for</span> completions instead.</span><br><span class="line">IO issued=The number of <span class="built_in">read</span>/write requests issued, and how many of them were short.</span><br><span class="line">IO latencies=IO完延迟的分布</span><br><span class="line"></span><br><span class="line">io=总共执行了多少size的IO</span><br><span class="line">aggrb=group总带宽</span><br><span class="line">minb=最小.平均带宽.</span><br><span class="line">maxb=最大平均带宽.</span><br><span class="line">mint=group中线程的最短运行时间.</span><br><span class="line">maxt=group中线程的最长运行时间.</span><br><span class="line"></span><br><span class="line">ios=所有group总共执行的IO数.</span><br><span class="line">merge=总共发生的IO合并数.</span><br><span class="line">ticks=Number of ticks we kept the disk busy.</span><br><span class="line">io_queue=花费在队列上的总共时间.</span><br><span class="line">util=磁盘利用率</span><br></pre></td></tr></tbody></table></figure><p></p>
+<script>
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return; }
+            const img = document.createElement('img');
+            img.style = 'display:none !important;';
+            img.src = el.dataset.src;
+            img.addEventListener('error', () => {
+              img.remove();
+              el.style.color = 'inherit';
+              el.style.backgroundImage = 'none';
+              el.style.background = 'none';
+            });
+            img.addEventListener('load', () => {
+              img.remove();
+            });
+            document.body.appendChild(img);
+          });
+      </script>
+      
+    </div>
+
+    
+
+    
+    
+    
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+
+    <div>
+          
+            
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>本文标题:</span><a href="/2019/04/22/linux-fio/">使用FIO测试主机IOPS及写入读取速度</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 Wang Jiemin 的个人博客">Wang Jiemin</a></p>
+  <p><span>发布时间:</span>2019年04月22日 - 10:04</p>
+  <p><span>最后更新:</span>2019年04月22日 - 11:04</p>
+  <p><span>原始链接:</span><a href="/2019/04/22/linux-fio/" title="使用FIO测试主机IOPS及写入读取速度">https://jiemin.wang/2019/04/22/linux-fio/</a>
+    <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://jiemin.wang/2019/04/22/linux-fio/" aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>
+</div>
+<script>
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({
+          title: "",
+          text: '复制成功',
+          icon: "success",
+          showConfirmButton: true
+          });
+    });
+    });
+</script>
+
+
+          
+    </div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpeg" alt="Wang Jiemin Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"><i class="fa fa-angellist" aria-hidden="true"></i> Linux</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/22/curl-dns-time/" rel="next" title="curl 来测试网站-dns解析时间,响应时间,传输时间">
+                <i class="fa fa-chevron-left"></i> curl 来测试网站-dns解析时间,响应时间,传输时间
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/XIAOXIN.jpg" alt="Wang Jiemin">
+            
+              <p class="site-author-name" itemprop="name">Wang Jiemin</p>
+              <p class="site-description motion-element" itemprop="description">我从不生产BUG, 我是BUG的搬运工~</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/WangJiemin" title="GitHub &rarr; https://github.com/WangJiemin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:278667010@qq.com" title="E-Mail &rarr; mailto:278667010@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://zhengshun.wang" title="https://zhengshun.wang" rel="noopener" target="_blank">順子の杂货铺</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.chopmoon.com" title="http://blog.chopmoon.com" rel="noopener" target="_blank">龚义杰BLOG</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FIO-命令"><span class="nav-number">2.</span> <span class="nav-text">FIO 命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+      <div id="music163player">
+         <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="298" height="52" src="//music.163.com/outchain/player?type=0&id=2162667159&auto=1&height=32"></iframe>
+      </div>
+
+    </div>
+  </aside>
+ 
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart" aria-hidden="true"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wang Jiemin</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  <!-- 雪花特效 -->
+  <script type="text/javascript" src="//libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
+  <script type="text/javascript">
+    var windowWidth = $(window).width();
+    if (windowWidth > 480) {
+      document.write('<script type="text/javascript" src="/js/src/snow.js"><\/script>');
+    }
+  </script>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/three/three.min.js"></script>
+
+  
+  <script src="true"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.7.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.7.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+        // ref: https://github.com/ForbesLindesay/unescape-html
+        var unescapeHtml = function(html) {
+          return String(html)
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, '\'')
+            .replace(/&#x3A;/g, ':')
+            // replace all the other &#x; chars
+            .replace(/&#(\d+);/g, function (m, p) { return String.fromCharCode(p); })
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&amp;/g, '&');
+        };
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                content = unescapeHtml(content);
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script>
+    
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+
+      Counter('get', '/classes/Counter', { where: JSON.stringify({ url }) })
+        .done(function ({ results }) {
+          if (results.length > 0) {
+            var counter = results[0];
+            
+            Counter('put', `/classes/Counter/${counter.objectId}`, JSON.stringify({ time: { "__op":"Increment", "amount":1 } }))
+            
+            .done(function () {
+                  var $element = $(document.getElementById(url));
+                  $element.find('.leancloud-visitors-count').text(counter.time + 1);
+            })
+            
+            .fail(function ({ responseJSON }) {
+                console.log('Failed to save Visitor num, with error message: ' + responseJSON.error);
+            })
+          } else {
+            
+              var $element = $(document.getElementById(url));
+              $element.find('.leancloud-visitors-count').text('Counter not initialized! See more at console err msg.');
+              console.error('ATTENTION! LeanCloud counter has security bug, see here how to solve it: https://github.com/theme-next/hexo-leancloud-counter-security. \n But you also can use LeanCloud without security, by set \'security\' option to \'false\'.');
+            
+          }
+        })
+      .fail(function ({ responseJSON }) {
+        console.log('LeanCloud Counter Error:' + responseJSON.code + " " + responseJSON.error);
+      });
+    }
+    
+
+    $(function() {
+      $.get('https://app-router.leancloud.cn/2/route?appId=' + "JkYmxXIhi14yw96jpzv7c0h2-gzGzoHsz")
+        .done(function ({ api_server }) {
+          var Counter = function (method, url, data) {
+            return $.ajax({
+              method: method,
+              url: `https://${api_server}/1.1${url}`,
+              headers: {
+                'X-LC-Id': "JkYmxXIhi14yw96jpzv7c0h2-gzGzoHsz",
+                'X-LC-Key': "EHRmraDPk6Tzs7qjIgvbbI5G",
+                'Content-Type': 'application/json',
+              },
+              data: data,
+            });
+          };
+          
+          addCount(Counter);
+          
+        })
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <style>
+    .copy-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 20px;
+      color: #333;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      background-color: #eee;
+      background-image: linear-gradient(#fcfcfc, #eee);
+      border: 1px solid #d5d5d5;
+      border-radius: 3px;
+      user-select: none;
+      outline: 0;
+    }
+
+    .highlight-wrap .copy-btn {
+      transition: opacity .3s ease-in-out;
+      opacity: 0;
+      padding: 2px 6px;
+      position: absolute;
+      right: 4px;
+      top: 8px;
+    }
+
+    .highlight-wrap:hover .copy-btn,
+    .highlight-wrap .copy-btn:focus {
+      opacity: 1
+    }
+
+    .highlight-wrap {
+      position: relative;
+    }
+  </style>
+  <script>
+    $('.highlight').each(function (i, e) {
+      var $wrap = $('<div>').addClass('highlight-wrap');
+      $(e).after($wrap);
+      $wrap.append($('<button>').addClass('copy-btn').append('Copy').on('click', function (e) {
+        var code = $(this).parent().find('.code').find('.line').map(function (i, e) {
+          return $(e).text();
+        }).toArray().join('\n');
+        var ta = document.createElement('textarea');
+        var range = document.createRange(); //For Chrome
+        var sel = window.getSelection(); //For Chrome
+        var yPosition = window.pageYOffset || document.documentElement.scrollTop;
+        ta.style.top = yPosition + 'px'; //Prevent page scroll
+        ta.style.position = 'absolute';
+        ta.style.opacity = '0';
+        ta.value = code;
+        ta.textContent = code; //For FireFox
+        ta.contentEditable = true;
+        ta.readOnly = false;
+        document.body.appendChild(ta);
+        range.selectNode(ta);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        ta.setSelectionRange(0, code.length);
+        var result = document.execCommand('copy');
+        
+          if (result) $(this).text('Copied');
+          else $(this).text('Copy failed');
+        
+        ta.blur(); //For iOS
+        $(this).blur();
+      })).on('mouseleave', function (e) {
+        var $b = $(this).find('.copy-btn');
+        setTimeout(function () {
+          $b.text('Copy');
+        }, 300);
+      }).append(e);
+    })
+  </script>
+
+
+  
+
+</body>
+</html>

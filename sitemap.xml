@@ -2,6 +2,41 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://jiemin.wang/2019/04/22/linux-fio/</loc>
+    
+    <lastmod>2019-04-22T03:27:56.215Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/04/22/curl-dns-time/</loc>
+    
+    <lastmod>2019-04-22T02:29:18.492Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/04/22/linux-dd/</loc>
+    
+    <lastmod>2019-04-22T02:13:24.929Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/04/22/linux-TIME-WAIT/</loc>
+    
+    <lastmod>2019-04-22T01:58:02.955Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/04/22/sync-binlog-innodb-flush-log-at-trx-commit/</loc>
+    
+    <lastmod>2019-04-22T01:26:45.865Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://jiemin.wang/2019/04/20/go-command/</loc>
     
     <lastmod>2019-04-20T08:45:39.900Z</lastmod>
