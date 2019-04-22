@@ -2,6 +2,62 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://jiemin.wang/2019/04/22/mysql-GTID/</loc>
+    
+    <lastmod>2019-04-22T07:28:26.324Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/04/22/cpu-memory/</loc>
+    
+    <lastmod>2019-04-22T06:12:12.052Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/04/22/nginx-log/</loc>
+    
+    <lastmod>2019-04-22T06:11:27.300Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/04/22/linux-iptables/</loc>
+    
+    <lastmod>2019-04-22T06:10:30.728Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/04/22/linux-awk/</loc>
+    
+    <lastmod>2019-04-22T06:09:00.982Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/04/22/linux-systemd/</loc>
+    
+    <lastmod>2019-04-22T06:08:00.117Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/04/22/mysql-character/</loc>
+    
+    <lastmod>2019-04-22T06:06:52.657Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jiemin.wang/2019/04/22/mysql-duplicate/</loc>
+    
+    <lastmod>2019-04-22T06:05:32.273Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://jiemin.wang/2019/03/28/mha-switch/</loc>
     
     <lastmod>2019-04-22T03:36:37.241Z</lastmod>

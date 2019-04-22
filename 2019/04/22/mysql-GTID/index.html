@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-center-simple.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/xiaoxin-01.png?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+<script>(function(T,h,i,n,k,P,a,g,e){g=function(){P=h.createElement(i);a=h.getElementsByTagName(i)[0];P.src=k;P.charset="utf-8";P.async=1;a.parentNode.insertBefore(P,a)};T["ThinkPageWeatherWidgetObject"]=n;T[n]||(T[n]=function(){(T[n].q=T[n].q||[]).push(arguments)});T[n].l=+new Date();if(T.attachEvent){T.attachEvent("onload",g)}else{T.addEventListener("load",g,false)}}(window,document,"script","tpwidget","//widget.seniverse.com/widget/chameleon.js"))</script>
+<script>tpwidget("init", {
+    "flavor": "bubble",
+    "location": "WX4FBXXFKE4F",
+    "geolocation": "enabled",
+    "position": "top-right",
+    "margin": "10px 10px",
+    "language": "auto",
+    "unit": "c",
+    "theme": "chameleon",
+    "uid": "U6899A955F",
+    "hash": "3537a35c8bfe0f65e5d773944596793a"
+});
+tpwidget("show");</script>
+
+  <meta name="description" content="工作多年，当人家问你是不是初入社会，不是因为你看起来年轻，而是因为觉得你怎么这么笨。  前言GTID是什么？GTID 是Global Transaction Identifiers的缩写，简称GTID GTID组成和架构1) GTID = source_id:transaction_id2) server_uuid 来源于 auto.cnf13E11FA47-71CA-11E1-9E33-C80">
+<meta name="keywords" content="MySQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL5.7 GTID原理与实战">
+<meta property="og:url" content="https://jiemin.wang/2019/04/22/mysql-GTID/index.html">
+<meta property="og:site_name" content="Jamin Blog">
+<meta property="og:description" content="工作多年，当人家问你是不是初入社会，不是因为你看起来年轻，而是因为觉得你怎么这么笨。  前言GTID是什么？GTID 是Global Transaction Identifiers的缩写，简称GTID GTID组成和架构1) GTID = source_id:transaction_id2) server_uuid 来源于 auto.cnf13E11FA47-71CA-11E1-9E33-C80">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://jiemin.wang/2019/04/22/mysql-GTID/aaa.jpg">
+<meta property="og:image" content="https://jiemin.wang/2019/04/22/mysql-GTID/binlog_gtid.jpg">
+<meta property="og:image" content="https://jiemin.wang/2019/04/22/mysql-GTID/com_binlog_dump_gtid.jpg">
+<meta property="og:image" content="https://jiemin.wang/2019/04/22/mysql-GTID/classic_rpl.jpg">
+<meta property="og:image" content="https://jiemin.wang/2019/04/22/mysql-GTID/GTID_rpl.jpg">
+<meta property="og:image" content="https://jiemin.wang/2019/04/22/mysql-GTID/replication_slave_halt.jpg">
+<meta property="og:image" content="https://jiemin.wang/2019/04/22/mysql-GTID/replication_slave_halt_duoble.jpg">
+<meta property="og:updated_time" content="2019-04-22T07:28:26.324Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL5.7 GTID原理与实战">
+<meta name="twitter:description" content="工作多年，当人家问你是不是初入社会，不是因为你看起来年轻，而是因为觉得你怎么这么笨。  前言GTID是什么？GTID 是Global Transaction Identifiers的缩写，简称GTID GTID组成和架构1) GTID = source_id:transaction_id2) server_uuid 来源于 auto.cnf13E11FA47-71CA-11E1-9E33-C80">
+<meta name="twitter:image" content="https://jiemin.wang/2019/04/22/mysql-GTID/aaa.jpg">
+
+
+
+
+
+
+  <link rel="canonical" href="https://jiemin.wang/2019/04/22/mysql-GTID/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>MySQL5.7 GTID原理与实战 | Jamin Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jamin Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">一个不聊技术的 DBA 不是一个好厨子...</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-life">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/coffee" rel="section"><i class="menu-item-icon fa fa-fw fa-coffee"></i> <br>生活中的美好</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>Search</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="Searching..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://jiemin.wang/2019/04/22/mysql-GTID/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Wang Jiemin">
+      <meta itemprop="description" content="我从不生产BUG, 我是BUG的搬运工~">
+      <meta itemprop="image" content="/images/XIAOXIN.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jamin Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">MySQL5.7 GTID原理与实战
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-04-22 14:14:52 / Modified: 15:28:26" itemprop="dateCreated datePublished" datetime="2019-04-22T14:14:52+08:00">2019-04-22</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/04/22/mysql-GTID/" class="leancloud_visitors" data-flag-title="MySQL5.7 GTID原理与实战">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Views: </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+                 <span>℃</span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <span itemprop="image" itemscope itemtype="http://schema.org/ImageObject"><img itemprop="url image" src="aaa.jpg" class="full-image" alt="alt" title="title"><meta itemprop="width" content="auto"><meta itemprop="height" content="auto"></span>
+<blockquote class="blockquote-center"><p><strong>工作多年，当人家问你是不是初入社会，不是因为你看起来年轻，而是因为觉得你怎么这么笨。</strong></p>
+</blockquote>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h4 id="GTID是什么？"><a href="#GTID是什么？" class="headerlink" title="GTID是什么？"></a>GTID是什么？</h4><p>GTID 是<a href="https://dev.mysql.com/doc/refman/5.7/en/replication-gtids.html" target="_blank" rel="noopener">Global Transaction Identifiers</a>的缩写，简称GTID</p>
+<h4 id="GTID组成和架构"><a href="#GTID组成和架构" class="headerlink" title="GTID组成和架构"></a>GTID组成和架构</h4><p>1) <code>GTID = source_id:transaction_id</code><br>2) server_uuid 来源于 auto.cnf<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">3E11FA47-71CA-11E1-9E33-C80AA9429562</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>3) GTID: 在一组复制中，全局唯一</p>
+<p>The syntax for a GTID set is as follows:<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">gtid_set:</span><br><span class="line">    uuid_set [, uuid_set] ...</span><br><span class="line">    | <span class="string">''</span></span><br><span class="line"></span><br><span class="line">uuid_set:</span><br><span class="line">    uuid:interval[:interval]...</span><br><span class="line"></span><br><span class="line">uuid:</span><br><span class="line">    hhhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh</span><br><span class="line"></span><br><span class="line">h:</span><br><span class="line">    [0-9|A-F]</span><br><span class="line"></span><br><span class="line">interval:</span><br><span class="line">    n[-n]</span><br><span class="line"></span><br><span class="line">    (n >= 1)</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p><code>mysql.gtid_executed表</code>的压缩由名为<code>thread</code>/<code>sql</code>/<code>compress_gtid_table</code>的专用前台线程执行。 此线程未在<code>SHOW PROCESSLIST</code>的输出中列出，但可以将其视为线程表中的一行，如下所示：<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">mysql> SELECT * FROM performance_schema.threads WHERE NAME LIKE <span class="string">'%gtid%'</span>\G</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">          THREAD_ID: 26</span><br><span class="line">               NAME: thread/sql/compress_gtid_table</span><br><span class="line">               TYPE: FOREGROUND</span><br><span class="line">     PROCESSLIST_ID: 1</span><br><span class="line">   PROCESSLIST_USER: NULL</span><br><span class="line">   PROCESSLIST_HOST: NULL</span><br><span class="line">     PROCESSLIST_DB: NULL</span><br><span class="line">PROCESSLIST_COMMAND: Daemon</span><br><span class="line">   PROCESSLIST_TIME: 1509</span><br><span class="line">  PROCESSLIST_STATE: Suspending</span><br><span class="line">   PROCESSLIST_INFO: NULL</span><br><span class="line">   PARENT_THREAD_ID: 1</span><br><span class="line">               ROLE: NULL</span><br><span class="line">       INSTRUMENTED: YES</span><br><span class="line">            HISTORY: YES</span><br><span class="line">    CONNECTION_TYPE: NULL</span><br><span class="line">       THREAD_OS_ID: 18677</span><br></pre></td></tr></tbody></table></figure><p></p>
+<h5 id="GTID和Binlog的关系"><a href="#GTID和Binlog的关系" class="headerlink" title="GTID和Binlog的关系"></a>GTID和Binlog的关系</h5><ul>
+<li><p>GTID在binlog中的结构</p>
+<img src="/2019/04/22/mysql-GTID/binlog_gtid.jpg" title="binlog_gtid">
+</li>
+<li><p>GTID event 结构</p>
+
+</li>
+<li><p>Previous_gtid_log_event</p>
+</li>
+</ul>
+<ol>
+<li><code>Previous_gtid_log_event</code> 在每个binlog 头部都会有</li>
+<li>每次<code>binlog rotate</code>的时候存储在binlog头部</li>
+<li><code>Previous-GTIDs</code>在binlog中只会存储在这台机器上执行过的所有binlog，不包括手动设置<code>gtid_purged</code>值。</li>
+<li>换句话说，如果你手动<code>set global gtid_purged=xx;</code> 那么xx是不会记录在<code>Previous_gtid_log_event</code>中的。</li>
+</ol>
+<ul>
+<li>GTID和Binlog之间的关系是怎么对应的呢<br>  如何才能找到GTID=?对应的binlog文件呢？<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">* 假设有4个binlog: bin.001,bin.002,bin.003,bin.004</span><br><span class="line">* bin.001 : Previous-GTIDs=empty; binlog_event有：1-40  </span><br><span class="line">* bin.002 : Previous-GTIDs=1-40;  binlog_event有：41-80 </span><br><span class="line">* bin.003 : Previous-GTIDs=1-80;  binlog_event有：81-120  </span><br><span class="line">* bin.004 : Previous-GTIDs=1-120;  binlog_event有：121-160  </span><br><span class="line">    1. 假设现在我们要找GTID=<span class="variable">$A</span>，那么MySQL的扫描顺序为： 从最后一个binlog开始扫描（即：bin.004）      </span><br><span class="line">    2. bin.004的Previous-GTIDs=1-120，如果<span class="variable">$A</span>=140 > Previous-GTIDs,那么肯定在bin.004中  </span><br><span class="line">    3. bin.004的Previous-GTIDs=1-120，如果<span class="variable">$A</span>=88 包含在Previous-GTIDs中,那么继续对比上一个binlog文件 bin.003,然后再循环前面2个步骤，直到找到为止</span><br></pre></td></tr></tbody></table></figure>
+</li>
+</ul>
+<h5 id="重要参数的持久化"><a href="#重要参数的持久化" class="headerlink" title="重要参数的持久化"></a>重要参数的持久化</h5><ul>
+<li>GTID相关参数</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">variables</th>
+<th style="text-align:center">comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">gtid_executed</td>
+<td style="text-align:center">执行过的所有GTID</td>
+</tr>
+<tr>
+<td style="text-align:center">gtid_purged</td>
+<td style="text-align:center">丢弃掉的GTID</td>
+</tr>
+<tr>
+<td style="text-align:center">gtid_mode</td>
+<td style="text-align:center">gtid模式</td>
+</tr>
+<tr>
+<td style="text-align:center">gtid_next</td>
+<td style="text-align:center">session级别的变量，下一个gtid</td>
+</tr>
+<tr>
+<td style="text-align:center">gtid_owned</td>
+<td style="text-align:center">正在运行的gtid</td>
+</tr>
+<tr>
+<td style="text-align:center">enforce_gtid_consistency</td>
+<td style="text-align:center">保证GTID安全的参数</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>重要参数如何持久化</li>
+</ul>
+<ol>
+<li>如何持久化<code>gtid_executed</code> <code>[ log-bin=on,log_slave_update=on ]</code><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gtid_executed = mysql.gtid_executed <span class="comment">#[normal]</span></span><br><span class="line">or</span><br><span class="line">gtid_executed = mysql.gtid_executed + last_binlog 中最后没写到mysql.gtid_executed中的gtid_event  <span class="comment">#[recover]</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+</ol>
+<ul>
+<li>如何持久化重置的gtid_purged值?<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">reset master;</span><br><span class="line"><span class="built_in">set</span> global gtid_purged=<span class="string">'$A:a-b'</span>;</span><br></pre></td></tr></tbody></table></figure>
+</li>
+</ul>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. 由于有可能手动设置过gtid_purged=<span class="variable">$A</span>:a-b, binlog.index中，last_binlog的Previous-GTIDs并不会包含<span class="variable">$A</span>:a-b  </span><br><span class="line">2. 由于有可能手动设置过gtid_purged=<span class="variable">$A</span>:a-b, binlog.index中，first_binlog的Previous-GTIDs肯定不会出现<span class="variable">$A</span>:a-b  </span><br><span class="line">3. 重置的gtid_purged = @@global.gtid_executed(mysql.gtid_executed:注意，考虑到这个表的更新触发条件，所以这里用@@global.gtid_executed代替) - last_binlog的Previous-GTIDs  - last_binlog所有的gtid_event  </span><br><span class="line">4. 下面就用 <span class="variable">$reset_gtid_purged</span> 来表示重置的gtid</span><br></pre></td></tr></tbody></table></figure>
+<ul>
+<li>如何持久化<code>gtid_purged</code> <code>[ log-bin=on,log_slave_update=on ]</code><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gtid_purged=binlog.index:first_binlog的Previous-GTIDs  + <span class="variable">$reset_gtid_purged</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+</ul>
+<h5 id="开启GTID的必备条件"><a href="#开启GTID的必备条件" class="headerlink" title="开启GTID的必备条件"></a>开启GTID的必备条件</h5><ul>
+<li><p>MySQL 5.6</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">gtid_mode=ON                (必选)    </span><br><span class="line">log_bin=ON                  (必选)    </span><br><span class="line"><span class="built_in">log</span>-slave-updates=ON        (必选)    </span><br><span class="line">enforce-gtid-consistency    (必选)</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>MySQL 5.7</p>
+<blockquote>
+<p>MySQL5.7.13 or higher</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">gtid_mode=ON                (必选)  </span><br><span class="line">enforce-gtid-consistency    （必选）</span><br><span class="line">log_bin=ON                  （可选）--高可用切换，最好设置ON  </span><br><span class="line"><span class="built_in">log</span>-slave-updates=ON        （可选）--高可用切换，最好设置ON</span><br></pre></td></tr></tbody></table></figure>
+</blockquote>
+</li>
+</ul>
+<h5 id="新的复制协议-COM-BINLOG-DUMP-GTID"><a href="#新的复制协议-COM-BINLOG-DUMP-GTID" class="headerlink" title="新的复制协议 COM_BINLOG_DUMP_GTID"></a>新的复制协议 COM_BINLOG_DUMP_GTID</h5><ul>
+<li><p>slave会将已经执行过的gtid，以及以及接受到relay log中的gtid的并集发送给master</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">* http://dev.mysql.com/doc/refman/5.7/en/change-master-to.html</span><br><span class="line">UNION(@@global.gtid_executed, Retrieved_gtid_set - last_received_GTID)</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>Master send all other transactions to slave</p>
+</li>
+<li>同样的GTID不能被执行两次，如果有同样的GTID，会自动被skip掉。</li>
+</ul>
+<img src="/2019/04/22/mysql-GTID/com_binlog_dump_gtid.jpg" title="com_binlog_dump_gtid">
+<pre><code>- slave1 : 将自身的UUID1:1 发送给 master，然后接收到了 UUID1:2,UUID1:3 event
+- slave2 : 将自身的UUID1:1,UUID1:2 发送给 master，然后接收到了UUID1:3 event
+</code></pre><h5 id="GTID重要函数和新语法"><a href="#GTID重要函数和新语法" class="headerlink" title="GTID重要函数和新语法"></a>GTID重要函数和新语法</h5><ul>
+<li>重要函数</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Name</th>
+<th style="text-align:center">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">GTID_SUBSET(subset, set)</td>
+<td style="text-align:center">returns true (1) if all GTIDs in subset are also in set</td>
+</tr>
+<tr>
+<td style="text-align:center">GTID_SUBTRACT(set,subset)</td>
+<td style="text-align:center">returns only those GTIDs from set that are not in subset</td>
+</tr>
+<tr>
+<td style="text-align:center">WAIT_FOR_EXECUTED_GTID_SET(gtid_set[, timeout])</td>
+<td style="text-align:center">Wait until the given GTIDs have executed on slave.</td>
+</tr>
+<tr>
+<td style="text-align:center">WAIT_UNTIL_SQL_THREAD_AFTER_GTIDS(gtid_set[, timeout][,channel])</td>
+<td style="text-align:center">Wait until the given GTIDs have executed on slave.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p>新语法</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">START SLAVE [thread_types] [until_option] [connection_options]</span><br><span class="line">thread_types:</span><br><span class="line">    [thread_type [, thread_type] ... ]</span><br><span class="line">thread_type: </span><br><span class="line">    IO_THREAD | SQL_THREAD</span><br><span class="line">until_option:</span><br><span class="line">    UNTIL {   {SQL_BEFORE_GTIDS | SQL_AFTER_GTIDS} = gtid_set</span><br><span class="line">          |   MASTER_LOG_FILE = <span class="string">'log_name'</span>, MASTER_LOG_POS = log_pos</span><br><span class="line">          |   RELAY_LOG_FILE = <span class="string">'log_name'</span>, RELAY_LOG_POS = log_pos</span><br><span class="line">          |   SQL_AFTER_MTS_GAPS  }</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>举个栗子: </p>
+</li>
+</ul>
+<ol>
+<li><p>START SLAVE SQL_THREAD UNTIL SQL_BEFORE_GTIDS = 3E11FA47-71CA-11E1-9E33-C80AA9429562:11-56   </p>
+<blockquote>
+<p>表示，当SQL_thread 执行到3E11FA47-71CA-11E1-9E33-C80AA9429562:10 的时候停止，下一个事务是11  </p>
+</blockquote>
+</li>
+<li><p>START SLAVE SQL_THREAD UNTIL SQL_AFTER_GTIDS = 3E11FA47-71CA-11E1-9E33-C80AA9429562:11-56  </p>
+<blockquote>
+<p>表示，当SQL_thread 执行到3E11FA47-71CA-11E1-9E33-C80AA9429562:56 的时候停止，56是最后一个提交的事务。</p>
+</blockquote>
+</li>
+</ol>
+<h4 id="GTID有什么好处"><a href="#GTID有什么好处" class="headerlink" title="GTID有什么好处"></a>GTID有什么好处</h4><h5 id="classic-replication-运维之伤"><a href="#classic-replication-运维之伤" class="headerlink" title="classic replication [运维之伤]"></a>classic replication [运维之伤]</h5><img src="/2019/04/22/mysql-GTID/classic_rpl.jpg" title="classic_rpl">
+<h5 id="GTID-replication-so-easy"><a href="#GTID-replication-so-easy" class="headerlink" title="GTID replication [so easy]"></a>GTID replication [so easy]</h5><img src="/2019/04/22/mysql-GTID/GTID_rpl.jpg" title="GTID_rpl">
+<h4 id="GTID的Limitation"><a href="#GTID的Limitation" class="headerlink" title="GTID的Limitation"></a>GTID的Limitation</h4><ul>
+<li>不安全的事务<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">设置enforce-gtid-consistency=ON</span><br></pre></td></tr></tbody></table></figure>
+</li>
+</ul>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. CREATE TABLE ... SELECT statements  </span><br><span class="line">2. CREATE TEMPORARY TABLE or DROP TEMPORARY TABLE statements inside transactions</span><br><span class="line">3. 同时更新 事务引擎 和 非事务引擎。</span><br></pre></td></tr></tbody></table></figure>
+<h4 id="MySQL5-7-GTID-crash-safe"><a href="#MySQL5-7-GTID-crash-safe" class="headerlink" title="MySQL5.7 GTID crash-safe"></a>MySQL5.7 GTID crash-safe</h4><p><a href="https://dev.mysql.com/doc/refman/5.7/en/replication-solutions-unexpected-slave-halt.html" target="_blank" rel="noopener">关于 GTID crash safe 可以参考官方文档列出的安全配置</a></p>
+<ul>
+<li>单线程复制<br>Non-GTID 推荐配置:<ul>
+<li>relay_log_recovery=1</li>
+<li>relay_log_info_repository=TABLE</li>
+<li>master_info_repository=TABLE</li>
+</ul>
+</li>
+</ul>
+<p>GTID 推荐配置:</p>
+<pre><code>* MASTER_AUTO_POSITION=on
+* relay_log_recovery=0
+</code></pre><img src="/2019/04/22/mysql-GTID/replication_slave_halt.jpg" title="replication_slave_halt">
+<ul>
+<li>多线程复制<br>Non-GTID 推荐配置:<ul>
+<li>relay_log_recovery=1</li>
+<li>sync_relay_log=1</li>
+<li>relay_log_info_repository=TABLE</li>
+<li>master_info_repository=TABLE<br>GTID 推荐配置:</li>
+<li>MASTER_AUTO_POSITION=on</li>
+<li>relay_log_recovery=0</li>
+</ul>
+</li>
+</ul>
+<img src="/2019/04/22/mysql-GTID/replication_slave_halt_duoble.jpg" title="replication_slave_halt_duoble">
+<h2 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h2><h4 id="使用GTID搭建Replication"><a href="#使用GTID搭建Replication" class="headerlink" title="使用GTID搭建Replication"></a>使用GTID搭建Replication</h4><h5 id="从0开始搭建"><a href="#从0开始搭建" class="headerlink" title="从0开始搭建"></a>从0开始搭建</h5><ul>
+<li><p>step 1: 让所有server处于同一个点</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql> SET @@global.read_only = ON;</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>step 2: 关闭所有MySQL</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shell> mysqladmin -uusername -p shutdown</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>step 3: 重启所有MySQL，并开启GTID</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shell> mysqld --gtid-mode=ON --<span class="built_in">log</span>-bin --enforce-gtid-consistency &</span><br></pre></td></tr></tbody></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>当然，在my.cnf中配置好最佳</p>
+</blockquote>
+<ul>
+<li><p>step 4: change master</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql> CHANGE MASTER TO MASTER_HOST = host, MASTER_PORT = port, MASTER_USER = user, MASTER_PASSWORD = password, MASTER_AUTO_POSITION = 1, MASTER_CONNECT_RETRY=10;</span><br><span class="line">	</span><br><span class="line">mysql> START SLAVE;</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>step 5: 让master 可读可写</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql> SET @@global.read_only = OFF;</span><br></pre></td></tr></tbody></table></figure>
+</li>
+</ul>
+<h5 id="从备份中恢复-amp-搭建"><a href="#从备份中恢复-amp-搭建" class="headerlink" title="从备份中恢复&搭建"></a>从备份中恢复&搭建</h5><ul>
+<li><p>step 1: 备份</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysqldump xx 获取并且记录gtid_purged值  </span><br><span class="line">or</span><br><span class="line">冷备份 --获取并且记录gtid_executed值，这个就相当于mysqldump中得到的gtid_purged</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>step 2: 在新服务器上reset master，导入备份</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">reset master; --清空gtid信息  </span><br><span class="line">导入备份； --如果是逻辑导入，请设置sql_log_bin=off  </span><br><span class="line"><span class="built_in">set</span> global gtid_purged=<span class="string">'xx'</span>;</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>step 3: change master</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql> CHANGE MASTER TO MASTER_HOST = host, MASTER_PORT = port, MASTER_USER = user, MASTER_PASSWORD = password, MASTER_AUTO_POSITION = 1, MASTER_CONNECT_RETRY=10;</span><br><span class="line">	</span><br><span class="line">mysql> START SLAVE;</span><br></pre></td></tr></tbody></table></figure>
+</li>
+</ul>
+<h4 id="如何从classic-replication-升级成-GTID-replication"><a href="#如何从classic-replication-升级成-GTID-replication" class="headerlink" title="如何从classic replication 升级成 GTID replication"></a>如何从classic replication 升级成 GTID replication</h4><h5 id="offline-方式升级"><a href="#offline-方式升级" class="headerlink" title="offline 方式升级"></a>offline 方式升级</h5><p>offline 的方式升级最简单。全部关机，然后配置好GTID，重启，<code>CHANGE MASTER TO MASTER_AUTO_POSITION=1</code>。</p>
+<h5 id="online-方式升级"><a href="#online-方式升级" class="headerlink" title="online 方式升级"></a>online 方式升级</h5><p>这里先介绍几个重要<code>GTID_MODE</code>的<code>value</code></p>
+<ul>
+<li>GTID_MODE = OFF               不产生Normal_GTID，只接受来自master的ANONYMOUS_GTID</li>
+<li>GTID_MODE = OFF_PERMISSIVE    不产生Normal_GTID，可以接受来自master的ANONYMOUS_GTID & Normal_GTID</li>
+<li>GTID_MODE = ON_PERMISSIVE     产生Normal_GTID，可以接受来自master的ANONYMOUS_GTID & Normal_GTID</li>
+<li>GTID_MODE = ON                产生Normal_GTID，只接受来自master的Normal_GTID</li>
+</ul>
+<p>master和slave的gtid_mode 组合搭配矩阵图</p>
+<blockquote>
+<p>水平的GTID_MODE为：master</p>
+</blockquote>
+<blockquote>
+<p>垂直的GTID_MODE为：slave</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">gtid_mode</th>
+<th style="text-align:left">OFF(master)</th>
+<th style="text-align:left">OFF_PERMISSIVE(master)</th>
+<th style="text-align:left">ON_PERMISSIVE(master)</th>
+<th style="text-align:left">ON(master)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">OFF(slave)</td>
+<td style="text-align:left">Y</td>
+<td style="text-align:left">Y</td>
+<td style="text-align:left">N</td>
+<td style="text-align:left">N</td>
+</tr>
+<tr>
+<td style="text-align:left">OFF_PERMISSIVE(slave)</td>
+<td style="text-align:left">Y</td>
+<td style="text-align:left">Y</td>
+<td style="text-align:left">Y</td>
+<td style="text-align:left">Y(auto_position可以开启)</td>
+</tr>
+<tr>
+<td style="text-align:left">ON_PERMISSIVE(slave)</td>
+<td style="text-align:left">Y</td>
+<td style="text-align:left">Y</td>
+<td style="text-align:left">Y</td>
+<td style="text-align:left">Y(auto_position可以开启)</td>
+</tr>
+<tr>
+<td style="text-align:left">ON(slave)</td>
+<td style="text-align:left">N</td>
+<td style="text-align:left">N</td>
+<td style="text-align:left">Y</td>
+<td style="text-align:left"></td>
+<td>Y(auto_position可以开启)</td>
+</tr>
+</tbody>
+</table>
+<p>归纳总结：</p>
+<ol>
+<li>当master产生Normal_GTID的时候（ON_PERMISSIVE，ON），如果slave的gtid_mode（OFF）不能接受Normal_GTID，那么就会报错</li>
+<li>当master产生ANONYMOUS_GTID的时候（OFF_PERMISSIVE，OFF），如果slave的gtid_mode（ON）不能接受ANONYMOUS_GTID，那么就会报错</li>
+<li>设置auto_position的条件： 当master gtid_mode=ON时，slave可以为OFF_PERMISSIVE，ON_PERMISSIVE，ON。除此之外，都不能设置auto_position = on</li>
+</ol>
+<p>下面罗列下，如何online 升级为GTID模式。</p>
+<ul>
+<li><p>step 1: 每台server执行</p>
+<blockquote>
+<p>检查错误日志，直到没有错误出现，才能进行下一步</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET @@GLOBAL.ENFORCE_GTID_CONSISTENCY = WARN;</span><br></pre></td></tr></tbody></table></figure>
+</blockquote>
+</li>
+<li><p>step 2: 每台server执行</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET @@GLOBAL.ENFORCE_GTID_CONSISTENCY = ON;</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>step 3: 每台server执行</p>
+<blockquote>
+<p>不用关心一组复制集群的server的执行顺序，只需要保证每个Server都执行了，才能进行下一步</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET @@GLOBAL.GTID_MODE = OFF_PERMISSIVE;</span><br></pre></td></tr></tbody></table></figure>
+</blockquote>
+</li>
+<li><p>step 4: 每台server执行</p>
+<blockquote>
+<p>不用关心一组复制集群的server的执行顺序，只需要保证每个Server都执行了，才能进行下一步</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET @@GLOBAL.GTID_MODE = ON_PERMISSIVE;</span><br></pre></td></tr></tbody></table></figure>
+</blockquote>
+</li>
+<li><p>step 5: 在每台server上执行，如果ONGOING_ANONYMOUS_TRANSACTION_COUNT=0就可以</p>
+<blockquote>
+<p>不需要一直为0，只要出现过0一次，就ok</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHOW STATUS LIKE <span class="string">'ONGOING_ANONYMOUS_TRANSACTION_COUNT'</span>;</span><br></pre></td></tr></tbody></table></figure>
+</blockquote>
+</li>
+<li><p>step 6： 确保所有anonymous事务传递到slave上了</p>
+</li>
+</ul>
+<ul>
+<li><p>master</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHOW MASTER STATUS;</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>每个slave  </p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT MASTER_POS_WAIT(file, position);</span><br></pre></td></tr></tbody></table></figure>
+</li>
+</ul>
+<p>或者，等一段时间，只要不是大的延迟，一般都没问题</p>
+<ul>
+<li><p>step 7: 每台Server上执行</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET @@GLOBAL.GTID_MODE = ON;</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>step 8: 在每台server上将my.cnf中添加好gtid配置</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">gtid_mode=ON                (必选) </span><br><span class="line">enforce-gtid-consistency    (必选)</span><br><span class="line">log_bin=ON                  (可选)--高可用切换，最好设置ON  </span><br><span class="line"><span class="built_in">log</span>-slave-updates=ON        (可选)--高可用切换，最好设置ON</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>step 9: change master</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">STOP SLAVE;  </span><br><span class="line">CHANGE MASTER TO MASTER_AUTO_POSITION = 1;  </span><br><span class="line">START SLAVE;</span><br></pre></td></tr></tbody></table></figure>
+</li>
+</ul>
+<h4 id="GTID-failover"><a href="#GTID-failover" class="headerlink" title="GTID failover"></a>GTID failover</h4><h5 id="MySQL-crash"><a href="#MySQL-crash" class="headerlink" title="MySQL crash"></a>MySQL crash</h5><pre><code>> 配置好loss-less semi-sync replication，可以更可靠的保证数据零丢失。
+  以下说的都是crash 后，起不来的情况
+</code></pre><ul>
+<li>binlog 在master还有日志没有传递到 slave<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1. 选取最新的slave, CHANGE MASTER TO maseter_auto_position 同步好  </span><br><span class="line">2. mysqlbinlog 将没传递过来的binlog在新master上replay  </span><br><span class="line">3. 打开新 master 的 SET GLOBAL surper_read_only=off;</span><br><span class="line">``` </span><br><span class="line">* binlog 已经传递到slave</span><br><span class="line">```bash</span><br><span class="line">1. 选取最新的slave, CHANGE MASTER TO maseter_auto_position同步好  </span><br><span class="line">2. 打开新master的 SET GLOBAL surper_read_only=off;</span><br></pre></td></tr></tbody></table></figure>
+</li>
+</ul>
+<h5 id="OS-crash"><a href="#OS-crash" class="headerlink" title="OS crash"></a>OS crash</h5><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1. 选取最新的slave, CHANGE MASTER TO maseter_auto_position同步好  </span><br><span class="line">2. 打开新master的 SET GLOBAL surper_read_only=off;</span><br></pre></td></tr></tbody></table></figure>
+<blockquote>
+<blockquote>
+<p>以上操作，在传统模式复制下，只能通过MHA来实现，MHA比较复杂。<br>   现在，在GTID模式下，实现起来非常简单，且非常方便。</p>
+</blockquote>
+</blockquote>
+<h4 id="GTID-运维和错误处理"><a href="#GTID-运维和错误处理" class="headerlink" title="GTID 运维和错误处理"></a>GTID 运维和错误处理</h4><ol>
+<li>使用GTID后，对原来传统的运维有不同之处了，需要调整过来。</li>
+<li>使用Row模式且复制配置正确的情况下，基本上很少发现有复制出错的情况。</li>
+<li>slave 设置 super_read_only=on</li>
+</ol>
+<h5 id="错误场景-Errant-transaction"><a href="#错误场景-Errant-transaction" class="headerlink" title="错误场景: Errant transaction"></a>错误场景: Errant transaction</h5><p>出现这种问题基本有两种情况</p>
+<blockquote>
+<ol>
+<li>复制参数没有配置正确，当slave crash后，会出现重复键问题</li>
+<li>DBA操作不正确，不小心在slave上执行了事务</li>
+</ol>
+</blockquote>
+<p>对于第一个重复键问题</p>
+<ul>
+<li><p>对于第一个重复键问题</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">* skip transation; </span><br><span class="line">SQL> SET GLOBAL SQL_SLAVE_SKIP_COUNTER=1;</span><br><span class="line">SQL> START SLAVE;</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>GTID模式</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SQL> SET GTID_NEXT=<span class="string">'b9b4712a-df64-11e3-b391-60672090eb04:7'</span>;   --设置需要跳过的gtid event</span><br><span class="line">SQL> BEGIN;COMMIT;</span><br><span class="line">SQL> SET GTID_NEXT=<span class="string">'AUTOMATIC'</span>;</span><br><span class="line">SQL> START SLAVE;</span><br></pre></td></tr></tbody></table></figure>
+</li>
+</ul>
+<p>对于第二种不小心多执行了事务</p>
+<blockquote>
+<p>这种情况就比较难了，这样已经导致了数据不一致，大多数情况，建议slave重做<br>  如何避免： slave 设置 super_read_only=on;</p>
+</blockquote>
+<p><strong><em>重点： 当发生inject empty transction后，有可能会丢失事务</em></strong></p>
+<pre><code>这里说下inject empty transction的隐患
+    当slave上inject empty transction，说明有一个master的事务被忽略了（这里假设是 $uuid:100）
+    事务丢失一：如果此时此刻master挂了，这个slave被选举为新master，那么其他的slave如果还没有执行到$uuid:100,就会丢失掉$uuid:100这个事务。
+    事务丢失二：如果从备份中重新搭建一个slave，需要重新执行之前的所有事务，而此时，master挂了， 又回到了事务丢失一的场景。
+</code></pre><h2 id="QA"><a href="#QA" class="headerlink" title="QA"></a>QA</h2><h4 id="如何重置gtid-executed，gtid-purged。"><a href="#如何重置gtid-executed，gtid-purged。" class="headerlink" title="如何重置gtid_executed，gtid_purged。"></a>如何重置gtid_executed，gtid_purged。</h4><ul>
+<li><p>设置gtid_executed</p>
+<blockquote>
+<p>现在只能执行:</p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql> reset master;</span><br></pre></td></tr></tbody></table></figure>
+</blockquote>
+</li>
+<li><p>设置gtid_purged</p>
+</li>
+<li>当gtid_executed 非空的时候，不能设置gtid_purged</li>
+<li>当gtid_executed 为空的时候(即刚刚备份好的镜像，刚搭建的mysql)<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql> SET @@GLOBAL.GTID_PURGED=<span class="string">'0ad6eae9-2d66-11e6-864f-ecf4bbf1f42c:1-3'</span>;</span><br></pre></td></tr></tbody></table></figure>
+</li>
+</ul>
+<h5 id="如果auto-cnf-被删掉了，对于GTID的复制会有什么影响？"><a href="#如果auto-cnf-被删掉了，对于GTID的复制会有什么影响？" class="headerlink" title="如果auto.cnf 被删掉了，对于GTID的复制会有什么影响？"></a>如果auto.cnf 被删掉了，对于GTID的复制会有什么影响？</h5><pre><code>> 如果被删掉，重启后，server-uuid 会变
+</code></pre><h5 id="手动设置-set-gtid-purged-xx-yy-mysql会去主动修改binlog的头么"><a href="#手动设置-set-gtid-purged-xx-yy-mysql会去主动修改binlog的头么" class="headerlink" title="手动设置 set @@gtid_purged = xx:yy, mysql会去主动修改binlog的头么"></a>手动设置 set @@gtid_purged = xx:yy, mysql会去主动修改binlog的头么</h5><pre><code>> 不会
+</code></pre><h5 id="GTID和复制过滤规则之间如何协同工作？MySQL，test还能愉快的过滤掉吗？"><a href="#GTID和复制过滤规则之间如何协同工作？MySQL，test还能愉快的过滤掉吗？" class="headerlink" title="GTID和复制过滤规则之间如何协同工作？MySQL，test还能愉快的过滤掉吗？"></a>GTID和复制过滤规则之间如何协同工作？MySQL，test还能愉快的过滤掉吗？</h5><pre><code>> 可以，改过滤的会自己过滤，不用担心
+</code></pre><h2 id="Automatic-failover-with-mysqlfailover-GTID"><a href="#Automatic-failover-with-mysqlfailover-GTID" class="headerlink" title="Automatic failover with mysqlfailover+GTID"></a>Automatic failover with mysqlfailover+GTID</h2><p><a href="https://dev.mysql.com/doc/refman/5.7/en/replication-solutions-switch.html" target="_blank" rel="noopener">mysqlfailover+GTID</a></p>
+<script>
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return; }
+            const img = document.createElement('img');
+            img.style = 'display:none !important;';
+            img.src = el.dataset.src;
+            img.addEventListener('error', () => {
+              img.remove();
+              el.style.color = 'inherit';
+              el.style.backgroundImage = 'none';
+              el.style.background = 'none';
+            });
+            img.addEventListener('load', () => {
+              img.remove();
+            });
+            document.body.appendChild(img);
+          });
+      </script>
+      
+    </div>
+
+    
+
+    
+    
+    
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+
+    <div>
+          
+            
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>本文标题:</span><a href="/2019/04/22/mysql-GTID/">MySQL5.7 GTID原理与实战</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 Wang Jiemin 的个人博客">Wang Jiemin</a></p>
+  <p><span>发布时间:</span>2019年04月22日 - 14:04</p>
+  <p><span>最后更新:</span>2019年04月22日 - 15:04</p>
+  <p><span>原始链接:</span><a href="/2019/04/22/mysql-GTID/" title="MySQL5.7 GTID原理与实战">https://jiemin.wang/2019/04/22/mysql-GTID/</a>
+    <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://jiemin.wang/2019/04/22/mysql-GTID/" aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>
+</div>
+<script>
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({
+          title: "",
+          text: '复制成功',
+          icon: "success",
+          showConfirmButton: true
+          });
+    });
+    });
+</script>
+
+
+          
+    </div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpeg" alt="Wang Jiemin Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MySQL/" rel="tag"><i class="fa fa-angellist" aria-hidden="true"></i> MySQL</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/22/mysql-duplicate/" rel="next" title="MySQL查询重复记录,删除重复记录方法">
+                <i class="fa fa-chevron-left"></i> MySQL查询重复记录,删除重复记录方法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/XIAOXIN.jpg" alt="Wang Jiemin">
+            
+              <p class="site-author-name" itemprop="name">Wang Jiemin</p>
+              <p class="site-description motion-element" itemprop="description">我从不生产BUG, 我是BUG的搬运工~</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">8</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/WangJiemin" title="GitHub &rarr; https://github.com/WangJiemin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:278667010@qq.com" title="E-Mail &rarr; mailto:278667010@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://zhengshun.wang" title="https://zhengshun.wang" rel="noopener" target="_blank">順子の杂货铺</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.chopmoon.com" title="http://blog.chopmoon.com" rel="noopener" target="_blank">龚义杰BLOG</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#GTID是什么？"><span class="nav-number">1.0.1.</span> <span class="nav-text">GTID是什么？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#GTID组成和架构"><span class="nav-number">1.0.2.</span> <span class="nav-text">GTID组成和架构</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#GTID和Binlog的关系"><span class="nav-number">1.0.2.1.</span> <span class="nav-text">GTID和Binlog的关系</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#重要参数的持久化"><span class="nav-number">1.0.2.2.</span> <span class="nav-text">重要参数的持久化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#开启GTID的必备条件"><span class="nav-number">1.0.2.3.</span> <span class="nav-text">开启GTID的必备条件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#新的复制协议-COM-BINLOG-DUMP-GTID"><span class="nav-number">1.0.2.4.</span> <span class="nav-text">新的复制协议 COM_BINLOG_DUMP_GTID</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#GTID重要函数和新语法"><span class="nav-number">1.0.2.5.</span> <span class="nav-text">GTID重要函数和新语法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#GTID有什么好处"><span class="nav-number">1.0.3.</span> <span class="nav-text">GTID有什么好处</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#classic-replication-运维之伤"><span class="nav-number">1.0.3.1.</span> <span class="nav-text">classic replication [运维之伤]</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#GTID-replication-so-easy"><span class="nav-number">1.0.3.2.</span> <span class="nav-text">GTID replication [so easy]</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#GTID的Limitation"><span class="nav-number">1.0.4.</span> <span class="nav-text">GTID的Limitation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MySQL5-7-GTID-crash-safe"><span class="nav-number">1.0.5.</span> <span class="nav-text">MySQL5.7 GTID crash-safe</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#实战"><span class="nav-number">2.</span> <span class="nav-text">实战</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#使用GTID搭建Replication"><span class="nav-number">2.0.1.</span> <span class="nav-text">使用GTID搭建Replication</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#从0开始搭建"><span class="nav-number">2.0.1.1.</span> <span class="nav-text">从0开始搭建</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#从备份中恢复-amp-搭建"><span class="nav-number">2.0.1.2.</span> <span class="nav-text">从备份中恢复&amp;搭建</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何从classic-replication-升级成-GTID-replication"><span class="nav-number">2.0.2.</span> <span class="nav-text">如何从classic replication 升级成 GTID replication</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#offline-方式升级"><span class="nav-number">2.0.2.1.</span> <span class="nav-text">offline 方式升级</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#online-方式升级"><span class="nav-number">2.0.2.2.</span> <span class="nav-text">online 方式升级</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#GTID-failover"><span class="nav-number">2.0.3.</span> <span class="nav-text">GTID failover</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#MySQL-crash"><span class="nav-number">2.0.3.1.</span> <span class="nav-text">MySQL crash</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#OS-crash"><span class="nav-number">2.0.3.2.</span> <span class="nav-text">OS crash</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#GTID-运维和错误处理"><span class="nav-number">2.0.4.</span> <span class="nav-text">GTID 运维和错误处理</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#错误场景-Errant-transaction"><span class="nav-number">2.0.4.1.</span> <span class="nav-text">错误场景: Errant transaction</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#QA"><span class="nav-number">3.</span> <span class="nav-text">QA</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#如何重置gtid-executed，gtid-purged。"><span class="nav-number">3.0.1.</span> <span class="nav-text">如何重置gtid_executed，gtid_purged。</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#如果auto-cnf-被删掉了，对于GTID的复制会有什么影响？"><span class="nav-number">3.0.1.1.</span> <span class="nav-text">如果auto.cnf 被删掉了，对于GTID的复制会有什么影响？</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#手动设置-set-gtid-purged-xx-yy-mysql会去主动修改binlog的头么"><span class="nav-number">3.0.1.2.</span> <span class="nav-text">手动设置 set @@gtid_purged = xx:yy, mysql会去主动修改binlog的头么</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#GTID和复制过滤规则之间如何协同工作？MySQL，test还能愉快的过滤掉吗？"><span class="nav-number">3.0.1.3.</span> <span class="nav-text">GTID和复制过滤规则之间如何协同工作？MySQL，test还能愉快的过滤掉吗？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Automatic-failover-with-mysqlfailover-GTID"><span class="nav-number">4.</span> <span class="nav-text">Automatic failover with mysqlfailover+GTID</span></a></li></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+      <div id="music163player">
+         <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="298" height="52" src="//music.163.com/outchain/player?type=0&id=2162667159&auto=1&height=32"></iframe>
+      </div>
+
+    </div>
+  </aside>
+ 
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart" aria-hidden="true"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wang Jiemin</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  <!-- 雪花特效 -->
+  <script type="text/javascript" src="//libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
+  <script type="text/javascript">
+    var windowWidth = $(window).width();
+    if (windowWidth > 480) {
+      document.write('<script type="text/javascript" src="/js/src/snow.js"><\/script>');
+    }
+  </script>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/three/three.min.js"></script>
+
+  
+  <script src="true"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.7.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.7.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+        // ref: https://github.com/ForbesLindesay/unescape-html
+        var unescapeHtml = function(html) {
+          return String(html)
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, '\'')
+            .replace(/&#x3A;/g, ':')
+            // replace all the other &#x; chars
+            .replace(/&#(\d+);/g, function (m, p) { return String.fromCharCode(p); })
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&amp;/g, '&');
+        };
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                content = unescapeHtml(content);
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script>
+    
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+
+      Counter('get', '/classes/Counter', { where: JSON.stringify({ url }) })
+        .done(function ({ results }) {
+          if (results.length > 0) {
+            var counter = results[0];
+            
+            Counter('put', `/classes/Counter/${counter.objectId}`, JSON.stringify({ time: { "__op":"Increment", "amount":1 } }))
+            
+            .done(function () {
+                  var $element = $(document.getElementById(url));
+                  $element.find('.leancloud-visitors-count').text(counter.time + 1);
+            })
+            
+            .fail(function ({ responseJSON }) {
+                console.log('Failed to save Visitor num, with error message: ' + responseJSON.error);
+            })
+          } else {
+            
+              var $element = $(document.getElementById(url));
+              $element.find('.leancloud-visitors-count').text('Counter not initialized! See more at console err msg.');
+              console.error('ATTENTION! LeanCloud counter has security bug, see here how to solve it: https://github.com/theme-next/hexo-leancloud-counter-security. \n But you also can use LeanCloud without security, by set \'security\' option to \'false\'.');
+            
+          }
+        })
+      .fail(function ({ responseJSON }) {
+        console.log('LeanCloud Counter Error:' + responseJSON.code + " " + responseJSON.error);
+      });
+    }
+    
+
+    $(function() {
+      $.get('https://app-router.leancloud.cn/2/route?appId=' + "JkYmxXIhi14yw96jpzv7c0h2-gzGzoHsz")
+        .done(function ({ api_server }) {
+          var Counter = function (method, url, data) {
+            return $.ajax({
+              method: method,
+              url: `https://${api_server}/1.1${url}`,
+              headers: {
+                'X-LC-Id': "JkYmxXIhi14yw96jpzv7c0h2-gzGzoHsz",
+                'X-LC-Key': "EHRmraDPk6Tzs7qjIgvbbI5G",
+                'Content-Type': 'application/json',
+              },
+              data: data,
+            });
+          };
+          
+          addCount(Counter);
+          
+        })
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <style>
+    .copy-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 20px;
+      color: #333;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      background-color: #eee;
+      background-image: linear-gradient(#fcfcfc, #eee);
+      border: 1px solid #d5d5d5;
+      border-radius: 3px;
+      user-select: none;
+      outline: 0;
+    }
+
+    .highlight-wrap .copy-btn {
+      transition: opacity .3s ease-in-out;
+      opacity: 0;
+      padding: 2px 6px;
+      position: absolute;
+      right: 4px;
+      top: 8px;
+    }
+
+    .highlight-wrap:hover .copy-btn,
+    .highlight-wrap .copy-btn:focus {
+      opacity: 1
+    }
+
+    .highlight-wrap {
+      position: relative;
+    }
+  </style>
+  <script>
+    $('.highlight').each(function (i, e) {
+      var $wrap = $('<div>').addClass('highlight-wrap');
+      $(e).after($wrap);
+      $wrap.append($('<button>').addClass('copy-btn').append('Copy').on('click', function (e) {
+        var code = $(this).parent().find('.code').find('.line').map(function (i, e) {
+          return $(e).text();
+        }).toArray().join('\n');
+        var ta = document.createElement('textarea');
+        var range = document.createRange(); //For Chrome
+        var sel = window.getSelection(); //For Chrome
+        var yPosition = window.pageYOffset || document.documentElement.scrollTop;
+        ta.style.top = yPosition + 'px'; //Prevent page scroll
+        ta.style.position = 'absolute';
+        ta.style.opacity = '0';
+        ta.value = code;
+        ta.textContent = code; //For FireFox
+        ta.contentEditable = true;
+        ta.readOnly = false;
+        document.body.appendChild(ta);
+        range.selectNode(ta);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        ta.setSelectionRange(0, code.length);
+        var result = document.execCommand('copy');
+        
+          if (result) $(this).text('Copied');
+          else $(this).text('Copy failed');
+        
+        ta.blur(); //For iOS
+        $(this).blur();
+      })).on('mouseleave', function (e) {
+        var $b = $(this).find('.copy-btn');
+        setTimeout(function () {
+          $b.text('Copy');
+        }, 300);
+      }).append(e);
+    })
+  </script>
+
+
+  
+
+</body>
+</html>
