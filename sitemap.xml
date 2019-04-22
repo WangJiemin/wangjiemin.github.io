@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://jiemin.wang/2019/03/28/mha-switch/</loc>
+    
+    <lastmod>2019-04-22T03:36:37.241Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://jiemin.wang/2019/03/28/masterha-master-switch/</loc>
     
     <lastmod>2019-04-22T03:32:10.915Z</lastmod>
@@ -166,13 +173,6 @@
     <loc>https://jiemin.wang/2019/03/29/goModules/</loc>
     
     <lastmod>2019-03-29T04:41:58.770Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://jiemin.wang/2019/03/28/mha-switch/</loc>
-    
-    <lastmod>2019-03-28T11:48:11.513Z</lastmod>
     
   </url>
   
