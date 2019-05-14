@@ -118,29 +118,27 @@
 });
 tpwidget("show");</script>
 
-  <meta name="description" content="为什么我老爸不是李嘉诚，为什么我长的这么帅，但是要掉头发呢，你们长这么丑，却不掉头发呢？  前言在网上随便搜搜，就能找到大把的关于 MySQL 优化的文章，不过里面很多都不准确，说个常见的：1SELECT a FROM ... WHERE b = ... 一般来说，很多文章会告诫你类似这样的查询，不要在 “a” 字段上建立索引，而应该在 “b” 上建立索引。这样做确实不错，但是很多时候这并不是最">
-<meta name="keywords" content="MySQL">
+  <meta name="description" content="“别再抱怨你此生找不到一个对的人，当初的数学选择题就四个，你也找不到对的答案啊”  前言昨天帮同事解决主从同步的问题。 原因是同事使用Django开发了一套运维平台。但是里面的表使用了FOREIGN KEY，在插入的是报错。造成了主从同步错误，数据量不大，使用pt-table-checksum来校验主从数据 操作一、先跳过主从错误，主从同步关系恢复正常。1234STOP SLAVE sql_th">
+<meta name="keywords" content="Toolkit">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MySQL 优化之 Covering Index">
-<meta property="og:url" content="https://jiemin.wang/2019/03/29/CoveringIndex/index.html">
+<meta property="og:title" content="pt-table-checksum fails on older MySQL without utf8mb4-support">
+<meta property="og:url" content="https://jiemin.wang/2019/05/14/PT-0/index.html">
 <meta property="og:site_name" content="Jamin Blog">
-<meta property="og:description" content="为什么我老爸不是李嘉诚，为什么我长的这么帅，但是要掉头发呢，你们长这么丑，却不掉头发呢？  前言在网上随便搜搜，就能找到大把的关于 MySQL 优化的文章，不过里面很多都不准确，说个常见的：1SELECT a FROM ... WHERE b = ... 一般来说，很多文章会告诫你类似这样的查询，不要在 “a” 字段上建立索引，而应该在 “b” 上建立索引。这样做确实不错，但是很多时候这并不是最">
+<meta property="og:description" content="“别再抱怨你此生找不到一个对的人，当初的数学选择题就四个，你也找不到对的答案啊”  前言昨天帮同事解决主从同步的问题。 原因是同事使用Django开发了一套运维平台。但是里面的表使用了FOREIGN KEY，在插入的是报错。造成了主从同步错误，数据量不大，使用pt-table-checksum来校验主从数据 操作一、先跳过主从错误，主从同步关系恢复正常。1234STOP SLAVE sql_th">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://jiemin.wang/2019/03/29/CoveringIndex/hehe.jpg">
-<meta property="og:image" content="https://jiemin.wang/2019/03/29/CoveringIndex/Primary_key.jpg">
-<meta property="og:image" content="https://jiemin.wang/2019/03/29/CoveringIndex/Secoudary_key.jpg">
-<meta property="og:updated_time" content="2019-03-29T09:59:50.159Z">
+<meta property="og:image" content="https://jiemin.wang/2019/05/14/PT-0/bs.png">
+<meta property="og:updated_time" content="2019-05-14T03:21:23.033Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="MySQL 优化之 Covering Index">
-<meta name="twitter:description" content="为什么我老爸不是李嘉诚，为什么我长的这么帅，但是要掉头发呢，你们长这么丑，却不掉头发呢？  前言在网上随便搜搜，就能找到大把的关于 MySQL 优化的文章，不过里面很多都不准确，说个常见的：1SELECT a FROM ... WHERE b = ... 一般来说，很多文章会告诫你类似这样的查询，不要在 “a” 字段上建立索引，而应该在 “b” 上建立索引。这样做确实不错，但是很多时候这并不是最">
-<meta name="twitter:image" content="https://jiemin.wang/2019/03/29/CoveringIndex/hehe.jpg">
+<meta name="twitter:title" content="pt-table-checksum fails on older MySQL without utf8mb4-support">
+<meta name="twitter:description" content="“别再抱怨你此生找不到一个对的人，当初的数学选择题就四个，你也找不到对的答案啊”  前言昨天帮同事解决主从同步的问题。 原因是同事使用Django开发了一套运维平台。但是里面的表使用了FOREIGN KEY，在插入的是报错。造成了主从同步错误，数据量不大，使用pt-table-checksum来校验主从数据 操作一、先跳过主从错误，主从同步关系恢复正常。1234STOP SLAVE sql_th">
+<meta name="twitter:image" content="https://jiemin.wang/2019/05/14/PT-0/bs.png">
 
 
 
 
 
 
-  <link rel="canonical" href="https://jiemin.wang/2019/03/29/CoveringIndex/">
+  <link rel="canonical" href="https://jiemin.wang/2019/05/14/PT-0/">
 
 
 
@@ -150,7 +148,7 @@ tpwidget("show");</script>
   };
 </script>
 
-  <title>MySQL 优化之 Covering Index | Jamin Blog</title>
+  <title>pt-table-checksum fails on older MySQL without utf8mb4-support | Jamin Blog</title>
   
 
 
@@ -416,7 +414,7 @@ tpwidget("show");</script>
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jiemin.wang/2019/03/29/CoveringIndex/">
+    <link itemprop="mainEntityOfPage" href="https://jiemin.wang/2019/05/14/PT-0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Wang Jiemin">
@@ -433,7 +431,7 @@ tpwidget("show");</script>
 
         
         
-          <h1 class="post-title" itemprop="name headline">MySQL 优化之 Covering Index
+          <h1 class="post-title" itemprop="name headline">pt-table-checksum fails on older MySQL without utf8mb4-support
 
               
             
@@ -459,7 +457,7 @@ tpwidget("show");</script>
                 
               
 
-              <time title="Created: 2019-03-29 13:22:16 / Modified: 17:59:50" itemprop="dateCreated datePublished" datetime="2019-03-29T13:22:16+08:00">2019-03-29</time>
+              <time title="Created: 2019-05-14 10:45:11 / Modified: 11:21:23" itemprop="dateCreated datePublished" datetime="2019-05-14T10:45:11+08:00">2019-05-14</time>
             
 
             
@@ -481,7 +479,7 @@ tpwidget("show");</script>
                 <span class="post-meta-item-text">In</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Toolkit/" itemprop="url" rel="index"><span itemprop="name">Toolkit</span></a></span>
 
                 
                 
@@ -495,7 +493,7 @@ tpwidget("show");</script>
 
           
           
-             <span id="/2019/03/29/CoveringIndex/" class="leancloud_visitors" data-flag-title="MySQL 优化之 Covering Index">
+             <span id="/2019/05/14/PT-0/" class="leancloud_visitors" data-flag-title="pt-table-checksum fails on older MySQL without utf8mb4-support">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -527,56 +525,27 @@ tpwidget("show");</script>
       
 
       
-        <span itemprop="image" itemscope itemtype="http://schema.org/ImageObject"><img itemprop="url image" src="hehe.jpg" class="full-image" alt="alt" title="title"><meta itemprop="width" content="auto"><meta itemprop="height" content="auto"></span>
-<blockquote class="blockquote-center"><p><strong>为什么我老爸不是李嘉诚，为什么我长的这么帅，但是要掉头发呢，你们长这么丑，却不掉头发呢？</strong></p>
+        <span itemprop="image" itemscope itemtype="http://schema.org/ImageObject"><img itemprop="url image" src="bs.png" class="full-image" alt="alt" title="title"><meta itemprop="width" content="auto"><meta itemprop="height" content="auto"></span>
+<blockquote class="blockquote-center"><p><strong>“别再抱怨你此生找不到一个对的人，当初的数学选择题就四个，你也找不到对的答案啊”</strong></p>
 </blockquote>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在网上随便搜搜，就能找到大把的关于 MySQL 优化的文章，不过里面很多都不准确，说个常见的：<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT a FROM ... WHERE b = ...</span><br></pre></td></tr></tbody></table></figure><p></p>
-<p>一般来说，很多文章会告诫你类似这样的查询，不要在 “a” 字段上建立索引，而应该在 “b” 上建立索引。这样做确实不错，但是很多时候这并不是最佳结果。为什么这样说？这还得先从索引来说起。</p>
-<h4 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h4><p>MySQL 官方对索引的定义为：索引（Index）是帮助 MySQL 高效获取数据的数据结构。提取句子主干，就可以得到索引的本质：索引是数据结构。</p>
-<p>在 MySQL 中，索引属于存储引擎级别的概念，不同存储引擎对索引的实现方式是不同的，本文讨论的主要是 InnoDB 的 B+Tree 索引，它又可以分为两类：</p>
-<ul>
-<li>聚簇索引</li>
-<li>非聚簇索引</li>
-</ul>
-<p>聚簇索引又称为聚集索引或主键索引，它并不是一种单独的索引类型，而是一种数据存储方式。在 InnoDB 中，表数据文件本身就是按 B+Tree 组织的一个索引结构，这棵树的叶子节点称为 leaf page，其 data 域保存了完整的数据记录。也即我们所说的数据行即索引，索引即数据。<br><img src="/2019/03/29/CoveringIndex/Primary_key.jpg" title="Primary_key"></p>
-<p>非聚簇索引是相对于聚簇索引来说的，我们又称为辅助索引或二级索引。 InnoDB 的二级索引 data 域存储的是相应记录主键的值而不是物理位置的指针。<br><img src="/2019/03/29/CoveringIndex/Secoudary_key.jpg" title="Secoudary_key"></p>
-<h4 id="回表"><a href="#回表" class="headerlink" title="回表"></a>回表</h4><p>了解了 InnoDB 索引的实现方式，我们就很容易理解 “回表” 这个概念了。</p>
-<p>聚簇索引这种实现方式使得按主键的搜索十分高效，但是二级索引搜索需要检索两遍索引：首先检索二级索引获得主键，然后用主键到主索引中检索获得记录。</p>
-<p>让我们回到开头说的那个例子：<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT a FROM ... WHERE b = ...</span><br></pre></td></tr></tbody></table></figure><p></p>
-<p>我们先来分析一下查询的处理过程：在执行查询时，系统会查询 “b” 索引进行定位，然后回表查询需要的数据 “a”，也就是说，在这个过程中存在两次查询，一次是查询索引，另一次是查询表。</p>
-<p>那有没有办法用一次查询搞定问题呢？有，就是 Covering Index！</p>
-<blockquote>
-<p>说到这里你可能会想起来 MySQL5.6 中引入的 MRR（Multi-Range Read，多范围读），它是专门来优化二级索引的范围扫描并且需要回表的情况。它的原理是，将多个需要回表的二级索引根据主键进行排序，然后一起回表，将原来的回表时进行的随机 IO，转变成顺序 IO。MRR 的优势是将多个随机 IO 转换成较少数量的顺序 IO，所以对于 SSD 来说价值还是有的，但是相比机械磁盘来说意义小一些。</p>
-</blockquote>
-<h2 id="Covering-Index"><a href="#Covering-Index" class="headerlink" title="Covering Index"></a>Covering Index</h2><p>所谓 Covering Index，就是说不必查询表文件，单靠查询索引文件即可完成。使用覆盖索引的好处是辅助索引不包含整行记录的所有信息，故其大小要远小于聚集索引，因此可以减少大量的 IO 操作。</p>
-<p>具体到上边的例子中就是建立一个复合索引 (b, a)，当查询进行时，通过复合索引的 “b” 部分去定位，至于需要的数据 “a”，立刻就可以在索引里得到，从而省略了表查询的过程。</p>
-<p>如果你想利用 Covering Index，那么就要注意 SELECT 方式，只 SELECT 必要的字段，千万别SELECT * FROM …，因为我们不太可能把所有的字段一起做索引，虽然可以那样做，但那样会让索引文件过大，结果反倒会弄巧成拙。</p>
-<p>如何才能确认查询使用了 Covering Index 呢？很简单，使用 EXPLAIN 即可！只要在 Extra 里出现Using index就说明使用的是 Covering Index。</p>
-<p>这里再举两个栗子，让大家印象深点。</p>
-<p>例子一</p>
-<p>在文章系统里统计总数的时候，一般的查询是这样的：<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT COUNT(*) FROM article WHERE category_id = ...</span><br></pre></td></tr></tbody></table></figure><p></p>
-<p>当我们在<code>category_id</code>建立索引后，这个查询使用的就是 Covering Index。</p>
-<blockquote>
-<p>参考文档：<a href="https://www.percona.com/blog/2007/04/10/count-vs-countcol/" target="_blank" rel="noopener">COUNT(*) vs COUNT(col)</a></p>
-</blockquote>
-<p>例子二<br>在文章系统里分页显示的时候，一般的查询是这样的：<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT id, title, content FROM article ORDER BY created DESC LIMIT 10000, 10;</span><br></pre></td></tr></tbody></table></figure><p></p>
-<p>通常这样的查询会把索引建在created字段（其中id是主键），不过当LIMIT偏移很大时，查询效率仍然很低，这时这个查询最好改成下面的样子：<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SELECT id, title, content FROM article</span><br><span class="line">INNER JOIN (</span><br><span class="line">    SELECT id FROM article ORDER BY created DESC LIMIT 10000, 10</span><br><span class="line">) AS page USING(id);</span><br></pre></td></tr></tbody></table></figure><p></p>
-<p>此时，就可以在子查询里利用上 Covering Index，快速定位 id，查询效率嗷嗷的。</p>
-<p>基于我的测试数据，这两条语句的查询耗时分别是 “0.08 秒” 和“0.01 秒以内”，8 倍的差距啊！不由又想起了地精的经典语录<br></p><blockquote class="blockquote-center"><p>时间就是金钱，我的朋友！</p>
-</blockquote><p></p>
-<blockquote>
-<p>补充：InnoDB 引擎层是会对二级索引做自动扩展，优化器能识别出扩展的主键。详情可以参考<a href="https://blog.51cto.com/huanghualiang/1607496" target="_blank" rel="noopener">这篇文章</a>。</p>
-</blockquote>
-<p>我们再来看看这两条语句分别对应的执行计划<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">mysql> EXPLAIN SELECT SQL_NO_CACHE id, title, content FROM article ORDER BY created DESC LIMIT 10000, 10;</span><br><span class="line">+----+-------------+---------+------------+------+---------------+------+---------+------+-------+----------+----------------+</span><br><span class="line">| id | select_type | table   | partitions | <span class="built_in">type</span> | possible_keys | key  | key_len | ref  | rows  | filtered | Extra          |</span><br><span class="line">+----+-------------+---------+------------+------+---------------+------+---------+------+-------+----------+----------------+</span><br><span class="line">|  1 | SIMPLE      | article | NULL       | ALL  | NULL          | NULL | NULL    | NULL | 99210 |   100.00 | Using filesort |</span><br><span class="line">+----+-------------+---------+------------+------+---------------+------+---------+------+-------+----------+----------------+</span><br><span class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span>, 2 warnings (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql> EXPLAIN SELECT SQL_NO_CACHE id, title, content FROM article INNER JOIN ( SELECT id FROM article ORDER BY created DESC LIMIT 10000, 10 ) AS page USING(id);</span><br><span class="line">+----+-------------+------------+------------+--------+---------------+-------------+---------+---------+-------+----------+----------------------------------+</span><br><span class="line">| id | select_type | table      | partitions | <span class="built_in">type</span>   | possible_keys | key         | key_len | ref     | rows  | filtered | Extra                            |</span><br><span class="line">+----+-------------+------------+------------+--------+---------------+-------------+---------+---------+-------+----------+----------------------------------+</span><br><span class="line">|  1 | PRIMARY     | <derived2> | NULL       | ALL    | NULL          | NULL        | NULL    | NULL    | 10010 |   100.00 | NULL                             |</derived2></span><br><span class="line">|  1 | PRIMARY     | article    | NULL       | eq_ref | PRIMARY       | PRIMARY     | 4       | page.id |     1 |   100.00 | NULL                             |</span><br><span class="line">|  2 | DERIVED     | article    | NULL       | index  | NULL          | idx_created | 5       | NULL    | 10010 |   100.00 | Backward index scan; Using index |</span><br><span class="line">+----+-------------+------------+------------+--------+---------------+-------------+---------+---------+-------+----------+----------------------------------+</span><br><span class="line">3 rows <span class="keyword">in</span> <span class="built_in">set</span>, 2 warnings (0.00 sec)</span><br></pre></td></tr></tbody></table></figure><p></p>
-<p>通过 EXPLAIN 我们可以很明显的看出，第一个查询没有用到索引，Extra 里是 “Using filesort”，这是我们应该尽量避免的情况。而第二个的 Extra 是 “Using index”，所以这两者间效率上的差距就显而易见了。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Covering Index 并不是什么很难的概念，但是有些人还不了解它或忽视它的价值，希望本文能给你提个醒。</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>昨天帮同事解决主从同步的问题。</p>
+<p>原因是同事使用<code>Django</code>开发了一套运维平台。但是里面的表使用了<code>FOREIGN KEY</code>，在插入的是报错。造成了<code>主从同步错误</code>，数据量不大，使用<code>pt-table-checksum</code>来校验主从数据</p>
+<h2 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h2><p>一、先跳过主从错误，主从同步关系恢复正常。<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">STOP SLAVE sql_thread;</span><br><span class="line">SET GLOBAL sql_slave_skip_counter = 1;</span><br><span class="line">START SLAVE sql_thread;</span><br><span class="line">SHOW SLAVE STATUS\G</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>二、使用 pt-table-checksum<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pt-table-checksum --<span class="built_in">set</span>-vars innodb_lock_wait_timeout=200 --nocheck-replication-filters --no-check-binlog-format --replicate=test.checksums --create-replicate-table --databases=***** --host=*** --port=*** --user=*** --password=<span class="string">'*****'</span> --recursion-method=<span class="string">'processlist'</span></span><br></pre></td></tr></tbody></table></figure><p></p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Error setting innodb_lock_wait_timeout: DBD::mysql::db <span class="keyword">do</span> failed: Variable <span class="string">'innodb_lock_wait_timeout'</span> is a <span class="built_in">read</span> only variable [<span class="keyword">for</span> Statement <span class="string">"SET SESSION innodb_lock_wait_timeout=1"</span>].  The current value <span class="keyword">for</span> innodb_lock_wait_timeout is 50.  If the variable is <span class="built_in">read</span> only (not dynamic), specify --<span class="built_in">set</span>-vars innodb_lock_wait_timeout=50 to avoid this warning, <span class="keyword">else</span> manually <span class="built_in">set</span> the variable and restart MySQL.</span><br><span class="line"></span><br><span class="line">Checking <span class="keyword">if</span> all tables can be checksummed ...</span><br><span class="line">Starting checksum ...</span><br><span class="line">Error setting innodb_lock_wait_timeout: DBD::mysql::db <span class="keyword">do</span> failed: Variable <span class="string">'innodb_lock_wait_timeout'</span> is a <span class="built_in">read</span> only variable [<span class="keyword">for</span> Statement <span class="string">"SET SESSION innodb_lock_wait_timeout=1"</span>].  The current value <span class="keyword">for</span> innodb_lock_wait_timeout is 50.  If the variable is <span class="built_in">read</span> only (not dynamic), specify --<span class="built_in">set</span>-vars innodb_lock_wait_timeout=50 to avoid this warning, <span class="keyword">else</span> manually <span class="built_in">set</span> the variable and restart MySQL.</span><br><span class="line"></span><br><span class="line">05-13T18:42:19 Error executing EXPLAIN SELECT COUNT(*) AS cnt, COALESCE(LOWER(CONV(BIT_XOR(CAST(CRC32(CONCAT_WS(<span class="string">'#'</span>, `id`, convert(`uuid` using utf8mb4), convert(`city` using utf8mb4), convert(`bassert` using utf8mb4), convert(`hostname` using utf8mb4), `idc_id`, `dp_id`, convert(`vlanip` using utf8mb4), convert(`wlanip` using utf8mb4), convert(`remote_ip` using utf8mb4), convert(`network_card` using utf8mb4), convert(`mac` using utf8mb4), convert(`serverown` using utf8mb4), convert(`status` using utf8mb4), convert(`rack` using utf8mb4), convert(`unit` using utf8mb4), convert(`sysversion` using utf8mb4), `order_time`, convert(`comment` using utf8mb4), `update_time`, `onlinetime`, `offlinetime`, convert(`roles` using utf8mb4), convert(`services` using utf8mb4), convert(`install_status` using utf8mb4), convert(`service_env` using utf8mb4), convert(`host_type` using utf8mb4), convert(`kvm_local` using utf8mb4), CONCAT(ISNULL(`order_time`), ISNULL(`onlinetime`), ISNULL(`offlinetime`), ISNULL(`roles`), ISNULL(`services`)))) AS UNSIGNED)), 10, 16)), 0) AS crc FROM `bportal`.`server_basic_info` /*explain checksum table*/: DBD::mysql::st execute failed: Unknown character <span class="built_in">set</span>: <span class="string">'utf8mb4'</span> [<span class="keyword">for</span> Statement <span class="string">"EXPLAIN SELECT COUNT(*) AS cnt, COALESCE(LOWER(CONV(BIT_XOR(CAST(CRC32(CONCAT_WS('#', `id`, convert(`uuid` using utf8mb4), convert(`city` using utf8mb4), convert(`bassert` using utf8mb4), convert(`hostname` using utf8mb4), `idc_id`, `dp_id`, convert(`vlanip` using utf8mb4), convert(`wlanip` using utf8mb4), convert(`remote_ip` using utf8mb4), convert(`network_card` using utf8mb4), convert(`mac` using utf8mb4), convert(`serverown` using utf8mb4), convert(`status` using utf8mb4), convert(`rack` using utf8mb4), convert(`unit` using utf8mb4), convert(`sysversion` using utf8mb4), `order_time`, convert(`comment` using utf8mb4), `update_time`, `onlinetime`, `offlinetime`, convert(`roles` using utf8mb4), convert(`services` using utf8mb4), convert(`install_status` using utf8mb4), convert(`service_env` using utf8mb4), convert(`host_type` using utf8mb4), convert(`kvm_local` using utf8mb4), CONCAT(ISNULL(`order_time`), ISNULL(`onlinetime`), ISNULL(`offlinetime`), ISNULL(`roles`), ISNULL(`services`)))) AS UNSIGNED)), 10, 16)), 0) AS crc FROM `bportal`.`server_basic_info` /*explain checksum table*/"</span>] at /usr/bin/pt-table-checksum line 12302.</span><br><span class="line"></span><br><span class="line">05-13T18:42:19 Error checksumming table bportal.server_basic_info: Error executing checksum query: DBD::mysql::st execute failed: Unknown character <span class="built_in">set</span>: <span class="string">'utf8mb4'</span> [<span class="keyword">for</span> Statement <span class="string">"REPLACE INTO `test`.`checksums` (db, tbl, chunk, chunk_index, lower_boundary, upper_boundary, this_cnt, this_crc) SELECT ?, ?, ?, ?, ?, ?, COUNT(*) AS cnt, COALESCE(LOWER(CONV(BIT_XOR(CAST(CRC32(CONCAT_WS('#', `id`, convert(`uuid` using utf8mb4), convert(`city` using utf8mb4), convert(`bassert` using utf8mb4), convert(`hostname` using utf8mb4), `idc_id`, `dp_id`, convert(`vlanip` using utf8mb4), convert(`wlanip` using utf8mb4), convert(`remote_ip` using utf8mb4), convert(`network_card` using utf8mb4), convert(`mac` using utf8mb4), convert(`serverown` using utf8mb4), convert(`status` using utf8mb4), convert(`rack` using utf8mb4), convert(`unit` using utf8mb4), convert(`sysversion` using utf8mb4), `order_time`, convert(`comment` using utf8mb4), `update_time`, `onlinetime`, `offlinetime`, convert(`roles` using utf8mb4), convert(`services` using utf8mb4), convert(`install_status` using utf8mb4), convert(`service_env` using utf8mb4), convert(`host_type` using utf8mb4), convert(`kvm_local` using utf8mb4), CONCAT(ISNULL(`order_time`), ISNULL(`onlinetime`), ISNULL(`offlinetime`), ISNULL(`roles`), ISNULL(`services`)))) AS UNSIGNED)), 10, 16)), 0) AS crc FROM `bportal`.`server_basic_info` /*checksum table*/"</span> with ParamValues: 0=<span class="string">'bportal'</span>, 1=<span class="string">'server_basic_info'</span>, 2=1, 3=undef, 4=undef, 5=undef] at /usr/bin/pt-table-checksum line 11691.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            TS ERRORS  DIFFS     ROWS  DIFF_ROWS  CHUNKS SKIPPED    TIME TABLE</span><br><span class="line">05-13T18:42:19      2      0        0          0       1       0   0.008 bportal.server_basic_info</span><br></pre></td></tr></tbody></table></figure>
+<h4 id="于是排除问题："><a href="#于是排除问题：" class="headerlink" title="于是排除问题："></a>于是排除问题：</h4><ol>
+<li>查看MySQL 版本</li>
+<li>查看MySQL 字符集</li>
+<li>查看数据库和表的字符集<h4 id="google查找问题原因"><a href="#google查找问题原因" class="headerlink" title="google查找问题原因"></a>google查找问题原因</h4>发现篇文章和该错误几乎一致。说到pt-table-checksum已经不支持MySQL 5.1版本。<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Thank you <span class="keyword">for</span> the report.</span><br><span class="line"></span><br><span class="line">The error is expected since  character <span class="built_in">set</span> utf8mb4 Unknown to the MySQL 5.1</span><br><span class="line"></span><br><span class="line">MySQL 5.1 is not a supported version: https://www.percona.com/services/support/mysql-support/percona-toolkit-supported-platforms-and-versions</span><br></pre></td></tr></tbody></table></figure>
+</li>
+</ol>
+<p>写了一个<a href="./pt-table-checksum.utf8mb4.patch">patch</a></p>
+<h4 id="pt-table-checksum打补丁"><a href="#pt-table-checksum打补丁" class="headerlink" title="pt-table-checksum打补丁"></a>pt-table-checksum打补丁</h4><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">patch pt-table-checksum pt-table-checksum.utf8mb4.patch</span><br></pre></td></tr></tbody></table></figure>
+<h4 id="执行命令"><a href="#执行命令" class="headerlink" title="执行命令"></a>执行命令</h4><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pt-table-checksum --<span class="built_in">set</span>-vars innodb_lock_wait_timeout=200 --nocheck-replication-filters --no-check-binlog-format --replicate=test.checksums --create-replicate-table --databases=***** --host=*** --port=*** --user=*** --password=<span class="string">'*****'</span> --recursion-method=<span class="string">'processlist'</span></span><br></pre></td></tr></tbody></table></figure>
+<p>发现没有上面的问题，一切都正常。在执行<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pt-table-sync --replicate=test.checksums --databases=***** --charset=utf8 h=****,P=****,u=****,p=<span class="string">'****'</span> --execute</span><br></pre></td></tr></tbody></table></figure><p></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>使用MySQL 5.1版本的数据库赶快升级吧。太折腾人了。</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li><a href="https://yq.aliyun.com/articles/62419" target="_blank" rel="noopener">MySQL 覆盖索引</a></li>
-<li><a href="https://www.jianshu.com/p/fa24238d84a9" target="_blank" rel="noopener">MySQL 索引背后的数据结构及算法原理</a></li>
-<li><a href="https://segmentfault.com/a/1190000010264071" target="_blank" rel="noopener">MySQL 认识索引</a></li>
-<li><a href="https://huoding.com/2018/02/27/656" target="_blank" rel="noopener">谈谈 SQL 查询中回表对性能的影响</a></li>
-<li><a href="http://www.cnblogs.com/digdeep/p/4995039.html" target="_blank" rel="noopener">MySQL 优化之 MRR (Multi-Range Read: 二级索引合并回表)</a></li>
-<li><a href="https://blog.51cto.com/huanghualiang/1607496" target="_blank" rel="noopener">关于 MySQL InnoDB 表的二级索引是否加入主键列的问题解释</a></li>
+<li>Percona: <a href="https://jira.percona.com/browse/PT-1552" target="_blank" rel="noopener">jira</a></li>
 </ul>
 <script>
         document.querySelectorAll('.github-emoji')
@@ -625,12 +594,12 @@ tpwidget("show");</script>
   <!-- JS库 sweetalert 可修改路径 -->
   <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-  <p><span>本文标题:</span><a href="/2019/03/29/CoveringIndex/">MySQL 优化之 Covering Index</a></p>
+  <p><span>本文标题:</span><a href="/2019/05/14/PT-0/">pt-table-checksum fails on older MySQL without utf8mb4-support</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 Wang Jiemin 的个人博客">Wang Jiemin</a></p>
-  <p><span>发布时间:</span>2019年03月29日 - 13:03</p>
-  <p><span>最后更新:</span>2019年03月29日 - 17:03</p>
-  <p><span>原始链接:</span><a href="/2019/03/29/CoveringIndex/" title="MySQL 优化之 Covering Index">https://jiemin.wang/2019/03/29/CoveringIndex/</a>
-    <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://jiemin.wang/2019/03/29/CoveringIndex/" aria-label="复制成功！"></i></span>
+  <p><span>发布时间:</span>2019年05月14日 - 10:05</p>
+  <p><span>最后更新:</span>2019年05月14日 - 11:05</p>
+  <p><span>原始链接:</span><a href="/2019/05/14/PT-0/" title="pt-table-checksum fails on older MySQL without utf8mb4-support">https://jiemin.wang/2019/05/14/PT-0/</a>
+    <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://jiemin.wang/2019/05/14/PT-0/" aria-label="复制成功！"></i></span>
   </p>
   <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>
 </div>
@@ -689,7 +658,7 @@ tpwidget("show");</script>
       
         <div class="post-tags">
           
-            <a href="/tags/MySQL/" rel="tag"><i class="fa fa-angellist" aria-hidden="true"></i> MySQL</a>
+            <a href="/tags/Toolkit/" rel="tag"><i class="fa fa-angellist" aria-hidden="true"></i> Toolkit</a>
           
         </div>
       
@@ -702,8 +671,8 @@ tpwidget("show");</script>
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/03/29/rsync/" rel="next" title="rsync 命令详解">
-                <i class="fa fa-chevron-left"></i> rsync 命令详解
+              <a href="/2019/05/05/go-channal-graphic/" rel="next" title="图解Go的channel底层原理">
+                <i class="fa fa-chevron-left"></i> 图解Go的channel底层原理
               </a>
             
           </div>
@@ -711,10 +680,6 @@ tpwidget("show");</script>
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/03/29/mysql-optimization-principle-1/" rel="prev" title="MySQL 优化原理(一)">
-                MySQL 优化原理(一) <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -930,7 +895,7 @@ tpwidget("show");</script>
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#索引"><span class="nav-number">1.0.1.</span> <span class="nav-text">索引</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#回表"><span class="nav-number">1.0.2.</span> <span class="nav-text">回表</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#Covering-Index"><span class="nav-number">2.</span> <span class="nav-text">Covering Index</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#操作"><span class="nav-number">2.</span> <span class="nav-text">操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#于是排除问题："><span class="nav-number">2.0.1.</span> <span class="nav-text">于是排除问题：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#google查找问题原因"><span class="nav-number">2.0.2.</span> <span class="nav-text">google查找问题原因</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#pt-table-checksum打补丁"><span class="nav-number">2.0.3.</span> <span class="nav-text">pt-table-checksum打补丁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#执行命令"><span class="nav-number">2.0.4.</span> <span class="nav-text">执行命令</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></div>
             
 
           </div>

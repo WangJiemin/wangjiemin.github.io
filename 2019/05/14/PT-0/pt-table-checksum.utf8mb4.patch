@@ -1,0 +1,74 @@
+--- original	2018-05-14 16:23:56.097110247 +0200
++++ modified	2018-05-14 17:47:33.698962428 +0200
+@@ -3627,6 +3627,7 @@
+       DSNParser       => $dp,
+       is_cluster_node => undef,
+       parent          => $args{parent},
++      utf8mb4_support => undef,
+    };
+ 
+    return bless $self, $class;
+@@ -3692,7 +3693,18 @@
+    if ( my $set = $self->{set}) {
+       $set->($dbh);
+    }
+-
++   
++   $sql = "SHOW CHARACTER SET LIKE 'utf8mb4'";
++   PTDEBUG && _d($dbh, $sql);
++   my ($utf8mb4supported) = eval { $dbh->selectrow_array($sql) };
++   if ( $EVAL_ERROR ) {
++      die "Error verifying utf8mb4-support"
++        . ": $EVAL_ERROR";
++   }
++   $self->{utf8mb4_support} = $utf8mb4supported ? 1 : 0;
++   PTDEBUG && _d('utf8mb4-supported:', $self->{utf8mb4_support});
++   
++   
+    $self->{dbh}     = $dbh;
+    $self->{dbh_set} = 1;
+    return $dbh;
+@@ -3716,6 +3728,11 @@
+    return $self->{dsn};
+ }
+ 
++sub utf8mb4_support {
++    my ($self) = @_;
++    return $self->{utf8mb4_support};
++}
++
+ sub name {
+    my ($self) = @_;
+    return $self->{dsn_name} if PERCONA_TOOLKIT_TEST_USE_DSN_NAMES;
+@@ -5937,6 +5954,10 @@
+    }
+ 
+    if ( uc $func ne 'FNV_64' && uc $func ne 'FNV1A_64' ) {
++      if ( ! defined $args{utf8mb4_support} ) {
++         die "I need a utf8mb4_support argument"
++      }
++   
+       my $sep = $o->get('separator') || '#';
+       $sep    =~ s/'//g;
+       $sep  ||= '#';
+@@ -5947,7 +5968,11 @@
+           $colname =~ s/`//g;
+           my $type = $tbl_struct->{type_for}->{$colname} || '';
+           if ($type =~ m/^(CHAR|VARCHAR|BINARY|VARBINARY|BLOB|TEXT|ENUM|SET|JSON)$/i) {
+-              push @converted_cols, "convert($col using utf8mb4)";
++              if ( $args{utf8mb4_support} ) {
++                 push @converted_cols, "convert($col using utf8mb4)";
++              } else {
++                 push @converted_cols, "convert($col using utf8)";
++              } 
+           } else {
+               push @converted_cols, "$col";
+           }
+@@ -11339,6 +11364,7 @@
+          my $checksum_cols = eval {
+             $rc->make_chunk_checksum(
+                dbh => $master_cxn->dbh(),
++               utf8mb4_support => $master_cxn->utf8mb4_support(),
+                tbl => $tbl,
+                %crc_args
+             );
