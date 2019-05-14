@@ -127,7 +127,7 @@ tpwidget("show");</script>
 <meta property="og:description" content="“别再抱怨你此生找不到一个对的人，当初的数学选择题就四个，你也找不到对的答案啊”  前言昨天帮同事解决主从同步的问题。 原因是同事使用Django开发了一套运维平台。但是里面的表使用了FOREIGN KEY，在插入的是报错。造成了主从同步错误，数据量不大，使用pt-table-checksum来校验主从数据 操作一、先跳过主从错误，主从同步关系恢复正常。1234STOP SLAVE sql_th">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://jiemin.wang/2019/05/14/PT-0/bs.png">
-<meta property="og:updated_time" content="2019-05-14T03:21:23.033Z">
+<meta property="og:updated_time" content="2019-05-14T03:30:30.797Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="pt-table-checksum fails on older MySQL without utf8mb4-support">
 <meta name="twitter:description" content="“别再抱怨你此生找不到一个对的人，当初的数学选择题就四个，你也找不到对的答案啊”  前言昨天帮同事解决主从同步的问题。 原因是同事使用Django开发了一套运维平台。但是里面的表使用了FOREIGN KEY，在插入的是报错。造成了主从同步错误，数据量不大，使用pt-table-checksum来校验主从数据 操作一、先跳过主从错误，主从同步关系恢复正常。1234STOP SLAVE sql_th">
@@ -457,7 +457,7 @@ tpwidget("show");</script>
                 
               
 
-              <time title="Created: 2019-05-14 10:45:11 / Modified: 11:21:23" itemprop="dateCreated datePublished" datetime="2019-05-14T10:45:11+08:00">2019-05-14</time>
+              <time title="Created: 2019-05-14 10:45:11 / Modified: 11:30:30" itemprop="dateCreated datePublished" datetime="2019-05-14T10:45:11+08:00">2019-05-14</time>
             
 
             
@@ -540,7 +540,7 @@ tpwidget("show");</script>
 </li>
 </ol>
 <p>写了一个<a href="./pt-table-checksum.utf8mb4.patch">patch</a></p>
-<h4 id="pt-table-checksum打补丁"><a href="#pt-table-checksum打补丁" class="headerlink" title="pt-table-checksum打补丁"></a>pt-table-checksum打补丁</h4><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">patch pt-table-checksum pt-table-checksum.utf8mb4.patch</span><br></pre></td></tr></tbody></table></figure>
+<h4 id="pt-table-checksum打补丁"><a href="#pt-table-checksum打补丁" class="headerlink" title="pt-table-checksum打补丁"></a>pt-table-checksum打补丁</h4><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">patch pt-table-checksum < pt-table-checksum.utf8mb4.patch</span><br></pre></td></tr></tbody></table></figure>
 <h4 id="执行命令"><a href="#执行命令" class="headerlink" title="执行命令"></a>执行命令</h4><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pt-table-checksum --<span class="built_in">set</span>-vars innodb_lock_wait_timeout=200 --nocheck-replication-filters --no-check-binlog-format --replicate=test.checksums --create-replicate-table --databases=***** --host=*** --port=*** --user=*** --password=<span class="string">'*****'</span> --recursion-method=<span class="string">'processlist'</span></span><br></pre></td></tr></tbody></table></figure>
 <p>发现没有上面的问题，一切都正常。在执行<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pt-table-sync --replicate=test.checksums --databases=***** --charset=utf8 h=****,P=****,u=****,p=<span class="string">'****'</span> --execute</span><br></pre></td></tr></tbody></table></figure><p></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>使用MySQL 5.1版本的数据库赶快升级吧。太折腾人了。</p>
