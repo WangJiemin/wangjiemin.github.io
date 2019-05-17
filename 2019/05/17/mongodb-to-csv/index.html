@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-center-simple.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/xiaoxin-01.png?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+<script>(function(T,h,i,n,k,P,a,g,e){g=function(){P=h.createElement(i);a=h.getElementsByTagName(i)[0];P.src=k;P.charset="utf-8";P.async=1;a.parentNode.insertBefore(P,a)};T["ThinkPageWeatherWidgetObject"]=n;T[n]||(T[n]=function(){(T[n].q=T[n].q||[]).push(arguments)});T[n].l=+new Date();if(T.attachEvent){T.attachEvent("onload",g)}else{T.addEventListener("load",g,false)}}(window,document,"script","tpwidget","//widget.seniverse.com/widget/chameleon.js"))</script>
+<script>tpwidget("init", {
+    "flavor": "bubble",
+    "location": "WX4FBXXFKE4F",
+    "geolocation": "enabled",
+    "position": "top-right",
+    "margin": "10px 10px",
+    "language": "auto",
+    "unit": "c",
+    "theme": "chameleon",
+    "uid": "U6899A955F",
+    "hash": "3537a35c8bfe0f65e5d773944596793a"
+});
+tpwidget("show");</script>
+
+  <meta name="description" content="要不是因为我，你能有今天？要不是我伤害你，你能成长？  需求产品需要分析达人文章的标签，需要把2019年1月1号到现在的标签，从mongo导出来，导出格式为csv，查询条件如下：1db.content_medium_hismatch.find({&quot;content_type_id&quot;:&quot;28&quot;,&quot;update_time&quot;:{&quot;$gte&quot;:1546272000000},&quot;is_delete&quot;:0},">
+<meta name="keywords" content="MongoDB">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mongodb数据导出CSV文件">
+<meta property="og:url" content="https://jiemin.wang/2019/05/17/mongodb-to-csv/index.html">
+<meta property="og:site_name" content="Jamin Blog">
+<meta property="og:description" content="要不是因为我，你能有今天？要不是我伤害你，你能成长？  需求产品需要分析达人文章的标签，需要把2019年1月1号到现在的标签，从mongo导出来，导出格式为csv，查询条件如下：1db.content_medium_hismatch.find({&quot;content_type_id&quot;:&quot;28&quot;,&quot;update_time&quot;:{&quot;$gte&quot;:1546272000000},&quot;is_delete&quot;:0},">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://jiemin.wang/2019/05/17/mongodb-to-csv/qiong.gif">
+<meta property="og:updated_time" content="2019-05-17T06:20:44.896Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mongodb数据导出CSV文件">
+<meta name="twitter:description" content="要不是因为我，你能有今天？要不是我伤害你，你能成长？  需求产品需要分析达人文章的标签，需要把2019年1月1号到现在的标签，从mongo导出来，导出格式为csv，查询条件如下：1db.content_medium_hismatch.find({&quot;content_type_id&quot;:&quot;28&quot;,&quot;update_time&quot;:{&quot;$gte&quot;:1546272000000},&quot;is_delete&quot;:0},">
+<meta name="twitter:image" content="https://jiemin.wang/2019/05/17/mongodb-to-csv/qiong.gif">
+
+
+
+
+
+
+  <link rel="canonical" href="https://jiemin.wang/2019/05/17/mongodb-to-csv/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>mongodb数据导出CSV文件 | Jamin Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jamin Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">一个不聊技术的 DBA 不是一个好厨子...</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-life">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/coffee" rel="section"><i class="menu-item-icon fa fa-fw fa-coffee"></i> <br>生活中的美好</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>Search</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="Searching..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://jiemin.wang/2019/05/17/mongodb-to-csv/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Wang Jiemin">
+      <meta itemprop="description" content="我从不生产BUG, 我是BUG的搬运工~">
+      <meta itemprop="image" content="/images/XIAOXIN.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jamin Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">mongodb数据导出CSV文件
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-05-17 13:45:15 / Modified: 14:20:44" itemprop="dateCreated datePublished" datetime="2019-05-17T13:45:15+08:00">2019-05-17</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MongoDB/" itemprop="url" rel="index"><span itemprop="name">MongoDB</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/05/17/mongodb-to-csv/" class="leancloud_visitors" data-flag-title="mongodb数据导出CSV文件">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Views: </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+                 <span>℃</span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <span itemprop="image" itemscope itemtype="http://schema.org/ImageObject"><img itemprop="url image" src="qiong.gif" class="full-image" alt="alt" title="title"><meta itemprop="width" content="auto"><meta itemprop="height" content="auto"></span>
+<blockquote class="blockquote-center"><p><strong>要不是因为我，你能有今天？</strong><br><strong>要不是我伤害你，你能成长？</strong></p>
+</blockquote>
+<h2 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h2><p>产品需要分析达人文章的标签，需要把2019年1月1号到现在的标签，从mongo导出来，导出格式为csv，查询条件如下：<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.content_medium_hismatch.find({<span class="string">"content_type_id"</span>:<span class="string">"28"</span>,<span class="string">"update_time"</span>:{<span class="string">"<span class="variable">$gte</span>"</span>:1546272000000},<span class="string">"is_delete"</span>:0}, {<span class="string">"content_id"</span>:1,<span class="string">"content_tags"</span>:1});</span><br></pre></td></tr></tbody></table></figure><p></p>
+<h2 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h2><p>使用<code>MongoDB</code>中的<code>mongoexport</code>命令<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">mongoexport --<span class="built_in">help</span></span><br><span class="line">Usage:</span><br><span class="line">  mongoexport <options></options></span><br><span class="line"></span><br><span class="line">Export data from MongoDB <span class="keyword">in</span> CSV or JSON format.</span><br><span class="line"></span><br><span class="line">See http://docs.mongodb.org/manual/reference/program/mongoexport/ <span class="keyword">for</span> more information.</span><br><span class="line"></span><br><span class="line">general options:</span><br><span class="line">      --<span class="built_in">help</span>                                      <span class="built_in">print</span> usage</span><br><span class="line">      --version                                   <span class="built_in">print</span> the tool version and <span class="built_in">exit</span></span><br><span class="line"></span><br><span class="line">verbosity options:</span><br><span class="line">  -v, --verbose=<level>                           more detailed <span class="built_in">log</span> output (include multiple <span class="built_in">times</span> <span class="keyword">for</span> more verbosity, e.g. -vvvvv, or specify a numeric value, e.g. --verbose=N)</level></span><br><span class="line">      --quiet                                     hide all <span class="built_in">log</span> output</span><br><span class="line"></span><br><span class="line">connection options:</span><br><span class="line">  -h, --host=<hostname>                           mongodb host to connect to (setname/host1,host2 <span class="keyword">for</span> replica sets)</hostname></span><br><span class="line">      --port=<port>                               server port (can also use --host hostname:port)</port></span><br><span class="line"></span><br><span class="line">ssl options:</span><br><span class="line">      --ssl                                       connect to a mongod or mongos that has ssl enabled</span><br><span class="line">      --sslCAFile=<filename>                      the .pem file containing the root certificate chain from the certificate authority</filename></span><br><span class="line">      --sslPEMKeyFile=<filename>                  the .pem file containing the certificate and key</filename></span><br><span class="line">      --sslPEMKeyPassword=<password>              the password to decrypt the sslPEMKeyFile, <span class="keyword">if</span> necessary</password></span><br><span class="line">      --sslCRLFile=<filename>                     the .pem file containing the certificate revocation list</filename></span><br><span class="line">      --sslAllowInvalidCertificates               bypass the validation <span class="keyword">for</span> server certificates</span><br><span class="line">      --sslAllowInvalidHostnames                  bypass the validation <span class="keyword">for</span> server name</span><br><span class="line">      --sslFIPSMode                               use FIPS mode of the installed openssl library</span><br><span class="line"></span><br><span class="line">authentication options:</span><br><span class="line">  -u, --username=<username>                       username <span class="keyword">for</span> authentication</username></span><br><span class="line">  -p, --password=<password>                       password <span class="keyword">for</span> authentication</password></span><br><span class="line">      --authenticationDatabase=<database-name>    database that holds the user<span class="string">'s credentials</span></database-name></span><br><span class="line"><span class="string">      --authenticationMechanism=<mechanism>       authentication mechanism to use</mechanism></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">namespace options:</span></span><br><span class="line"><span class="string">  -d, --db=<database-name>                        database to use</database-name></span></span><br><span class="line"><span class="string">  -c, --collection=<collection-name>              collection to use</collection-name></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">output options:</span></span><br><span class="line"><span class="string">  -f, --fields=<field>[,<field>]*                 comma separated list of field names (required for exporting CSV) e.g. -f "name,age"</field></field></span></span><br><span class="line"><span class="string">      --fieldFile=<filename>                      file with field names - 1 per line</filename></span></span><br><span class="line"><span class="string">      --type=<type>                               the output format, either json or csv (defaults to '</type></span>json<span class="string">') (default: json)</span></span><br><span class="line"><span class="string">  -o, --out=<filename>                            output file; if not specified, stdout is used</filename></span></span><br><span class="line"><span class="string">      --jsonArray                                 output to a JSON array rather than one object per line</span></span><br><span class="line"><span class="string">      --pretty                                    output JSON formatted to be human-readable</span></span><br><span class="line"><span class="string">      --noHeaderLine                              export CSV data without a list of field names at the first line</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">querying options:</span></span><br><span class="line"><span class="string">  -q, --query=<json>                              query filter, as a JSON string, e.g., '</json></span>{x:{<span class="variable">$gt</span>:1}}<span class="string">'</span></span><br><span class="line"><span class="string">      --queryFile=<filename>                      path to a file containing a query filter (JSON)</filename></span></span><br><span class="line"><span class="string">  -k, --slaveOk                                   allow secondary reads if available (default true) (default: false)</span></span><br><span class="line"><span class="string">      --readPreference=<string>|<json>            specify either a preference name or a preference json object</json></string></span></span><br><span class="line"><span class="string">      --forceTableScan                            force a table scan (do not use $snapshot)</span></span><br><span class="line"><span class="string">      --skip=<count>                              number of documents to skip</count></span></span><br><span class="line"><span class="string">      --limit=<count>                             limit the number of documents to export</count></span></span><br><span class="line"><span class="string">      --sort=<json>                               sort order, as a JSON string, e.g. '</json></span>{x:1}<span class="string">'</span></span><br><span class="line"><span class="string">      --assertExists                              if specified, export fails if the collection does not exist (default: false)</span></span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>操作命令如下:<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/mongodb/bin/mongoexport --port 29001 --host=localhost -user=*** --password=***** --authenticationDatabase=**** --db=db --collection=collection --query=<span class="string">'{"content_type_id":"28","update_time":{"$gte":1546272000000},"is_delete":0}, {"content_id":1,"content_tags":1}'</span> --<span class="built_in">type</span>=csv --out=***.csv</span><br></pre></td></tr></tbody></table></figure><p></p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2019-05-17T13:18:52.325+0800    error validating settings: query <span class="string">'[123 34 99 111 110 116 101 110 116 95 116 121 112 101 95 105 100 34 58 34 50 56 34 44 34 117 112 100 97 116 101 95 116 105 109 101 34 58 123 34 36 103 116 101 34 58 49 53 52 54 50 55 50 48 48 48 48 48 48 125 44 34 105 115 95 100 101 108 101 116 101 34 58 48 125 44 32 123 34 99 111 110 116 101 110 116 95 105 100 34 58 49 44 34 99 111 110 116 101 110 116 95 116 97 103 115 34 58 49 125]'</span> is not valid JSON: invalid character <span class="string">','</span> after top-level value</span><br><span class="line">2019-05-17T13:18:52.325+0800    try <span class="string">'mongoexport --help'</span> <span class="keyword">for</span> more information</span><br></pre></td></tr></tbody></table></figure>
+<p>初步判断是导出<code>CSV文件</code>中需要的<code>逗号(,)</code>分割。字段发生错误。语句添加–fields _id,content_id,content_tags<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/mongodb/bin/mongoexport --port 29001 --host=localhost -user=*** --password=***** --authenticationDatabase=**** --db=db --collection=collection --query=<span class="string">'{"content_type_id":"28","update_time":{"$gte":1546272000000},"is_delete":0}, {"content_id":1,"content_tags":1}'</span> --<span class="built_in">type</span>=csv --fields _id,content_id,content_tags --out=***.csv</span><br></pre></td></tr></tbody></table></figure><p></p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">`2019-05-17T13:18:54.325+0800    error validating settings: query <span class="string">'[123 34 99 111 110 116 101 110 116 95 116 121 112 101 95 105 100 34 58 34 50 56 34 44 34 117 112 100 97 116 101 95 116 105 109 101 34 58 123 34 36 103 116 101 34 58 49 53 52 54 50 55 50 48 48 48 48 48 48 125 44 34 105 115 95 100 101 108 101 116 101 34 58 48 125 44 32 123 34 99 111 110 116 101 110 116 95 105 100 34 58 49 44 34 99 111 110 116 101 110 116 95 116 97 103 115 34 58 49 125]'</span> is not valid JSON: invalid character <span class="string">','</span> after top-level value</span><br><span class="line"> 2019-05-17T13:18:54.325+0800    try <span class="string">'mongoexport --help'</span> <span class="keyword">for</span> more information``bash</span><br></pre></td></tr></tbody></table></figure>
+<p>开始排查为什么还继续报错。使用 <code>mongo shell</code> 连接到mongodb中查询发现是能获取到数据的。去掉–query 条件之后再执行一次发现是没问题<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/mongodb/bin/mongoexport --port 29001 --host=localhost -user=*** --password=***** --authenticationDatabase=**** --db=db --collection=collection --<span class="built_in">type</span>=csv --fields _id,content_id,content_tags --out=***.csv</span><br></pre></td></tr></tbody></table></figure><p></p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">2019-05-17T13:24:18.176+0800    connected to: localhost:29001</span><br><span class="line">2019-05-17T13:24:19.167+0800    [........................]  feeds.content_medium_hismatch  0/138863565  (0.0%)</span><br><span class="line">2019-05-17T13:24:20.167+0800    [........................]  feeds.content_medium_hismatch  0/138863565  (0.0%)</span><br><span class="line">2019-05-17T13:24:21.168+0800    [........................]  feeds.content_medium_hismatch  0/138863565  (0.0%)</span><br><span class="line">2019-05-17T13:24:22.167+0800    [........................]  feeds.content_medium_hismatch  0/138863565  (0.0%)</span><br><span class="line">2019-05-17T13:24:23.168+0800    [........................]  feeds.content_medium_hismatch  0/138863565  (0.0%)</span><br><span class="line">2019-05-17T13:24:24.168+0800    [........................]  feeds.content_medium_hismatch  0/138863565  (0.0%)</span><br><span class="line">2019-05-17T13:24:25.167+0800    [........................]  feeds.content_medium_hismatch  0/138863565  (0.0%)</span><br><span class="line">2019-05-17T13:24:26.168+0800    [........................]  feeds.content_medium_hismatch  0/138863565  (0.0%)</span><br><span class="line">^C2019-05-17T13:24:26.900+0800  signal <span class="string">'interrupt'</span> received; forcefully terminating</span><br><span class="line">public-ops-mongodb2 seclogin <span class="comment"># ls</span></span><br><span class="line">content_medium_hismatch.csv</span><br><span class="line">public-ops-mongodb2 seclogin <span class="comment"># cat content_medium_hismatch.csv |more</span></span><br><span class="line">_id,content_id,content_tags</span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db599),1229,<span class="string">"["</span><span class="string">"奶瓶"</span><span class="string">","</span><span class="string">"吃奶"</span><span class="string">","</span><span class="string">"吸吮"</span><span class="string">","</span><span class="string">"乳头混淆"</span><span class="string">","</span><span class="string">"母乳"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db5c8),1290,<span class="string">"["</span><span class="string">"衣服"</span><span class="string">","</span><span class="string">"二手衣服"</span><span class="string">","</span><span class="string">"清洗"</span><span class="string">","</span><span class="string">"皮肤"</span><span class="string">","</span><span class="string">"细菌"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db5cd),1297,<span class="string">"["</span><span class="string">"身材"</span><span class="string">","</span><span class="string">"产后妈妈"</span><span class="string">","</span><span class="string">"新妈妈"</span><span class="string">","</span><span class="string">"裙子"</span><span class="string">","</span><span class="string">"衣服"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db5e1),1325,<span class="string">"["</span><span class="string">"护肤品"</span><span class="string">","</span><span class="string">"哺乳期"</span><span class="string">","</span><span class="string">"皮肤"</span><span class="string">","</span><span class="string">"健康"</span><span class="string">","</span><span class="string">"护肤"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db5e8),1343,<span class="string">"["</span><span class="string">"收纳"</span><span class="string">","</span><span class="string">"家具"</span><span class="string">","</span><span class="string">"奶粉"</span><span class="string">","</span><span class="string">"分享"</span><span class="string">","</span><span class="string">"三角形"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db618),1393,<span class="string">"["</span><span class="string">"背带"</span><span class="string">","</span><span class="string">"婴儿"</span><span class="string">","</span><span class="string">"带宝宝"</span><span class="string">","</span><span class="string">"出门"</span><span class="string">","</span><span class="string">"肌肉发育"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db65e),1465,<span class="string">"["</span><span class="string">"维生素"</span><span class="string">","</span><span class="string">"食物"</span><span class="string">","</span><span class="string">"骨骼"</span><span class="string">","</span><span class="string">"眼睛"</span><span class="string">","</span><span class="string">"帮助"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db660),1467,<span class="string">"["</span><span class="string">"晒太阳"</span><span class="string">","</span><span class="string">"紫外线"</span><span class="string">","</span><span class="string">"维生素"</span><span class="string">","</span><span class="string">"黄疸"</span><span class="string">","</span><span class="string">"眼睛"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db666),1472,<span class="string">"["</span><span class="string">"伞车"</span><span class="string">","</span><span class="string">"推车"</span><span class="string">","</span><span class="string">"婴儿伞车"</span><span class="string">","</span><span class="string">"婴儿推车"</span><span class="string">","</span><span class="string">"优点"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db669),1474,<span class="string">"["</span><span class="string">"食物"</span><span class="string">","</span><span class="string">"味觉发育"</span><span class="string">","</span><span class="string">"口味"</span><span class="string">","</span><span class="string">"食盐"</span><span class="string">","</span><span class="string">"饮食"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db674),1490,<span class="string">"["</span><span class="string">"患病"</span><span class="string">","</span><span class="string">"父母"</span><span class="string">","</span><span class="string">"指甲"</span><span class="string">","</span><span class="string">"健康"</span><span class="string">","</span><span class="string">"打呼噜"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db67a),1500,<span class="string">"["</span><span class="string">"睡眠"</span><span class="string">","</span><span class="string">"疾病"</span><span class="string">","</span><span class="string">"父母"</span><span class="string">","</span><span class="string">"症状"</span><span class="string">","</span><span class="string">"医院"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db68c),1513,<span class="string">"["</span><span class="string">"声音"</span><span class="string">","</span><span class="string">"奶睡"</span><span class="string">","</span><span class="string">"美国"</span><span class="string">","</span><span class="string">"摇晃"</span><span class="string">","</span><span class="string">"宝宝睡觉"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db6a0),1535,<span class="string">"["</span><span class="string">"安全"</span><span class="string">","</span><span class="string">"清洗"</span><span class="string">","</span><span class="string">"坐便器"</span><span class="string">","</span><span class="string">"马桶"</span><span class="string">","</span><span class="string">"优点"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db746),2732,<span class="string">"["</span><span class="string">"荔枝"</span><span class="string">","</span><span class="string">"进食"</span><span class="string">","</span><span class="string">"葡萄糖"</span><span class="string">","</span><span class="string">"上火"</span><span class="string">","</span><span class="string">"症状"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db749),2733,<span class="string">"["</span><span class="string">"宝宝喂养"</span><span class="string">","</span><span class="string">"食物"</span><span class="string">","</span><span class="string">"辅食"</span><span class="string">","</span><span class="string">"母乳"</span><span class="string">","</span><span class="string">"饮食"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db752),2742,<span class="string">"["</span><span class="string">"乳头"</span><span class="string">","</span><span class="string">"喂奶"</span><span class="string">","</span><span class="string">"乳头皲裂"</span><span class="string">","</span><span class="string">"哺乳"</span><span class="string">","</span><span class="string">"乳房"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db758),2745,<span class="string">"["</span><span class="string">"食物"</span><span class="string">","</span><span class="string">"挑食"</span><span class="string">","</span><span class="string">"偏食"</span><span class="string">","</span><span class="string">"爸爸"</span><span class="string">","</span><span class="string">"菠菜"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db75b),2746,<span class="string">"["</span><span class="string">"吃饭"</span><span class="string">","</span><span class="string">"爸爸"</span><span class="string">","</span><span class="string">"咀嚼"</span><span class="string">","</span><span class="string">"食物"</span><span class="string">","</span><span class="string">"时间"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db75f),2747,<span class="string">"["</span><span class="string">"辅食"</span><span class="string">","</span><span class="string">"小宝"</span><span class="string">","</span><span class="string">"核桃油"</span><span class="string">","</span><span class="string">"健康"</span><span class="string">","</span><span class="string">"亚麻酸"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db761),2748,<span class="string">"["</span><span class="string">"油炸"</span><span class="string">","</span><span class="string">"健康"</span><span class="string">","</span><span class="string">"食品"</span><span class="string">","</span><span class="string">"食物"</span><span class="string">","</span><span class="string">"油脂"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db768),2751,<span class="string">"["</span><span class="string">"辅食"</span><span class="string">","</span><span class="string">"膳食纤维"</span><span class="string">","</span><span class="string">"消化不良"</span><span class="string">","</span><span class="string">"食物"</span><span class="string">","</span><span class="string">"肠道"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db76d),2753,<span class="string">"["</span><span class="string">"吃饭"</span><span class="string">","</span><span class="string">"饮食习惯"</span><span class="string">","</span><span class="string">"帮助"</span><span class="string">","</span><span class="string">"习惯"</span><span class="string">","</span><span class="string">"爸爸"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db770),2754,<span class="string">"["</span><span class="string">"微波炉"</span><span class="string">","</span><span class="string">"辅食"</span><span class="string">","</span><span class="string">"营养"</span><span class="string">","</span><span class="string">"食物"</span><span class="string">","</span><span class="string">"维生素"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db773),2755,<span class="string">"["</span><span class="string">"葡萄糖"</span><span class="string">","</span><span class="string">"营养"</span><span class="string">","</span><span class="string">"习惯"</span><span class="string">","</span><span class="string">"家长"</span><span class="string">","</span><span class="string">"宝宝生病"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db775),2756,<span class="string">"["</span><span class="string">"祛湿"</span><span class="string">","</span><span class="string">"食物"</span><span class="string">","</span><span class="string">"帮助"</span><span class="string">","</span><span class="string">"食谱"</span><span class="string">","</span><span class="string">"红豆"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db778),2757,<span class="string">"["</span><span class="string">"水果"</span><span class="string">","</span><span class="string">"蔬菜"</span><span class="string">","</span><span class="string">"果汁"</span><span class="string">","</span><span class="string">"配方奶"</span><span class="string">","</span><span class="string">"母乳"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db77e),2759,<span class="string">"["</span><span class="string">"挑食"</span><span class="string">","</span><span class="string">"维生素"</span><span class="string">","</span><span class="string">"营养"</span><span class="string">","</span><span class="string">"宝宝挑食"</span><span class="string">","</span><span class="string">"缺锌"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db781),2760,<span class="string">"["</span><span class="string">"吃肉"</span><span class="string">","</span><span class="string">"健康"</span><span class="string">","</span><span class="string">"水果"</span><span class="string">","</span><span class="string">"饱和脂肪酸"</span><span class="string">","</span><span class="string">"便秘"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db784),2761,<span class="string">"["</span><span class="string">"水果"</span><span class="string">","</span><span class="string">"营养"</span><span class="string">","</span><span class="string">"食物"</span><span class="string">","</span><span class="string">"胡萝卜素"</span><span class="string">","</span><span class="string">"维生素"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db787),2762,<span class="string">"["</span><span class="string">"体重"</span><span class="string">","</span><span class="string">"宝宝瘦"</span><span class="string">","</span><span class="string">"营养不良"</span><span class="string">","</span><span class="string">"原因"</span><span class="string">","</span><span class="string">"父母"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db789),2763,<span class="string">"["</span><span class="string">"食物"</span><span class="string">","</span><span class="string">"营养"</span><span class="string">","</span><span class="string">"宝宝喂养"</span><span class="string">","</span><span class="string">"进食"</span><span class="string">","</span><span class="string">"时间"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db790),2765,<span class="string">"["</span><span class="string">"辅食"</span><span class="string">","</span><span class="string">"宝宝断奶"</span><span class="string">","</span><span class="string">"断奶"</span><span class="string">","</span><span class="string">"保存"</span><span class="string">","</span><span class="string">"冰箱"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db792),2766,<span class="string">"["</span><span class="string">"断奶"</span><span class="string">","</span><span class="string">"母乳"</span><span class="string">","</span><span class="string">"环境"</span><span class="string">","</span><span class="string">"夏季"</span><span class="string">","</span><span class="string">"宝宝生病"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db795),2767,<span class="string">"["</span><span class="string">"益生菌"</span><span class="string">","</span><span class="string">"药物"</span><span class="string">","</span><span class="string">"食品"</span><span class="string">","</span><span class="string">"平衡"</span><span class="string">","</span><span class="string">"抗生素"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db798),2768,<span class="string">"["</span><span class="string">"食物"</span><span class="string">","</span><span class="string">"咳嗽"</span><span class="string">","</span><span class="string">"宝宝咳嗽"</span><span class="string">","</span><span class="string">"饮食"</span><span class="string">","</span><span class="string">"辛辣"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db79b),2769,<span class="string">"["</span><span class="string">"辅食"</span><span class="string">","</span><span class="string">"饮食"</span><span class="string">","</span><span class="string">"断奶"</span><span class="string">","</span><span class="string">"宝宝断奶"</span><span class="string">","</span><span class="string">"保存"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598eaeeb42d8582db7a1),2773,<span class="string">"["</span><span class="string">"补钙"</span><span class="string">","</span><span class="string">"维生素"</span><span class="string">","</span><span class="string">"宝宝缺钙"</span><span class="string">","</span><span class="string">"母乳"</span><span class="string">","</span><span class="string">"配方奶"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598faeeb42d8582db7a6),2775,<span class="string">"["</span><span class="string">"果泥"</span><span class="string">","</span><span class="string">"水果"</span><span class="string">","</span><span class="string">"维生素"</span><span class="string">","</span><span class="string">"哈密瓜"</span><span class="string">","</span><span class="string">"香蕉"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598faeeb42d8582db7a9),2776,<span class="string">"["</span><span class="string">"饮食"</span><span class="string">","</span><span class="string">"食物"</span><span class="string">","</span><span class="string">"辅食"</span><span class="string">","</span><span class="string">"进食"</span><span class="string">","</span><span class="string">"水果"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598faeeb42d8582db7ac),2777,<span class="string">"["</span><span class="string">"有机蔬菜"</span><span class="string">","</span><span class="string">"蔬菜"</span><span class="string">","</span><span class="string">"农药"</span><span class="string">","</span><span class="string">"有机"</span><span class="string">","</span><span class="string">"农药残留"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598faeeb42d8582db7b4),2780,<span class="string">"["</span><span class="string">"断奶"</span><span class="string">","</span><span class="string">"乳头"</span><span class="string">","</span><span class="string">"乳房"</span><span class="string">","</span><span class="string">"乳腺炎"</span><span class="string">","</span><span class="string">"回奶"</span><span class="string">"]"</span></span><br><span class="line">ObjectId(5b0f598faeeb42d8582db7b8),2783,<span class="string">"["</span><span class="string">"叶黄素"</span><span class="string">","</span><span class="string">"太阳镜"</span><span class="string">","</span><span class="string">"胡萝卜"</span><span class="string">","</span><span class="string">"南瓜"</span><span class="string">","</span><span class="string">"芒果"</span><span class="string">"]"</span></span><br></pre></td></tr></tbody></table></figure>
+<p>就能确定这么执行是没有问题。重点排查<code>--query条件</code>。根据之前报错<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2019-05-17T13:25:56.341+0800    error validating settings: query <span class="string">'[123 99 111 110 116 101 110 116 95 116 121 112 101 95 105 100 58 50 56 44 117 112 100 97 116 101 95 116 105 109 101 58 123 36 103 116 101 58 49 53 52 54 50 55 50 48 48 48 48 48 48 125 44 105 115 95 100 101 108 101 116 101 58 48 125 44 123 99 111 110 116 101 110 116 95 105 100 58 49 44 99 111 110 116 101 110 116 95 116 97 103 115 58 49 125]'</span> is not valid JSON: invalid character <span class="string">','</span> after top-level value</span><br><span class="line">2019-05-17T13:25:56.341+0800    try <span class="string">'mongoexport --help'</span> <span class="keyword">for</span> more information</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>发现一个点<code>invalid character ',' after top-level value</code>中提示有<code>逗号,</code>的问题，排查一下<code>--query条件</code>发现有<code>'{"content_type_id":"28","update_time":{"$gte":1546272000000},"is_delete":0}, {"content_id":1,"content_tags":1}'</code>有一个<code>逗号,</code></p>
+<p>去掉<code>逗号,</code>和后面的<code>逗号之后的条件</code>发现执行成功<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/mongodb/bin/mongoexport --port 29001 --host=localhost -user=*** --password=***** --authenticationDatabase=**** --db=db --collection=collection --query=<span class="string">'{"content_type_id":"28","update_time":{"$gte":1546272000000},"is_delete":0}'</span> --<span class="built_in">type</span>=csv --fields _id,content_id,content_tags --out=***.csv</span><br></pre></td></tr></tbody></table></figure><p></p>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">2019-05-17T13:41:33.068+0800    connected to: localhost:29001</span><br><span class="line">2019-05-17T13:41:34.067+0800    feeds.content_medium_hismatch  0</span><br><span class="line">2019-05-17T13:41:35.067+0800    feeds.content_medium_hismatch  0</span><br><span class="line">2019-05-17T13:41:36.067+0800    feeds.content_medium_hismatch  0</span><br><span class="line">2019-05-17T13:41:36.656+0800    feeds.content_medium_hismatch  18870</span><br><span class="line">2019-05-17T13:41:36.656+0800    exported 18870 records</span><br><span class="line">public-ops-mongodb2 seclogin <span class="comment"># cat content_medium_hismatch.csv |wc -l</span></span><br><span class="line">18871</span><br><span class="line">public-ops-mongodb2 seclogin <span class="comment">#</span></span><br></pre></td></tr></tbody></table></figure>
+<p>和开发确认一下这个条件能否却掉，开发确认可以去掉。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><code>mongoexport</code>在执行有条件的导出文件，<code>--query</code> 条件要写在一个<code>花括号{}</code>里面，如果要有两个<code>花括号{}</code>的条件，中间用<code>逗号,</code>分割，这样是不行的。</p>
+<script>
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return; }
+            const img = document.createElement('img');
+            img.style = 'display:none !important;';
+            img.src = el.dataset.src;
+            img.addEventListener('error', () => {
+              img.remove();
+              el.style.color = 'inherit';
+              el.style.backgroundImage = 'none';
+              el.style.background = 'none';
+            });
+            img.addEventListener('load', () => {
+              img.remove();
+            });
+            document.body.appendChild(img);
+          });
+      </script>
+      
+    </div>
+
+    
+
+    
+    
+    
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+
+    <div>
+          
+            
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>本文标题:</span><a href="/2019/05/17/mongodb-to-csv/">mongodb数据导出CSV文件</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 Wang Jiemin 的个人博客">Wang Jiemin</a></p>
+  <p><span>发布时间:</span>2019年05月17日 - 13:05</p>
+  <p><span>最后更新:</span>2019年05月17日 - 14:05</p>
+  <p><span>原始链接:</span><a href="/2019/05/17/mongodb-to-csv/" title="mongodb数据导出CSV文件">https://jiemin.wang/2019/05/17/mongodb-to-csv/</a>
+    <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://jiemin.wang/2019/05/17/mongodb-to-csv/" aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>
+</div>
+<script>
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({
+          title: "",
+          text: '复制成功',
+          icon: "success",
+          showConfirmButton: true
+          });
+    });
+    });
+</script>
+
+
+          
+    </div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpeg" alt="Wang Jiemin Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MongoDB/" rel="tag"><i class="fa fa-angellist" aria-hidden="true"></i> MongoDB</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/16/mysql-innodb/" rel="next" title="详细的MySQL高性能优化实战总结">
+                <i class="fa fa-chevron-left"></i> 详细的MySQL高性能优化实战总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/XIAOXIN.jpg" alt="Wang Jiemin">
+            
+              <p class="site-author-name" itemprop="name">Wang Jiemin</p>
+              <p class="site-description motion-element" itemprop="description">我从不生产BUG, 我是BUG的搬运工~</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">52</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/WangJiemin" title="GitHub &rarr; https://github.com/WangJiemin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:278667010@qq.com" title="E-Mail &rarr; mailto:278667010@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://zhengshun.wang" title="https://zhengshun.wang" rel="noopener" target="_blank">順子の杂货铺</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.chopmoon.com" title="http://blog.chopmoon.com" rel="noopener" target="_blank">龚义杰BLOG</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#需求"><span class="nav-number">1.</span> <span class="nav-text">需求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#操作"><span class="nav-number">2.</span> <span class="nav-text">操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+      <div id="music163player">
+         <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="298" height="52" src="//music.163.com/outchain/player?type=0&id=2162667159&auto=1&height=32"></iframe>
+      </div>
+
+    </div>
+  </aside>
+ 
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart" aria-hidden="true"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wang Jiemin</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  <!-- 雪花特效 -->
+  <script type="text/javascript" src="//libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
+  <script type="text/javascript">
+    var windowWidth = $(window).width();
+    if (windowWidth > 480) {
+      document.write('<script type="text/javascript" src="/js/src/snow.js"><\/script>');
+    }
+  </script>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/three/three.min.js"></script>
+
+  
+  <script src="true"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.7.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.7.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+        // ref: https://github.com/ForbesLindesay/unescape-html
+        var unescapeHtml = function(html) {
+          return String(html)
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, '\'')
+            .replace(/&#x3A;/g, ':')
+            // replace all the other &#x; chars
+            .replace(/&#(\d+);/g, function (m, p) { return String.fromCharCode(p); })
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&amp;/g, '&');
+        };
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                content = unescapeHtml(content);
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script>
+    
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+
+      Counter('get', '/classes/Counter', { where: JSON.stringify({ url }) })
+        .done(function ({ results }) {
+          if (results.length > 0) {
+            var counter = results[0];
+            
+            Counter('put', `/classes/Counter/${counter.objectId}`, JSON.stringify({ time: { "__op":"Increment", "amount":1 } }))
+            
+            .done(function () {
+                  var $element = $(document.getElementById(url));
+                  $element.find('.leancloud-visitors-count').text(counter.time + 1);
+            })
+            
+            .fail(function ({ responseJSON }) {
+                console.log('Failed to save Visitor num, with error message: ' + responseJSON.error);
+            })
+          } else {
+            
+              var $element = $(document.getElementById(url));
+              $element.find('.leancloud-visitors-count').text('Counter not initialized! See more at console err msg.');
+              console.error('ATTENTION! LeanCloud counter has security bug, see here how to solve it: https://github.com/theme-next/hexo-leancloud-counter-security. \n But you also can use LeanCloud without security, by set \'security\' option to \'false\'.');
+            
+          }
+        })
+      .fail(function ({ responseJSON }) {
+        console.log('LeanCloud Counter Error:' + responseJSON.code + " " + responseJSON.error);
+      });
+    }
+    
+
+    $(function() {
+      $.get('https://app-router.leancloud.cn/2/route?appId=' + "JkYmxXIhi14yw96jpzv7c0h2-gzGzoHsz")
+        .done(function ({ api_server }) {
+          var Counter = function (method, url, data) {
+            return $.ajax({
+              method: method,
+              url: `https://${api_server}/1.1${url}`,
+              headers: {
+                'X-LC-Id': "JkYmxXIhi14yw96jpzv7c0h2-gzGzoHsz",
+                'X-LC-Key': "EHRmraDPk6Tzs7qjIgvbbI5G",
+                'Content-Type': 'application/json',
+              },
+              data: data,
+            });
+          };
+          
+          addCount(Counter);
+          
+        })
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <style>
+    .copy-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 20px;
+      color: #333;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      background-color: #eee;
+      background-image: linear-gradient(#fcfcfc, #eee);
+      border: 1px solid #d5d5d5;
+      border-radius: 3px;
+      user-select: none;
+      outline: 0;
+    }
+
+    .highlight-wrap .copy-btn {
+      transition: opacity .3s ease-in-out;
+      opacity: 0;
+      padding: 2px 6px;
+      position: absolute;
+      right: 4px;
+      top: 8px;
+    }
+
+    .highlight-wrap:hover .copy-btn,
+    .highlight-wrap .copy-btn:focus {
+      opacity: 1
+    }
+
+    .highlight-wrap {
+      position: relative;
+    }
+  </style>
+  <script>
+    $('.highlight').each(function (i, e) {
+      var $wrap = $('<div>').addClass('highlight-wrap');
+      $(e).after($wrap);
+      $wrap.append($('<button>').addClass('copy-btn').append('Copy').on('click', function (e) {
+        var code = $(this).parent().find('.code').find('.line').map(function (i, e) {
+          return $(e).text();
+        }).toArray().join('\n');
+        var ta = document.createElement('textarea');
+        var range = document.createRange(); //For Chrome
+        var sel = window.getSelection(); //For Chrome
+        var yPosition = window.pageYOffset || document.documentElement.scrollTop;
+        ta.style.top = yPosition + 'px'; //Prevent page scroll
+        ta.style.position = 'absolute';
+        ta.style.opacity = '0';
+        ta.value = code;
+        ta.textContent = code; //For FireFox
+        ta.contentEditable = true;
+        ta.readOnly = false;
+        document.body.appendChild(ta);
+        range.selectNode(ta);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        ta.setSelectionRange(0, code.length);
+        var result = document.execCommand('copy');
+        
+          if (result) $(this).text('Copied');
+          else $(this).text('Copy failed');
+        
+        ta.blur(); //For iOS
+        $(this).blur();
+      })).on('mouseleave', function (e) {
+        var $b = $(this).find('.copy-btn');
+        setTimeout(function () {
+          $b.text('Copy');
+        }, 300);
+      }).append(e);
+    })
+  </script>
+
+
+  
+
+</body>
+</html>
