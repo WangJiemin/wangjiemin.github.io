@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://jiemin.wang/2019/05/20/mongodb-aggregate/</loc>
+    
+    <lastmod>2019-05-20T11:19:12.775Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://jiemin.wang/2019/05/17/mongodb-to-csv/</loc>
     
     <lastmod>2019-05-17T06:20:44.896Z</lastmod>
