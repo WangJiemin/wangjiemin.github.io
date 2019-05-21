@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://jiemin.wang/2019/05/21/mongodb-forEach/</loc>
+    
+    <lastmod>2019-05-21T05:08:48.449Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://jiemin.wang/2019/05/20/mongodb-aggregate/</loc>
     
     <lastmod>2019-05-20T11:30:26.055Z</lastmod>
