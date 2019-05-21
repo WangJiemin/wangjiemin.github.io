@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title><![CDATA[mongodb 的 forEach 是用法]]></title>
+    <title><![CDATA[mongodb 的 forEach用法]]></title>
     <url>%2F2019%2F05%2F21%2Fmongodb-forEach%2F</url>
     <content type="text"><![CDATA[努力不一定会成功，可不努力会很轻松哦 MongoDB forEach 说明forEach方法中的function回调有三个参数: 遍历的数组内容 对应的数组索引 数组本身 MongoDB forEach 使用案例MongoDB数据插入、删除、更新、批量更新某个字段批量更新某个字段 例112345db.getCollection('bond_sentiment_news').find({"source" : 2,"siteUrl" : "http://www.21jingji.com/"}).forEach( function(item){ db.getCollection('bond_sentiment_news').update({"_id":item._id},{$set:{"siteName":"21经济网"}}) }) 例212345db.getCollection('my_booking').find({"hospitalName":/xx医院/,openId:/^2/}).forEach( function(item){ db.getCollection('my_booking').update({"_id":item._id},{$set:{"payType": "1"}}) }) 查询出hospitalName是xx医院和openId以2开头的所有记录，并且更新my_booking表中的payType为1. 例312345db.getCollection('my_booking').find({"hospitalName":/运城市中心医院/,openId:{$not:/^2/}}).forEach( function(item){ db.getCollection('my_booking').update({"_id":item._id},{$set:{"outTradeNo1": item.outTradeNo2}}) }) 查询出xx医院和不已2开头的openId的所有记录，并且将每条记录的outTradeNo2赋值给outTradeNo1. MongoDB 数组遍历操作 forEach12345db.User.find().forEach( function(item){ db.User.update({"_id":item._id},{"$set":{"LastUpdate":item.CreateAt}},false,true) }) MongoDB 更新每条数据某个字段的值例112345678910111213141516var begin = 1499675090;var end = 1499675198;var t = begin;while(t]]></content>
       <categories>
