@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-center-simple.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/xiaoxin-01.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/xiaoxin-01.png?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+<script>(function(T,h,i,n,k,P,a,g,e){g=function(){P=h.createElement(i);a=h.getElementsByTagName(i)[0];P.src=k;P.charset="utf-8";P.async=1;a.parentNode.insertBefore(P,a)};T["ThinkPageWeatherWidgetObject"]=n;T[n]||(T[n]=function(){(T[n].q=T[n].q||[]).push(arguments)});T[n].l=+new Date();if(T.attachEvent){T.attachEvent("onload",g)}else{T.addEventListener("load",g,false)}}(window,document,"script","tpwidget","//widget.seniverse.com/widget/chameleon.js"))</script>
+<script>tpwidget("init", {
+    "flavor": "bubble",
+    "location": "WX4FBXXFKE4F",
+    "geolocation": "enabled",
+    "position": "top-right",
+    "margin": "10px 10px",
+    "language": "auto",
+    "unit": "c",
+    "theme": "chameleon",
+    "uid": "U6899A955F",
+    "hash": "3537a35c8bfe0f65e5d773944596793a"
+});
+tpwidget("show");</script>
+
+  <meta name="description" content="每当我找到成功的钥匙，就发现有人把锁芯给换了。  背景操作系统为了适应更多的硬件环境，许多初始的设置值，宽容度都很高。     如果不经调整，这些值可能无法适应HPC，或者硬件稍好些的环境。     无法发挥更好的硬件性能，甚至可能影响某些应用软件的使用，特别是数据库。     数据库关心的OS内核参数512GB 内存为例       1.        参数       12345678910">
+<meta name="keywords" content="Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DBA不可不知的操作系统内核参数">
+<meta property="og:url" content="https://jiemin.wang/2019/05/24/Linux-systemctl-variables/index.html">
+<meta property="og:site_name" content="Jamin Blog">
+<meta property="og:description" content="每当我找到成功的钥匙，就发现有人把锁芯给换了。  背景操作系统为了适应更多的硬件环境，许多初始的设置值，宽容度都很高。     如果不经调整，这些值可能无法适应HPC，或者硬件稍好些的环境。     无法发挥更好的硬件性能，甚至可能影响某些应用软件的使用，特别是数据库。     数据库关心的OS内核参数512GB 内存为例       1.        参数       12345678910">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://jiemin.wang/2019/05/24/Linux-systemctl-variables/images.jpeg">
+<meta property="og:updated_time" content="2019-05-24T10:20:47.604Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DBA不可不知的操作系统内核参数">
+<meta name="twitter:description" content="每当我找到成功的钥匙，就发现有人把锁芯给换了。  背景操作系统为了适应更多的硬件环境，许多初始的设置值，宽容度都很高。     如果不经调整，这些值可能无法适应HPC，或者硬件稍好些的环境。     无法发挥更好的硬件性能，甚至可能影响某些应用软件的使用，特别是数据库。     数据库关心的OS内核参数512GB 内存为例       1.        参数       12345678910">
+<meta name="twitter:image" content="https://jiemin.wang/2019/05/24/Linux-systemctl-variables/images.jpeg">
+
+
+
+
+
+
+  <link rel="canonical" href="https://jiemin.wang/2019/05/24/Linux-systemctl-variables/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>DBA不可不知的操作系统内核参数 | Jamin Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jamin Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">一个不聊技术的 DBA 不是一个好厨子...</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-life">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/coffee" rel="section"><i class="menu-item-icon fa fa-fw fa-coffee"></i> <br>生活中的美好</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>Search</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="Searching..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://jiemin.wang/2019/05/24/Linux-systemctl-variables/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Wang Jiemin">
+      <meta itemprop="description" content="我从不生产BUG, 我是BUG的搬运工~">
+      <meta itemprop="image" content="/images/XIAOXIN.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jamin Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">DBA不可不知的操作系统内核参数
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-05-24 18:15:37 / Modified: 18:20:47" itemprop="dateCreated datePublished" datetime="2019-05-24T18:15:37+08:00">2019-05-24</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/05/24/Linux-systemctl-variables/" class="leancloud_visitors" data-flag-title="DBA不可不知的操作系统内核参数">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Views: </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+                 <span>℃</span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <span itemprop="image" itemscope itemtype="http://schema.org/ImageObject"><img itemprop="url image" src="images.jpeg" class="full-image" alt="alt" title="title"><meta itemprop="width" content="auto"><meta itemprop="height" content="auto"></span>
+<blockquote class="blockquote-center"><p><strong>每当我找到成功的钥匙，就发现有人把锁芯给换了。</strong></p>
+</blockquote>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>操作系统为了适应更多的硬件环境，许多初始的设置值，宽容度都很高。    </p>
+<p>如果不经调整，这些值可能无法适应HPC，或者硬件稍好些的环境。    </p>
+<p>无法发挥更好的硬件性能，甚至可能影响某些应用软件的使用，特别是数据库。    </p>
+<h2 id="数据库关心的OS内核参数"><a href="#数据库关心的OS内核参数" class="headerlink" title="数据库关心的OS内核参数"></a>数据库关心的OS内核参数</h2><p>512GB 内存为例      </p>
+<p>1.     </p>
+<p>  参数      </p>
+<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br><span class="line">404</span><br><span class="line">405</span><br><span class="line">406</span><br><span class="line">407</span><br><span class="line">408</span><br><span class="line">409</span><br><span class="line">410</span><br><span class="line">411</span><br><span class="line">412</span><br><span class="line">413</span><br><span class="line">414</span><br><span class="line">415</span><br><span class="line">416</span><br><span class="line">417</span><br><span class="line">418</span><br><span class="line">419</span><br><span class="line">420</span><br><span class="line">421</span><br><span class="line">422</span><br><span class="line">423</span><br><span class="line">424</span><br><span class="line">425</span><br><span class="line">426</span><br><span class="line">427</span><br><span class="line">428</span><br><span class="line">429</span><br><span class="line">430</span><br><span class="line">431</span><br><span class="line">432</span><br><span class="line">433</span><br><span class="line">434</span><br><span class="line">435</span><br><span class="line">436</span><br><span class="line">437</span><br><span class="line">438</span><br><span class="line">439</span><br><span class="line">440</span><br><span class="line">441</span><br><span class="line">442</span><br><span class="line">443</span><br><span class="line">444</span><br><span class="line">445</span><br><span class="line">446</span><br><span class="line">447</span><br><span class="line">448</span><br><span class="line">449</span><br><span class="line">450</span><br><span class="line">451</span><br><span class="line">452</span><br><span class="line">453</span><br><span class="line">454</span><br><span class="line">455</span><br><span class="line">456</span><br><span class="line">457</span><br><span class="line">458</span><br><span class="line">459</span><br><span class="line">460</span><br><span class="line">461</span><br><span class="line">462</span><br><span class="line">463</span><br><span class="line">464</span><br><span class="line">465</span><br><span class="line">466</span><br><span class="line">467</span><br><span class="line">468</span><br><span class="line">469</span><br><span class="line">470</span><br><span class="line">471</span><br><span class="line">472</span><br><span class="line">473</span><br><span class="line">474</span><br><span class="line">475</span><br><span class="line">476</span><br><span class="line">477</span><br><span class="line">478</span><br><span class="line">479</span><br><span class="line">480</span><br><span class="line">481</span><br><span class="line">482</span><br><span class="line">483</span><br><span class="line">484</span><br><span class="line">485</span><br><span class="line">486</span><br><span class="line">487</span><br><span class="line">488</span><br><span class="line">489</span><br><span class="line">490</span><br><span class="line">491</span><br><span class="line">492</span><br><span class="line">493</span><br><span class="line">494</span><br><span class="line">495</span><br><span class="line">496</span><br><span class="line">497</span><br><span class="line">498</span><br><span class="line">499</span><br><span class="line">500</span><br><span class="line">501</span><br><span class="line">502</span><br><span class="line">503</span><br><span class="line">504</span><br><span class="line">505</span><br><span class="line">506</span><br><span class="line">507</span><br><span class="line">508</span><br><span class="line">509</span><br><span class="line">510</span><br><span class="line">511</span><br><span class="line">512</span><br><span class="line">513</span><br><span class="line">514</span><br><span class="line">515</span><br><span class="line">516</span><br><span class="line">517</span><br><span class="line">518</span><br><span class="line">519</span><br><span class="line">520</span><br><span class="line">521</span><br><span class="line">522</span><br><span class="line">523</span><br><span class="line">524</span><br><span class="line">525</span><br><span class="line">526</span><br><span class="line">527</span><br><span class="line">528</span><br><span class="line">529</span><br><span class="line">530</span><br><span class="line">531</span><br><span class="line">532</span><br><span class="line">533</span><br><span class="line">534</span><br><span class="line">535</span><br><span class="line">536</span><br><span class="line">537</span><br><span class="line">538</span><br><span class="line">539</span><br><span class="line">540</span><br><span class="line">541</span><br><span class="line">542</span><br><span class="line">543</span><br><span class="line">544</span><br><span class="line">545</span><br><span class="line">546</span><br><span class="line">547</span><br><span class="line">548</span><br><span class="line">549</span><br><span class="line">550</span><br><span class="line">551</span><br><span class="line">552</span><br><span class="line">553</span><br><span class="line">554</span><br><span class="line">555</span><br><span class="line">556</span><br><span class="line">557</span><br><span class="line">558</span><br><span class="line">559</span><br><span class="line">560</span><br><span class="line">561</span><br><span class="line">562</span><br><span class="line">563</span><br><span class="line">564</span><br><span class="line">565</span><br><span class="line">566</span><br><span class="line">567</span><br><span class="line">568</span><br><span class="line">569</span><br><span class="line">570</span><br><span class="line">571</span><br><span class="line">572</span><br><span class="line">573</span><br><span class="line">574</span><br><span class="line">575</span><br><span class="line">576</span><br><span class="line">577</span><br><span class="line">578</span><br><span class="line">579</span><br><span class="line">580</span><br><span class="line">581</span><br><span class="line">582</span><br><span class="line">583</span><br><span class="line">584</span><br><span class="line">585</span><br><span class="line">586</span><br><span class="line">587</span><br><span class="line">588</span><br><span class="line">589</span><br><span class="line">590</span><br><span class="line">591</span><br><span class="line">592</span><br><span class="line">593</span><br><span class="line">594</span><br><span class="line">595</span><br><span class="line">596</span><br><span class="line">597</span><br><span class="line">598</span><br><span class="line">599</span><br><span class="line">600</span><br><span class="line">601</span><br><span class="line">602</span><br><span class="line">603</span><br><span class="line">604</span><br><span class="line">605</span><br><span class="line">606</span><br><span class="line">607</span><br><span class="line">608</span><br><span class="line">609</span><br><span class="line">610</span><br><span class="line">611</span><br><span class="line">612</span><br><span class="line">613</span><br><span class="line">614</span><br><span class="line">615</span><br><span class="line">616</span><br><span class="line">617</span><br><span class="line">618</span><br><span class="line">619</span><br><span class="line">620</span><br><span class="line">621</span><br><span class="line">622</span><br><span class="line">623</span><br><span class="line">624</span><br><span class="line">625</span><br><span class="line">626</span><br><span class="line">627</span><br><span class="line">628</span><br><span class="line">629</span><br><span class="line">630</span><br><span class="line">631</span><br><span class="line">632</span><br><span class="line">633</span><br><span class="line">634</span><br><span class="line">635</span><br><span class="line">636</span><br><span class="line">637</span><br><span class="line">638</span><br><span class="line">639</span><br><span class="line">640</span><br><span class="line">641</span><br><span class="line">642</span><br><span class="line">643</span><br><span class="line">644</span><br><span class="line">645</span><br><span class="line">646</span><br><span class="line">647</span><br><span class="line">648</span><br><span class="line">649</span><br><span class="line">650</span><br><span class="line">651</span><br><span class="line">652</span><br><span class="line">653</span><br><span class="line">654</span><br><span class="line">655</span><br><span class="line">656</span><br><span class="line">657</span><br><span class="line">658</span><br><span class="line">659</span><br><span class="line">660</span><br><span class="line">661</span><br><span class="line">662</span><br><span class="line">663</span><br><span class="line">664</span><br><span class="line">665</span><br><span class="line">666</span><br><span class="line">667</span><br><span class="line">668</span><br><span class="line">669</span><br><span class="line">670</span><br><span class="line">671</span><br><span class="line">672</span><br><span class="line">673</span><br><span class="line">674</span><br><span class="line">675</span><br><span class="line">676</span><br><span class="line">677</span><br><span class="line">678</span><br><span class="line">679</span><br><span class="line">680</span><br><span class="line">681</span><br><span class="line">682</span><br><span class="line">683</span><br><span class="line">684</span><br><span class="line">685</span><br><span class="line">686</span><br><span class="line">687</span><br><span class="line">688</span><br><span class="line">689</span><br><span class="line">690</span><br><span class="line">691</span><br><span class="line">692</span><br><span class="line">693</span><br><span class="line">694</span><br><span class="line">695</span><br><span class="line">696</span><br><span class="line">697</span><br><span class="line">698</span><br><span class="line">699</span><br><span class="line">700</span><br><span class="line">701</span><br><span class="line">702</span><br><span class="line">703</span><br><span class="line">704</span><br><span class="line">705</span><br><span class="line">706</span><br><span class="line">707</span><br><span class="line">708</span><br><span class="line">709</span><br><span class="line">710</span><br><span class="line">711</span><br><span class="line">712</span><br><span class="line">713</span><br><span class="line">714</span><br><span class="line">715</span><br><span class="line">716</span><br><span class="line">717</span><br><span class="line">718</span><br><span class="line">719</span><br><span class="line">720</span><br><span class="line">721</span><br><span class="line">722</span><br><span class="line">723</span><br><span class="line">724</span><br><span class="line">725</span><br><span class="line">726</span><br><span class="line">727</span><br><span class="line">728</span><br><span class="line">729</span><br><span class="line">730</span><br><span class="line">731</span><br><span class="line">732</span><br><span class="line">733</span><br><span class="line">734</span><br><span class="line">735</span><br><span class="line">736</span><br><span class="line">737</span><br><span class="line">738</span><br><span class="line">739</span><br><span class="line">740</span><br><span class="line">741</span><br><span class="line">742</span><br><span class="line">743</span><br><span class="line">744</span><br><span class="line">745</span><br><span class="line">746</span><br><span class="line">747</span><br><span class="line">748</span><br><span class="line">749</span><br><span class="line">750</span><br><span class="line">751</span><br><span class="line">752</span><br><span class="line">753</span><br><span class="line">754</span><br><span class="line">755</span><br><span class="line">756</span><br><span class="line">757</span><br><span class="line">758</span><br><span class="line">759</span><br><span class="line">760</span><br><span class="line">761</span><br><span class="line">762</span><br><span class="line">763</span><br><span class="line">764</span><br><span class="line">765</span><br><span class="line">766</span><br><span class="line">767</span><br><span class="line">768</span><br><span class="line">769</span><br><span class="line">770</span><br><span class="line">771</span><br><span class="line">772</span><br><span class="line">773</span><br><span class="line">774</span><br><span class="line">775</span><br><span class="line">776</span><br><span class="line">777</span><br><span class="line">778</span><br><span class="line">779</span><br><span class="line">780</span><br><span class="line">781</span><br><span class="line">782</span><br><span class="line">783</span><br><span class="line">784</span><br><span class="line">785</span><br><span class="line">786</span><br><span class="line">787</span><br><span class="line">788</span><br><span class="line">789</span><br><span class="line">790</span><br><span class="line">791</span><br><span class="line">792</span><br><span class="line">793</span><br><span class="line">794</span><br><span class="line">795</span><br><span class="line">796</span><br><span class="line">797</span><br><span class="line">798</span><br><span class="line">799</span><br><span class="line">800</span><br><span class="line">801</span><br><span class="line">802</span><br><span class="line">803</span><br><span class="line">804</span><br><span class="line">805</span><br><span class="line">806</span><br><span class="line">807</span><br><span class="line">808</span><br><span class="line">809</span><br><span class="line">810</span><br><span class="line">811</span><br><span class="line">812</span><br><span class="line">813</span><br><span class="line">814</span><br><span class="line">815</span><br><span class="line">816</span><br><span class="line">817</span><br><span class="line">818</span><br><span class="line">819</span><br><span class="line">820</span><br><span class="line">821</span><br><span class="line">822</span><br><span class="line">823</span><br><span class="line">824</span><br><span class="line">825</span><br><span class="line">826</span><br><span class="line">827</span><br><span class="line">828</span><br><span class="line">829</span><br><span class="line">830</span><br><span class="line">831</span><br><span class="line">832</span><br><span class="line">833</span><br><span class="line">834</span><br><span class="line">835</span><br><span class="line">836</span><br><span class="line">837</span><br><span class="line">838</span><br><span class="line">839</span><br><span class="line">840</span><br><span class="line">841</span><br><span class="line">842</span><br><span class="line">843</span><br><span class="line">844</span><br><span class="line">845</span><br><span class="line">846</span><br><span class="line">847</span><br><span class="line">848</span><br><span class="line">849</span><br><span class="line">850</span><br><span class="line">851</span><br><span class="line">852</span><br><span class="line">853</span><br><span class="line">854</span><br><span class="line">855</span><br><span class="line">856</span><br><span class="line">857</span><br><span class="line">858</span><br><span class="line">859</span><br><span class="line">860</span><br><span class="line">861</span><br><span class="line">862</span><br><span class="line">863</span><br><span class="line">864</span><br><span class="line">865</span><br><span class="line">866</span><br><span class="line">867</span><br><span class="line">868</span><br><span class="line">869</span><br><span class="line">870</span><br><span class="line">871</span><br><span class="line">872</span><br><span class="line">873</span><br><span class="line">874</span><br><span class="line">875</span><br><span class="line">876</span><br><span class="line">877</span><br><span class="line">878</span><br><span class="line">879</span><br><span class="line">880</span><br><span class="line">881</span><br><span class="line">882</span><br><span class="line">883</span><br><span class="line">884</span><br><span class="line">885</span><br><span class="line">886</span><br><span class="line">887</span><br><span class="line">888</span><br><span class="line">889</span><br><span class="line">890</span><br><span class="line">891</span><br><span class="line">892</span><br><span class="line">893</span><br><span class="line">894</span><br><span class="line">895</span><br><span class="line">896</span><br><span class="line">897</span><br><span class="line">898</span><br><span class="line">899</span><br><span class="line">900</span><br><span class="line">901</span><br><span class="line">902</span><br><span class="line">903</span><br><span class="line">904</span><br><span class="line">905</span><br><span class="line">906</span><br><span class="line">907</span><br><span class="line">908</span><br><span class="line">909</span><br><span class="line">910</span><br><span class="line">911</span><br><span class="line">912</span><br><span class="line">913</span><br><span class="line">914</span><br><span class="line">915</span><br><span class="line">916</span><br><span class="line">917</span><br><span class="line">918</span><br><span class="line">919</span><br><span class="line">920</span><br><span class="line">921</span><br><span class="line">922</span><br><span class="line">923</span><br><span class="line">924</span><br><span class="line">925</span><br><span class="line">926</span><br><span class="line">927</span><br><span class="line">928</span><br><span class="line">929</span><br><span class="line">930</span><br><span class="line">931</span><br><span class="line">932</span><br><span class="line">933</span><br><span class="line">934</span><br><span class="line">935</span><br><span class="line">936</span><br><span class="line">937</span><br><span class="line">938</span><br><span class="line">939</span><br><span class="line">940</span><br><span class="line">941</span><br><span class="line">942</span><br><span class="line">943</span><br><span class="line">944</span><br><span class="line">945</span><br><span class="line">946</span><br><span class="line">947</span><br><span class="line">948</span><br><span class="line">949</span><br><span class="line">950</span><br><span class="line">951</span><br><span class="line">952</span><br><span class="line">953</span><br><span class="line">954</span><br><span class="line">955</span><br><span class="line">956</span><br><span class="line">957</span><br><span class="line">958</span><br><span class="line">959</span><br><span class="line">960</span><br><span class="line">961</span><br><span class="line">962</span><br><span class="line">963</span><br><span class="line">964</span><br><span class="line">965</span><br><span class="line">966</span><br><span class="line">967</span><br><span class="line">968</span><br><span class="line">969</span><br><span class="line">970</span><br><span class="line">971</span><br><span class="line">972</span><br><span class="line">973</span><br><span class="line">974</span><br><span class="line">975</span><br><span class="line">976</span><br><span class="line">977</span><br><span class="line">978</span><br><span class="line">979</span><br><span class="line">980</span><br><span class="line">981</span><br><span class="line">982</span><br><span class="line">983</span><br><span class="line">984</span><br><span class="line">985</span><br><span class="line">986</span><br><span class="line">987</span><br><span class="line">988</span><br><span class="line">989</span><br><span class="line">990</span><br><span class="line">991</span><br><span class="line">992</span><br><span class="line">993</span><br><span class="line">994</span><br><span class="line">995</span><br><span class="line">996</span><br><span class="line">997</span><br><span class="line">998</span><br><span class="line">999</span><br><span class="line">1000</span><br><span class="line">1001</span><br><span class="line">1002</span><br><span class="line">1003</span><br><span class="line">1004</span><br><span class="line">1005</span><br><span class="line">1006</span><br><span class="line">1007</span><br><span class="line">1008</span><br><span class="line">1009</span><br><span class="line">1010</span><br><span class="line">1011</span><br><span class="line">1012</span><br><span class="line">1013</span><br><span class="line">1014</span><br><span class="line">1015</span><br><span class="line">1016</span><br><span class="line">1017</span><br><span class="line">1018</span><br><span class="line">1019</span><br><span class="line">1020</span><br><span class="line">1021</span><br><span class="line">1022</span><br><span class="line">1023</span><br><span class="line">1024</span><br><span class="line">1025</span><br><span class="line">1026</span><br><span class="line">1027</span><br><span class="line">1028</span><br><span class="line">1029</span><br><span class="line">1030</span><br><span class="line">1031</span><br><span class="line">1032</span><br><span class="line">1033</span><br><span class="line">1034</span><br><span class="line">1035</span><br><span class="line">1036</span><br><span class="line">1037</span><br><span class="line">1038</span><br><span class="line">1039</span><br><span class="line">1040</span><br><span class="line">1041</span><br><span class="line">1042</span><br><span class="line">1043</span><br><span class="line">1044</span><br><span class="line">1045</span><br><span class="line">1046</span><br><span class="line">1047</span><br><span class="line">1048</span><br><span class="line">1049</span><br><span class="line">1050</span><br><span class="line">1051</span><br><span class="line">1052</span><br><span class="line">1053</span><br><span class="line">1054</span><br><span class="line">1055</span><br><span class="line">1056</span><br><span class="line">1057</span><br><span class="line">1058</span><br><span class="line">1059</span><br><span class="line">1060</span><br><span class="line">1061</span><br><span class="line">1062</span><br><span class="line">1063</span><br><span class="line">1064</span><br><span class="line">1065</span><br><span class="line">1066</span><br><span class="line">1067</span><br><span class="line">1068</span><br><span class="line">1069</span><br><span class="line">1070</span><br><span class="line">1071</span><br><span class="line">1072</span><br><span class="line">1073</span><br><span class="line">1074</span><br><span class="line">1075</span><br><span class="line">1076</span><br><span class="line">1077</span><br><span class="line">1078</span><br><span class="line">1079</span><br><span class="line">1080</span><br><span class="line">1081</span><br><span class="line">1082</span><br><span class="line">1083</span><br><span class="line">1084</span><br><span class="line">1085</span><br><span class="line">1086</span><br><span class="line">1087</span><br><span class="line">1088</span><br><span class="line">1089</span><br><span class="line">1090</span><br><span class="line">1091</span><br><span class="line">1092</span><br><span class="line">1093</span><br><span class="line">1094</span><br><span class="line">1095</span><br><span class="line">1096</span><br><span class="line">1097</span><br><span class="line">1098</span><br><span class="line">1099</span><br><span class="line">1100</span><br><span class="line">1101</span><br><span class="line">1102</span><br><span class="line">1103</span><br><span class="line">1104</span><br><span class="line">1105</span><br><span class="line">1106</span><br><span class="line">1107</span><br><span class="line">1108</span><br><span class="line">1109</span><br><span class="line">1110</span><br><span class="line">1111</span><br><span class="line">1112</span><br><span class="line">1113</span><br><span class="line">1114</span><br><span class="line">1115</span><br><span class="line">1116</span><br><span class="line">1117</span><br><span class="line">1118</span><br><span class="line">1119</span><br><span class="line">1120</span><br><span class="line">1121</span><br><span class="line">1122</span><br><span class="line">1123</span><br><span class="line">1124</span><br><span class="line">1125</span><br><span class="line">1126</span><br><span class="line">1127</span><br><span class="line">1128</span><br><span class="line">1129</span><br><span class="line">1130</span><br><span class="line">1131</span><br><span class="line">1132</span><br><span class="line">1133</span><br><span class="line">1134</span><br><span class="line">1135</span><br><span class="line">1136</span><br><span class="line">1137</span><br><span class="line">1138</span><br><span class="line">1139</span><br><span class="line">1140</span><br><span class="line">1141</span><br><span class="line">1142</span><br><span class="line">1143</span><br><span class="line">1144</span><br><span class="line">1145</span><br><span class="line">1146</span><br><span class="line">1147</span><br><span class="line">1148</span><br><span class="line">1149</span><br><span class="line">1150</span><br><span class="line">1151</span><br><span class="line">1152</span><br><span class="line">1153</span><br><span class="line">1154</span><br><span class="line">1155</span><br><span class="line">1156</span><br><span class="line">1157</span><br><span class="line">1158</span><br><span class="line">1159</span><br><span class="line">1160</span><br><span class="line">1161</span><br><span class="line">1162</span><br><span class="line">1163</span><br><span class="line">1164</span><br><span class="line">1165</span><br><span class="line">1166</span><br><span class="line">1167</span><br><span class="line">1168</span><br><span class="line">1169</span><br><span class="line">1170</span><br><span class="line">1171</span><br><span class="line">1172</span><br><span class="line">1173</span><br><span class="line">1174</span><br><span class="line">1175</span><br><span class="line">1176</span><br><span class="line">1177</span><br><span class="line">1178</span><br><span class="line">1179</span><br><span class="line">1180</span><br><span class="line">1181</span><br><span class="line">1182</span><br><span class="line">1183</span><br><span class="line">1184</span><br><span class="line">1185</span><br><span class="line">1186</span><br><span class="line">1187</span><br><span class="line">1188</span><br><span class="line">1189</span><br><span class="line">1190</span><br><span class="line">1191</span><br><span class="line">1192</span><br><span class="line">1193</span><br><span class="line">1194</span><br><span class="line">1195</span><br><span class="line">1196</span><br><span class="line">1197</span><br><span class="line">1198</span><br><span class="line">1199</span><br><span class="line">1200</span><br><span class="line">1201</span><br><span class="line">1202</span><br><span class="line">1203</span><br><span class="line">1204</span><br><span class="line">1205</span><br><span class="line">1206</span><br><span class="line">1207</span><br><span class="line">1208</span><br><span class="line">1209</span><br><span class="line">1210</span><br><span class="line">1211</span><br><span class="line">1212</span><br><span class="line">1213</span><br><span class="line">1214</span><br><span class="line">1215</span><br><span class="line">1216</span><br><span class="line">1217</span><br><span class="line">1218</span><br><span class="line">1219</span><br><span class="line">1220</span><br><span class="line">1221</span><br><span class="line">1222</span><br><span class="line">1223</span><br><span class="line">1224</span><br><span class="line">1225</span><br><span class="line">1226</span><br><span class="line">1227</span><br><span class="line">1228</span><br><span class="line">1229</span><br><span class="line">1230</span><br><span class="line">1231</span><br><span class="line">1232</span><br><span class="line">1233</span><br><span class="line">1234</span><br><span class="line">1235</span><br><span class="line">1236</span><br><span class="line">1237</span><br><span class="line">1238</span><br><span class="line">1239</span><br><span class="line">1240</span><br><span class="line">1241</span><br><span class="line">1242</span><br><span class="line">1243</span><br><span class="line">1244</span><br><span class="line">1245</span><br><span class="line">1246</span><br><span class="line">1247</span><br><span class="line">1248</span><br><span class="line">1249</span><br><span class="line">1250</span><br><span class="line">1251</span><br><span class="line">1252</span><br><span class="line">1253</span><br><span class="line">1254</span><br><span class="line">1255</span><br><span class="line">1256</span><br><span class="line">1257</span><br><span class="line">1258</span><br><span class="line">1259</span><br><span class="line">1260</span><br><span class="line">1261</span><br><span class="line">1262</span><br><span class="line">1263</span><br><span class="line">1264</span><br><span class="line">1265</span><br><span class="line">1266</span><br><span class="line">1267</span><br><span class="line">1268</span><br><span class="line">1269</span><br><span class="line">1270</span><br><span class="line">1271</span><br><span class="line">1272</span><br><span class="line">1273</span><br><span class="line">1274</span><br><span class="line">1275</span><br><span class="line">1276</span><br><span class="line">1277</span><br><span class="line">1278</span><br><span class="line">1279</span><br><span class="line">1280</span><br><span class="line">1281</span><br><span class="line">1282</span><br></pre></td><td class="code"><pre><span class="line">fs.aio-max-nr  </span><br><span class="line">```    </span><br><span class="line">      </span><br><span class="line">  支持系统      </span><br><span class="line">  </span><br><span class="line">```    </span><br><span class="line">CentOS 6, 7       </span><br><span class="line">```    </span><br><span class="line">      </span><br><span class="line">  参数解释      </span><br><span class="line">  </span><br><span class="line">```    </span><br><span class="line">aio-nr & aio-max-nr:    </span><br><span class="line">.  </span><br><span class="line">aio-nr is the running total of the number of events specified on the    </span><br><span class="line">io_setup system call for all currently active aio contexts.    </span><br><span class="line">.  </span><br><span class="line">If aio-nr reaches aio-max-nr then io_setup will fail with EAGAIN.    </span><br><span class="line">.  </span><br><span class="line">Note that raising aio-max-nr does not result in the pre-allocation or re-sizing    </span><br><span class="line">of any kernel data structures.    </span><br><span class="line">.  </span><br><span class="line">aio-nr & aio-max-nr:    </span><br><span class="line">.  </span><br><span class="line">aio-nr shows the current system-wide number of asynchronous io requests.    </span><br><span class="line">.  </span><br><span class="line">aio-max-nr allows you to change the maximum value aio-nr can grow to.    </span><br><span class="line">```    </span><br><span class="line">      </span><br><span class="line">  推荐设置       </span><br><span class="line">  </span><br><span class="line">```    </span><br><span class="line">fs.aio-max-nr = 1xxxxxx  </span><br><span class="line">.  </span><br><span class="line">PostgreSQL, Greenplum 均未使用io_setup创建aio contexts. 无需设置。    </span><br><span class="line">如果Oracle数据库，要使用aio的话，需要设置它。    </span><br><span class="line">设置它也没什么坏处，如果将来需要适应异步IO，可以不需要重新修改这个设置。   </span><br><span class="line">```    </span><br><span class="line">      </span><br><span class="line">2\.     </span><br><span class="line">  </span><br><span class="line">  参数       </span><br><span class="line">  </span><br><span class="line">```    </span><br><span class="line">fs.file-max  </span><br><span class="line">```    </span><br><span class="line">      </span><br><span class="line">  支持系统      </span><br><span class="line">  </span><br><span class="line">```    </span><br><span class="line">CentOS 6, 7       </span><br><span class="line">```    </span><br><span class="line">      </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">file-max & file-nr:    </span><br><span class="line">.  </span><br><span class="line">The value in file-max denotes the maximum number of file handles that the Linux kernel will allocate.   </span><br><span class="line">.  </span><br><span class="line">When you get lots of error messages about running out of file handles,   </span><br><span class="line">you might want to increase this limit.    </span><br><span class="line">.  </span><br><span class="line">Historically, the kernel was able to allocate file handles dynamically,   </span><br><span class="line">but not to free them again.     </span><br><span class="line">.  </span><br><span class="line">The three values in file-nr denote :      </span><br><span class="line">the number of allocated file handles ,     </span><br><span class="line">the number of allocated but unused file handles ,     </span><br><span class="line">the maximum number of file handles.     </span><br><span class="line">.  </span><br><span class="line">Linux 2.6 always reports 0 as the number of free    </span><br><span class="line">file handles -- this is not an error, it just means that the    </span><br><span class="line">number of allocated file handles exactly matches the number of    </span><br><span class="line">used file handles.    </span><br><span class="line">.  </span><br><span class="line">Attempts to allocate more file descriptors than file-max are reported with printk,   </span><br><span class="line">look for "VFS: file-max limit <number> reached".    </number></span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">fs.file-max = 7xxxxxxx  </span><br><span class="line">.  </span><br><span class="line">PostgreSQL 有一套自己管理的VFS，真正打开的FD与内核管理的文件打开关闭有一套映射的机制，所以真实情况不需要使用那么多的file handlers。     </span><br><span class="line">max_files_per_process 参数。     </span><br><span class="line">假设1GB内存支撑100个连接，每个连接打开1000个文件，那么一个PG实例需要打开10万个文件，一台机器按512G内存来算可以跑500个PG实例，则需要5000万个file handler。     </span><br><span class="line">以上设置绰绰有余。     </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">3\.    </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">kernel.core_pattern  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7       </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">core_pattern:    </span><br><span class="line">.  </span><br><span class="line">core_pattern is used to specify a core dumpfile pattern name.    </span><br><span class="line">. max length 128 characters; default value is "core"    </span><br><span class="line">. core_pattern is used as a pattern template for the output filename;    </span><br><span class="line">  certain string patterns (beginning with '%') are substituted with    </span><br><span class="line">  their actual values.    </span><br><span class="line">. backward compatibility with core_uses_pid:    </span><br><span class="line">        If core_pattern does not include "%p" (default does not)    </span><br><span class="line">        and core_uses_pid is set, then .PID will be appended to    </span><br><span class="line">        the filename.    </span><br><span class="line">. corename format specifiers:    </span><br><span class="line">        %<nul>  '%' is dropped    </nul></span><br><span class="line">        %%      output one '%'    </span><br><span class="line">        %p      pid    </span><br><span class="line">        %P      global pid (init PID namespace)    </span><br><span class="line">        %i      tid    </span><br><span class="line">        %I      global tid (init PID namespace)    </span><br><span class="line">        %u      uid    </span><br><span class="line">        %g      gid    </span><br><span class="line">        %d      dump mode, matches PR_SET_DUMPABLE and    </span><br><span class="line">                /proc/sys/fs/suid_dumpable    </span><br><span class="line">        %s      signal number    </span><br><span class="line">        %t      UNIX time of dump    </span><br><span class="line">        %h      hostname    </span><br><span class="line">        %e      executable filename (may be shortened)    </span><br><span class="line">        %E      executable path    </span><br><span class="line">        %<other> both are dropped    </other></span><br><span class="line">. If the first character of the pattern is a '|', the kernel will treat    </span><br><span class="line">  the rest of the pattern as a command to run.  The core dump will be    </span><br><span class="line">  written to the standard input of that program instead of to a file.    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">kernel.core_pattern = /xxx/core_%e_%u_%t_%s.%p    </span><br><span class="line">.  </span><br><span class="line">这个目录要777的权限，如果它是个软链，则真实目录需要777的权限  </span><br><span class="line">mkdir /xxx  </span><br><span class="line">chmod 777 /xxx  </span><br><span class="line">留足够的空间  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">4\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">kernel.sem   </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7       </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">kernel.sem = 4096 2147483647 2147483646 512000    </span><br><span class="line">.  </span><br><span class="line">4096 每组多少信号量 (>=17, PostgreSQL 每16个进程一组, 每组需要17个信号量) ,     </span><br><span class="line">2147483647 总共多少信号量 (2^31-1 , 且大于4096*512000 ) ,     </span><br><span class="line">2147483646 每个semop()调用支持多少操作 (2^31-1),     </span><br><span class="line">512000 多少组信号量 (假设每GB支持100个连接, 512GB支持51200个连接, 加上其他进程, > 51200*2/16 绰绰有余)     </span><br><span class="line">.  </span><br><span class="line"># sysctl -w kernel.sem="4096 2147483647 2147483646 512000"    </span><br><span class="line">.  </span><br><span class="line"># ipcs -s -l    </span><br><span class="line">  ------ Semaphore Limits --------    </span><br><span class="line">max number of arrays = 512000    </span><br><span class="line">max semaphores per array = 4096    </span><br><span class="line">max semaphores system wide = 2147483647    </span><br><span class="line">max ops per semop call = 2147483646    </span><br><span class="line">semaphore max value = 32767    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">kernel.sem = 4096 2147483647 2147483646 512000    </span><br><span class="line">.  </span><br><span class="line">4096可能能够适合更多的场景, 所以大点无妨，关键是512000 arrays也够了。    </span><br><span class="line">```  </span><br><span class="line">      </span><br><span class="line">5\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">kernel.shmall = 107374182    </span><br><span class="line">kernel.shmmax = 274877906944    </span><br><span class="line">kernel.shmmni = 819200    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7        </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">假设主机内存 512GB    </span><br><span class="line">.  </span><br><span class="line">shmmax 单个共享内存段最大 256GB (主机内存的一半，单位字节)      </span><br><span class="line">shmall 所有共享内存段加起来最大 (主机内存的80%，单位PAGE)      </span><br><span class="line">shmmni 一共允许创建819200个共享内存段 (每个数据库启动需要2个共享内存段。  将来允许动态创建共享内存段，可能需求量更大)     </span><br><span class="line">.  </span><br><span class="line"># getconf PAGE_SIZE    </span><br><span class="line">4096    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">kernel.shmall = 107374182    </span><br><span class="line">kernel.shmmax = 274877906944    </span><br><span class="line">kernel.shmmni = 819200    </span><br><span class="line">.  </span><br><span class="line">9.2以及以前的版本，数据库启动时，对共享内存段的内存需求非常大，需要考虑以下几点  </span><br><span class="line">Connections:	(1800 + 270 * max_locks_per_transaction) * max_connections  </span><br><span class="line">Autovacuum workers:	(1800 + 270 * max_locks_per_transaction) * autovacuum_max_workers  </span><br><span class="line">Prepared transactions:	(770 + 270 * max_locks_per_transaction) * max_prepared_transactions  </span><br><span class="line">Shared disk buffers:	(block_size + 208) * shared_buffers  </span><br><span class="line">WAL buffers:	(wal_block_size + 8) * wal_buffers  </span><br><span class="line">Fixed space requirements:	770 kB  </span><br><span class="line">.  </span><br><span class="line">以上建议参数根据9.2以前的版本设置，后期的版本同样适用。  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">6\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.core.netdev_max_backlog  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7     </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">netdev_max_backlog    </span><br><span class="line">  ------------------    </span><br><span class="line">Maximum number  of  packets,  queued  on  the  INPUT  side,    </span><br><span class="line">when the interface receives packets faster than kernel can process them.    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.core.netdev_max_backlog=1xxxx    </span><br><span class="line">.  </span><br><span class="line">INPUT链表越长，处理耗费越大，如果用了iptables管理的话，需要加大这个值。    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">7\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.core.rmem_default  </span><br><span class="line">net.core.rmem_max  </span><br><span class="line">net.core.wmem_default  </span><br><span class="line">net.core.wmem_max  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7     </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">rmem_default    </span><br><span class="line">  ------------    </span><br><span class="line">The default setting of the socket receive buffer in bytes.    </span><br><span class="line">.  </span><br><span class="line">rmem_max    </span><br><span class="line">  --------    </span><br><span class="line">The maximum receive socket buffer size in bytes.    </span><br><span class="line">.  </span><br><span class="line">wmem_default    </span><br><span class="line">  ------------    </span><br><span class="line">The default setting (in bytes) of the socket send buffer.    </span><br><span class="line">.  </span><br><span class="line">wmem_max    </span><br><span class="line">  --------    </span><br><span class="line">The maximum send socket buffer size in bytes.    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.core.rmem_default = 262144    </span><br><span class="line">net.core.rmem_max = 4194304    </span><br><span class="line">net.core.wmem_default = 262144    </span><br><span class="line">net.core.wmem_max = 4194304    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">8\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.core.somaxconn   </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7        </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">somaxconn - INTEGER    </span><br><span class="line">        Limit of socket listen() backlog, known in userspace as SOMAXCONN.    </span><br><span class="line">        Defaults to 128.    </span><br><span class="line">	See also tcp_max_syn_backlog for additional tuning for TCP sockets.    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.core.somaxconn=4xxx    </span><br><span class="line">```  </span><br><span class="line">      </span><br><span class="line">9\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.ipv4.tcp_max_syn_backlog  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7         </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">tcp_max_syn_backlog - INTEGER    </span><br><span class="line">        Maximal number of remembered connection requests, which have not    </span><br><span class="line">        received an acknowledgment from connecting client.    </span><br><span class="line">        The minimal value is 128 for low memory machines, and it will    </span><br><span class="line">        increase in proportion to the memory of machine.    </span><br><span class="line">        If server suffers from overload, try increasing this number.    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.ipv4.tcp_max_syn_backlog=4xxx    </span><br><span class="line">pgpool-II 使用了这个值，用于将超过num_init_child以外的连接queue。     </span><br><span class="line">所以这个值决定了有多少连接可以在队列里面等待。    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">10\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.ipv4.tcp_keepalive_intvl=20    </span><br><span class="line">net.ipv4.tcp_keepalive_probes=3    </span><br><span class="line">net.ipv4.tcp_keepalive_time=60     </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7        </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">tcp_keepalive_time - INTEGER    </span><br><span class="line">        How often TCP sends out keepalive messages when keepalive is enabled.    </span><br><span class="line">        Default: 2hours.    </span><br><span class="line">.  </span><br><span class="line">tcp_keepalive_probes - INTEGER    </span><br><span class="line">        How many keepalive probes TCP sends out, until it decides that the    </span><br><span class="line">        connection is broken. Default value: 9.    </span><br><span class="line">.  </span><br><span class="line">tcp_keepalive_intvl - INTEGER    </span><br><span class="line">        How frequently the probes are send out. Multiplied by    </span><br><span class="line">        tcp_keepalive_probes it is time to kill not responding connection,    </span><br><span class="line">        after probes started. Default value: 75sec i.e. connection    </span><br><span class="line">        will be aborted after ~11 minutes of retries.    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置    </span><br><span class="line">    </span><br><span class="line">```  </span><br><span class="line">net.ipv4.tcp_keepalive_intvl=20    </span><br><span class="line">net.ipv4.tcp_keepalive_probes=3    </span><br><span class="line">net.ipv4.tcp_keepalive_time=60    </span><br><span class="line">.  </span><br><span class="line">连接空闲60秒后, 每隔20秒发心跳包, 尝试3次心跳包没有响应，关闭连接。 从开始空闲，到关闭连接总共历时120秒。    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">11\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.ipv4.tcp_mem=8388608 12582912 16777216    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">tcp_mem - vector of 3 INTEGERs: min, pressure, max    </span><br><span class="line">单位 page    </span><br><span class="line">        min: below this number of pages TCP is not bothered about its    </span><br><span class="line">        memory appetite.    </span><br><span class="line">.  </span><br><span class="line">        pressure: when amount of memory allocated by TCP exceeds this number    </span><br><span class="line">        of pages, TCP moderates its memory consumption and enters memory    </span><br><span class="line">        pressure mode, which is exited when memory consumption falls    </span><br><span class="line">        under "min".    </span><br><span class="line">.  </span><br><span class="line">        max: number of pages allowed for queueing by all TCP sockets.    </span><br><span class="line">.  </span><br><span class="line">        Defaults are calculated at boot time from amount of available    </span><br><span class="line">        memory.    </span><br><span class="line">64GB 内存，自动计算的值是这样的    </span><br><span class="line">net.ipv4.tcp_mem = 1539615      2052821 3079230    </span><br><span class="line">.  </span><br><span class="line">512GB 内存，自动计算得到的值是这样的    </span><br><span class="line">net.ipv4.tcp_mem = 49621632     66162176        99243264    </span><br><span class="line">.  </span><br><span class="line">这个参数让操作系统启动时自动计算，问题也不大  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.ipv4.tcp_mem=8388608 12582912 16777216    </span><br><span class="line">.  </span><br><span class="line">这个参数让操作系统启动时自动计算，问题也不大  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">12\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.ipv4.tcp_fin_timeout  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7        </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">tcp_fin_timeout - INTEGER    </span><br><span class="line">        The length of time an orphaned (no longer referenced by any    </span><br><span class="line">        application) connection will remain in the FIN_WAIT_2 state    </span><br><span class="line">        before it is aborted at the local end.  While a perfectly    </span><br><span class="line">        valid "receive only" state for an un-orphaned connection, an    </span><br><span class="line">        orphaned connection in FIN_WAIT_2 state could otherwise wait    </span><br><span class="line">        forever for the remote to close its end of the connection.    </span><br><span class="line">        Cf. tcp_max_orphans    </span><br><span class="line">        Default: 60 seconds    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置    </span><br><span class="line">    </span><br><span class="line">```  </span><br><span class="line">net.ipv4.tcp_fin_timeout=5    </span><br><span class="line">.  </span><br><span class="line">加快僵尸连接回收速度   </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">13\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.ipv4.tcp_synack_retries  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7         </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">tcp_synack_retries - INTEGER    </span><br><span class="line">        Number of times SYNACKs for a passive TCP connection attempt will    </span><br><span class="line">        be retransmitted. Should not be higher than 255. Default value    </span><br><span class="line">        is 5, which corresponds to 31seconds till the last retransmission    </span><br><span class="line">        with the current initial RTO of 1second. With this the final timeout    </span><br><span class="line">        for a passive TCP connection will happen after 63seconds.    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.ipv4.tcp_synack_retries=2    </span><br><span class="line">.  </span><br><span class="line">缩短tcp syncack超时时间  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">14\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.ipv4.tcp_syncookies  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7         </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">tcp_syncookies - BOOLEAN    </span><br><span class="line">        Only valid when the kernel was compiled with CONFIG_SYN_COOKIES    </span><br><span class="line">        Send out syncookies when the syn backlog queue of a socket    </span><br><span class="line">        overflows. This is to prevent against the common 'SYN flood attack'    </span><br><span class="line">        Default: 1    </span><br><span class="line">.  </span><br><span class="line">        Note, that syncookies is fallback facility.    </span><br><span class="line">        It MUST NOT be used to help highly loaded servers to stand    </span><br><span class="line">        against legal connection rate. If you see SYN flood warnings    </span><br><span class="line">        in your logs, but investigation shows that they occur    </span><br><span class="line">        because of overload with legal connections, you should tune    </span><br><span class="line">        another parameters until this warning disappear.    </span><br><span class="line">        See: tcp_max_syn_backlog, tcp_synack_retries, tcp_abort_on_overflow.    </span><br><span class="line">.  </span><br><span class="line">        syncookies seriously violate TCP protocol, do not allow    </span><br><span class="line">        to use TCP extensions, can result in serious degradation    </span><br><span class="line">        of some services (f.e. SMTP relaying), visible not by you,    </span><br><span class="line">        but your clients and relays, contacting you. While you see    </span><br><span class="line">        SYN flood warnings in logs not being really flooded, your server    </span><br><span class="line">        is seriously misconfigured.    </span><br><span class="line">.  </span><br><span class="line">        If you want to test which effects syncookies have to your    </span><br><span class="line">        network connections you can set this knob to 2 to enable    </span><br><span class="line">        unconditionally generation of syncookies.    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.ipv4.tcp_syncookies=1    </span><br><span class="line">.  </span><br><span class="line">防止syn flood攻击   </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">15\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.ipv4.tcp_timestamps  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7         </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">    </span><br><span class="line">```  </span><br><span class="line">tcp_timestamps - BOOLEAN    </span><br><span class="line">        Enable timestamps as defined in RFC1323.    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置      </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.ipv4.tcp_timestamps=1    </span><br><span class="line">.  </span><br><span class="line">tcp_timestamps 是 tcp 协议中的一个扩展项，通过时间戳的方式来检测过来的包以防止 PAWS(Protect Against Wrapped  Sequence numbers)，可以提高 tcp 的性能。  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">16\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.ipv4.tcp_tw_recycle  </span><br><span class="line">net.ipv4.tcp_tw_reuse  </span><br><span class="line">net.ipv4.tcp_max_tw_buckets  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7         </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">tcp_tw_recycle - BOOLEAN    </span><br><span class="line">        Enable fast recycling TIME-WAIT sockets. Default value is 0.    </span><br><span class="line">        It should not be changed without advice/request of technical    </span><br><span class="line">        experts.    </span><br><span class="line">.  </span><br><span class="line">tcp_tw_reuse - BOOLEAN    </span><br><span class="line">        Allow to reuse TIME-WAIT sockets for new connections when it is    </span><br><span class="line">        safe from protocol viewpoint. Default value is 0.    </span><br><span class="line">        It should not be changed without advice/request of technical    </span><br><span class="line">        experts.    </span><br><span class="line">.  </span><br><span class="line">tcp_max_tw_buckets - INTEGER  </span><br><span class="line">        Maximal number of timewait sockets held by system simultaneously.  </span><br><span class="line">        If this number is exceeded time-wait socket is immediately destroyed  </span><br><span class="line">        and warning is printed.   </span><br><span class="line">	This limit exists only to prevent simple DoS attacks,   </span><br><span class="line">	you _must_ not lower the limit artificially,   </span><br><span class="line">        but rather increase it (probably, after increasing installed memory),    </span><br><span class="line">        if network conditions require more than default value.   </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置    </span><br><span class="line">    </span><br><span class="line">```  </span><br><span class="line">net.ipv4.tcp_tw_recycle=0    </span><br><span class="line">net.ipv4.tcp_tw_reuse=1    </span><br><span class="line">net.ipv4.tcp_max_tw_buckets = 2xxxxx    </span><br><span class="line">.  </span><br><span class="line">net.ipv4.tcp_tw_recycle和net.ipv4.tcp_timestamps不建议同时开启    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">17\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.ipv4.tcp_rmem  </span><br><span class="line">net.ipv4.tcp_wmem  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7         </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">tcp_wmem - vector of 3 INTEGERs: min, default, max    </span><br><span class="line">        min: Amount of memory reserved for send buffers for TCP sockets.    </span><br><span class="line">        Each TCP socket has rights to use it due to fact of its birth.    </span><br><span class="line">        Default: 1 page    </span><br><span class="line">.  </span><br><span class="line">        default: initial size of send buffer used by TCP sockets.  This    </span><br><span class="line">        value overrides net.core.wmem_default used by other protocols.    </span><br><span class="line">        It is usually lower than net.core.wmem_default.    </span><br><span class="line">        Default: 16K    </span><br><span class="line">.  </span><br><span class="line">        max: Maximal amount of memory allowed for automatically tuned    </span><br><span class="line">        send buffers for TCP sockets. This value does not override    </span><br><span class="line">        net.core.wmem_max.  Calling setsockopt() with SO_SNDBUF disables    </span><br><span class="line">        automatic tuning of that socket's send buffer size, in which case    </span><br><span class="line">        this value is ignored.    </span><br><span class="line">        Default: between 64K and 4MB, depending on RAM size.    </span><br><span class="line">.  </span><br><span class="line">tcp_rmem - vector of 3 INTEGERs: min, default, max    </span><br><span class="line">        min: Minimal size of receive buffer used by TCP sockets.    </span><br><span class="line">        It is guaranteed to each TCP socket, even under moderate memory    </span><br><span class="line">        pressure.    </span><br><span class="line">        Default: 1 page    </span><br><span class="line">.  </span><br><span class="line">        default: initial size of receive buffer used by TCP sockets.    </span><br><span class="line">        This value overrides net.core.rmem_default used by other protocols.    </span><br><span class="line">        Default: 87380 bytes. This value results in window of 65535 with    </span><br><span class="line">        default setting of tcp_adv_win_scale and tcp_app_win:0 and a bit    </span><br><span class="line">        less for default tcp_app_win. See below about these variables.    </span><br><span class="line">.  </span><br><span class="line">        max: maximal size of receive buffer allowed for automatically    </span><br><span class="line">        selected receiver buffers for TCP socket. This value does not override    </span><br><span class="line">        net.core.rmem_max.  Calling setsockopt() with SO_RCVBUF disables    </span><br><span class="line">        automatic tuning of that socket's receive buffer size, in which    </span><br><span class="line">        case this value is ignored.    </span><br><span class="line">        Default: between 87380B and 6MB, depending on RAM size.    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.ipv4.tcp_rmem=8192 87380 16777216    </span><br><span class="line">net.ipv4.tcp_wmem=8192 65536 16777216    </span><br><span class="line">.  </span><br><span class="line">许多数据库的推荐设置，提高网络性能  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">18\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.nf_conntrack_max  </span><br><span class="line">net.netfilter.nf_conntrack_max  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">nf_conntrack_max - INTEGER    </span><br><span class="line">        Size of connection tracking table.    </span><br><span class="line">	Default value is nf_conntrack_buckets value * 4.    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.nf_conntrack_max=1xxxxxx    </span><br><span class="line">net.netfilter.nf_conntrack_max=1xxxxxx    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">19\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">vm.dirty_background_bytes   </span><br><span class="line">vm.dirty_expire_centisecs   </span><br><span class="line">vm.dirty_ratio   </span><br><span class="line">vm.dirty_writeback_centisecs   </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7        </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">==============================================================    </span><br><span class="line">.  </span><br><span class="line">dirty_background_bytes    </span><br><span class="line">.  </span><br><span class="line">Contains the amount of dirty memory at which the background kernel    </span><br><span class="line">flusher threads will start writeback.    </span><br><span class="line">.  </span><br><span class="line">Note: dirty_background_bytes is the counterpart of dirty_background_ratio. Only    </span><br><span class="line">one of them may be specified at a time. When one sysctl is written it is    </span><br><span class="line">immediately taken into account to evaluate the dirty memory limits and the    </span><br><span class="line">other appears as 0 when read.    </span><br><span class="line">.  </span><br><span class="line">==============================================================    </span><br><span class="line">.  </span><br><span class="line">dirty_background_ratio    </span><br><span class="line">.  </span><br><span class="line">Contains, as a percentage of total system memory, the number of pages at which    </span><br><span class="line">the background kernel flusher threads will start writing out dirty data.    </span><br><span class="line">.  </span><br><span class="line">==============================================================    </span><br><span class="line">.  </span><br><span class="line">dirty_bytes    </span><br><span class="line">.  </span><br><span class="line">Contains the amount of dirty memory at which a process generating disk writes    </span><br><span class="line">will itself start writeback.    </span><br><span class="line">.  </span><br><span class="line">Note: dirty_bytes is the counterpart of dirty_ratio. Only one of them may be    </span><br><span class="line">specified at a time. When one sysctl is written it is immediately taken into    </span><br><span class="line">account to evaluate the dirty memory limits and the other appears as 0 when    </span><br><span class="line">read.    </span><br><span class="line">.  </span><br><span class="line">Note: the minimum value allowed for dirty_bytes is two pages (in bytes); any    </span><br><span class="line">value lower than this limit will be ignored and the old configuration will be    </span><br><span class="line">retained.    </span><br><span class="line">.  </span><br><span class="line">==============================================================    </span><br><span class="line">.  </span><br><span class="line">dirty_expire_centisecs    </span><br><span class="line">.  </span><br><span class="line">This tunable is used to define when dirty data is old enough to be eligible    </span><br><span class="line">for writeout by the kernel flusher threads.  It is expressed in 100'ths    </span><br><span class="line">of a second.  Data which has been dirty in-memory for longer than this    </span><br><span class="line">interval will be written out next time a flusher thread wakes up.    </span><br><span class="line">.  </span><br><span class="line">==============================================================    </span><br><span class="line">.  </span><br><span class="line">dirty_ratio    </span><br><span class="line">.  </span><br><span class="line">Contains, as a percentage of total system memory, the number of pages at which    </span><br><span class="line">a process which is generating disk writes will itself start writing out dirty    </span><br><span class="line">data.    </span><br><span class="line">.  </span><br><span class="line">==============================================================    </span><br><span class="line">.  </span><br><span class="line">dirty_writeback_centisecs    </span><br><span class="line">.  </span><br><span class="line">The kernel flusher threads will periodically wake up and write `old' data    </span><br><span class="line">out to disk.  This tunable expresses the interval between those wakeups, in    </span><br><span class="line">100'ths of a second.    </span><br><span class="line">.  </span><br><span class="line">Setting this to zero disables periodic writeback altogether.    </span><br><span class="line">.  </span><br><span class="line">==============================================================    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">vm.dirty_background_bytes = 4096000000    </span><br><span class="line">vm.dirty_expire_centisecs = 6000    </span><br><span class="line">vm.dirty_ratio = 80    </span><br><span class="line">vm.dirty_writeback_centisecs = 50    </span><br><span class="line">.  </span><br><span class="line">减少数据库进程刷脏页的频率，dirty_background_bytes根据实际IOPS能力以及内存大小设置    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">20\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">vm.extra_free_kbytes  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">extra_free_kbytes    </span><br><span class="line">.  </span><br><span class="line">This parameter tells the VM to keep extra free memory   </span><br><span class="line">between the threshold where background reclaim (kswapd) kicks in,   </span><br><span class="line">and the threshold where direct reclaim (by allocating processes) kicks in.    </span><br><span class="line">.  </span><br><span class="line">This is useful for workloads that require low latency memory allocations    </span><br><span class="line">and have a bounded burstiness in memory allocations,   </span><br><span class="line">for example a realtime application that receives and transmits network traffic    </span><br><span class="line">(causing in-kernel memory allocations) with a maximum total message burst    </span><br><span class="line">size of 200MB may need 200MB of extra free memory to avoid direct reclaim    </span><br><span class="line">related latencies.    </span><br><span class="line">.  </span><br><span class="line">目标是尽量让后台进程回收内存，比用户进程提早多少kbytes回收，因此用户进程可以快速分配内存。    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">vm.extra_free_kbytes=4xxxxxx    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">21\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">vm.min_free_kbytes  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7         </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">min_free_kbytes:    </span><br><span class="line">.  </span><br><span class="line">This is used to force the Linux VM to keep a minimum number    </span><br><span class="line">of kilobytes free.  The VM uses this number to compute a    </span><br><span class="line">watermark[WMARK_MIN] value for each lowmem zone in the system.    </span><br><span class="line">Each lowmem zone gets a number of reserved free pages based    </span><br><span class="line">proportionally on its size.    </span><br><span class="line">.  </span><br><span class="line">Some minimal amount of memory is needed to satisfy PF_MEMALLOC    </span><br><span class="line">allocations; if you set this to lower than 1024KB, your system will    </span><br><span class="line">become subtly broken, and prone to deadlock under high loads.    </span><br><span class="line">.  </span><br><span class="line">Setting this too high will OOM your machine instantly.    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">vm.min_free_kbytes = 2xxxxxx     # vm.min_free_kbytes 建议每32G内存分配1G vm.min_free_kbytes</span><br><span class="line">.  </span><br><span class="line">防止在高负载时系统无响应，减少内存分配死锁概率。    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">22\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">vm.mmap_min_addr  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7       </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">mmap_min_addr    </span><br><span class="line">.  </span><br><span class="line">This file indicates the amount of address space  which a user process will    </span><br><span class="line">be restricted from mmapping.  Since kernel null dereference bugs could    </span><br><span class="line">accidentally operate based on the information in the first couple of pages    </span><br><span class="line">of memory userspace processes should not be allowed to write to them.  By    </span><br><span class="line">default this value is set to 0 and no protections will be enforced by the    </span><br><span class="line">security module.  Setting this value to something like 64k will allow the    </span><br><span class="line">vast majority of applications to work correctly and provide defense in depth    </span><br><span class="line">against future potential kernel bugs.    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">vm.mmap_min_addr=6xxxx    </span><br><span class="line">.  </span><br><span class="line">防止内核隐藏的BUG导致的问题  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">23\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">vm.overcommit_memory   </span><br><span class="line">vm.overcommit_ratio   </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7         </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">==============================================================    </span><br><span class="line">.  </span><br><span class="line">overcommit_kbytes:    </span><br><span class="line">.  </span><br><span class="line">When overcommit_memory is set to 2, the committed address space is not    </span><br><span class="line">permitted to exceed swap plus this amount of physical RAM. See below.    </span><br><span class="line">.  </span><br><span class="line">Note: overcommit_kbytes is the counterpart of overcommit_ratio. Only one    </span><br><span class="line">of them may be specified at a time. Setting one disables the other (which    </span><br><span class="line">then appears as 0 when read).    </span><br><span class="line">.  </span><br><span class="line">==============================================================    </span><br><span class="line">.  </span><br><span class="line">overcommit_memory:    </span><br><span class="line">.  </span><br><span class="line">This value contains a flag that enables memory overcommitment.    </span><br><span class="line">.  </span><br><span class="line">When this flag is 0,   </span><br><span class="line">the kernel attempts to estimate the amount    </span><br><span class="line">of free memory left when userspace requests more memory.    </span><br><span class="line">.  </span><br><span class="line">When this flag is 1,   </span><br><span class="line">the kernel pretends there is always enough memory until it actually runs out.    </span><br><span class="line">.  </span><br><span class="line">When this flag is 2,   </span><br><span class="line">the kernel uses a "never overcommit"    </span><br><span class="line">policy that attempts to prevent any overcommit of memory.    </span><br><span class="line">Note that user_reserve_kbytes affects this policy.    </span><br><span class="line">.  </span><br><span class="line">This feature can be very useful because there are a lot of    </span><br><span class="line">programs that malloc() huge amounts of memory "just-in-case"    </span><br><span class="line">and don't use much of it.    </span><br><span class="line">.  </span><br><span class="line">The default value is 0.    </span><br><span class="line">.  </span><br><span class="line">See Documentation/vm/overcommit-accounting and    </span><br><span class="line">security/commoncap.c::cap_vm_enough_memory() for more information.    </span><br><span class="line">.  </span><br><span class="line">==============================================================    </span><br><span class="line">.  </span><br><span class="line">overcommit_ratio:    </span><br><span class="line">.  </span><br><span class="line">When overcommit_memory is set to 2,   </span><br><span class="line">the committed address space is not permitted to exceed   </span><br><span class="line">      swap + this percentage of physical RAM.    </span><br><span class="line">See above.    </span><br><span class="line">.  </span><br><span class="line">==============================================================    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">vm.overcommit_memory = 0    </span><br><span class="line">vm.overcommit_ratio = 90    </span><br><span class="line">.  </span><br><span class="line">vm.overcommit_memory = 0 时 vm.overcommit_ratio可以不设置   </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">24\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">vm.swappiness   </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7         </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">swappiness    </span><br><span class="line">.  </span><br><span class="line">This control is used to define how aggressive the kernel will swap    </span><br><span class="line">memory pages.    </span><br><span class="line">Higher values will increase agressiveness, lower values    </span><br><span class="line">decrease the amount of swap.    </span><br><span class="line">.  </span><br><span class="line">The default value is 60.    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">vm.swappiness = 0    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">25\.     </span><br><span class="line">  </span><br><span class="line">  参数     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">vm.zone_reclaim_mode   </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7         </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">zone_reclaim_mode:    </span><br><span class="line">.  </span><br><span class="line">Zone_reclaim_mode allows someone to set more or less aggressive approaches to    </span><br><span class="line">reclaim memory when a zone runs out of memory. If it is set to zero then no    </span><br><span class="line">zone reclaim occurs. Allocations will be satisfied from other zones / nodes    </span><br><span class="line">in the system.    </span><br><span class="line">.  </span><br><span class="line">This is value ORed together of    </span><br><span class="line">.  </span><br><span class="line">1       = Zone reclaim on    </span><br><span class="line">2       = Zone reclaim writes dirty pages out    </span><br><span class="line">4       = Zone reclaim swaps pages    </span><br><span class="line">.  </span><br><span class="line">zone_reclaim_mode is disabled by default.  For file servers or workloads    </span><br><span class="line">that benefit from having their data cached, zone_reclaim_mode should be    </span><br><span class="line">left disabled as the caching effect is likely to be more important than    </span><br><span class="line">data locality.    </span><br><span class="line">.  </span><br><span class="line">zone_reclaim may be enabled if it's known that the workload is partitioned    </span><br><span class="line">such that each partition fits within a NUMA node and that accessing remote    </span><br><span class="line">memory would cause a measurable performance reduction.  The page allocator    </span><br><span class="line">will then reclaim easily reusable pages (those page cache pages that are    </span><br><span class="line">currently not used) before allocating off node pages.    </span><br><span class="line">.  </span><br><span class="line">Allowing zone reclaim to write out pages stops processes that are    </span><br><span class="line">writing large amounts of data from dirtying pages on other nodes. Zone    </span><br><span class="line">reclaim will write out dirty pages if a zone fills up and so effectively    </span><br><span class="line">throttle the process. This may decrease the performance of a single process    </span><br><span class="line">since it cannot use all of system memory to buffer the outgoing writes    </span><br><span class="line">anymore but it preserve the memory on other nodes so that the performance    </span><br><span class="line">of other processes running on other nodes will not be affected.    </span><br><span class="line">.  </span><br><span class="line">Allowing regular swap effectively restricts allocations to the local    </span><br><span class="line">node unless explicitly overridden by memory policies or cpuset    </span><br><span class="line">configurations.    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">vm.zone_reclaim_mode=0    </span><br><span class="line">.  </span><br><span class="line">不使用NUMA  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">26\.    </span><br><span class="line">  </span><br><span class="line">  参数  </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.ipv4.ip_local_port_range  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7         </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">ip_local_port_range - 2 INTEGERS  </span><br><span class="line">        Defines the local port range that is used by TCP and UDP to  </span><br><span class="line">        choose the local port. The first number is the first, the  </span><br><span class="line">        second the last local port number. The default values are  </span><br><span class="line">        32768 and 61000 respectively.  </span><br><span class="line">.  </span><br><span class="line">ip_local_reserved_ports - list of comma separated ranges  </span><br><span class="line">        Specify the ports which are reserved for known third-party  </span><br><span class="line">        applications. These ports will not be used by automatic port  </span><br><span class="line">        assignments (e.g. when calling connect() or bind() with port  </span><br><span class="line">        number 0). Explicit port allocation behavior is unchanged.  </span><br><span class="line">.  </span><br><span class="line">        The format used for both input and output is a comma separated  </span><br><span class="line">        list of ranges (e.g. "1,2-4,10-10" for ports 1, 2, 3, 4 and  </span><br><span class="line">        10). Writing to the file will clear all previously reserved  </span><br><span class="line">        ports and update the current list with the one given in the  </span><br><span class="line">        input.  </span><br><span class="line">.  </span><br><span class="line">        Note that ip_local_port_range and ip_local_reserved_ports  </span><br><span class="line">        settings are independent and both are considered by the kernel  </span><br><span class="line">        when determining which ports are available for automatic port  </span><br><span class="line">        assignments.  </span><br><span class="line">.  </span><br><span class="line">        You can reserve ports which are not in the current  </span><br><span class="line">        ip_local_port_range, e.g.:  </span><br><span class="line">.  </span><br><span class="line">        $ cat /proc/sys/net/ipv4/ip_local_port_range  </span><br><span class="line">        32000   61000  </span><br><span class="line">        $ cat /proc/sys/net/ipv4/ip_local_reserved_ports  </span><br><span class="line">        8080,9148  </span><br><span class="line">.  </span><br><span class="line">        although this is redundant. However such a setting is useful  </span><br><span class="line">        if later the port range is changed to a value that will  </span><br><span class="line">        include the reserved ports.  </span><br><span class="line">.  </span><br><span class="line">        Default: Empty  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置     </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">net.ipv4.ip_local_port_range=40000 65535    </span><br><span class="line">.  </span><br><span class="line">限制本地动态端口分配范围，防止占用监听端口。  </span><br><span class="line">```  </span><br><span class="line">      </span><br><span class="line">27\.    </span><br><span class="line">  </span><br><span class="line">  参数    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">  vm.nr_hugepages  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  支持系统    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">CentOS 6, 7  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  参数解释    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">==============================================================  </span><br><span class="line">nr_hugepages  </span><br><span class="line">Change the minimum size of the hugepage pool.  </span><br><span class="line">See Documentation/vm/hugetlbpage.txt  </span><br><span class="line">==============================================================  </span><br><span class="line">nr_overcommit_hugepages  </span><br><span class="line">Change the maximum size of the hugepage pool. The maximum is  </span><br><span class="line">nr_hugepages + nr_overcommit_hugepages.  </span><br><span class="line">See Documentation/vm/hugetlbpage.txt  </span><br><span class="line">.  </span><br><span class="line">The output of "cat /proc/meminfo" will include lines like:  </span><br><span class="line">......  </span><br><span class="line">HugePages_Total: vvv  </span><br><span class="line">HugePages_Free:  www  </span><br><span class="line">HugePages_Rsvd:  xxx  </span><br><span class="line">HugePages_Surp:  yyy  </span><br><span class="line">Hugepagesize:    zzz kB  </span><br><span class="line">.  </span><br><span class="line">where:  </span><br><span class="line">HugePages_Total is the size of the pool of huge pages.  </span><br><span class="line">HugePages_Free  is the number of huge pages in the pool that are not yet  </span><br><span class="line">                allocated.  </span><br><span class="line">HugePages_Rsvd  is short for "reserved," and is the number of huge pages for  </span><br><span class="line">                which a commitment to allocate from the pool has been made,  </span><br><span class="line">                but no allocation has yet been made.  Reserved huge pages  </span><br><span class="line">                guarantee that an application will be able to allocate a  </span><br><span class="line">                huge page from the pool of huge pages at fault time.  </span><br><span class="line">HugePages_Surp  is short for "surplus," and is the number of huge pages in  </span><br><span class="line">                the pool above the value in /proc/sys/vm/nr_hugepages. The  </span><br><span class="line">                maximum number of surplus huge pages is controlled by  </span><br><span class="line">                /proc/sys/vm/nr_overcommit_hugepages.  </span><br><span class="line">.  </span><br><span class="line">/proc/filesystems should also show a filesystem of type "hugetlbfs" configured  </span><br><span class="line">in the kernel.  </span><br><span class="line">.  </span><br><span class="line">/proc/sys/vm/nr_hugepages indicates the current number of "persistent" huge  </span><br><span class="line">pages in the kernel's huge page pool.  "Persistent" huge pages will be  </span><br><span class="line">returned to the huge page pool when freed by a task.  A user with root  </span><br><span class="line">privileges can dynamically allocate more or free some persistent huge pages  </span><br><span class="line">by increasing or decreasing the value of 'nr_hugepages'.  </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">  推荐设置    </span><br><span class="line">  </span><br><span class="line">```  </span><br><span class="line">如果要使用PostgreSQL的huge page，建议设置它。    </span><br><span class="line">大于数据库需要的共享内存即可。    </span><br><span class="line">```  </span><br><span class="line">    </span><br><span class="line">28\.</span><br><span class="line"></span><br><span class="line">  参数</span><br></pre></td></tr></tbody></table></figure>
+<p>  fs.nr_open<br></p><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">支持系统</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>CentOS 6, 7<br></p><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">参数解释</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>nr_open:</p>
+<p>This denotes the maximum number of file-handles a process can<br>allocate. Default value is 1024*1024 (1048576) which should be<br>enough for most machines. Actual limit depends on RLIMIT_NOFILE<br>resource limit.</p>
+<p>它还影响security/limits.conf 的文件句柄限制，单个进程的打开句柄不能大于fs.nr_open，所以要加大文件句柄限制，首先要加大nr_open</p>
+<pre><code>
+推荐设置
+
+</code></pre><p>对于有很多对象（表、视图、索引、序列、物化视图等）的PostgreSQL数据库，建议设置为2000万，<br>例如fs.nr_open=20480000</p>
+<pre><code>
+## 数据库关心的资源限制  
+1\. 通过/etc/security/limits.conf设置，或者ulimit设置    
+
+2\. 通过/proc/$pid/limits查看当前进程的设置    
+
+</code></pre><h1 id="core-limits-the-core-file-size-KB"><a href="#core-limits-the-core-file-size-KB" class="headerlink" title="- core - limits the core file size (KB)"></a>- core - limits the core file size (KB)</h1><h1 id="memlock-max-locked-in-memory-address-space-KB"><a href="#memlock-max-locked-in-memory-address-space-KB" class="headerlink" title="- memlock - max locked-in-memory address space (KB)"></a>- memlock - max locked-in-memory address space (KB)</h1><h1 id="nofile-max-number-of-open-files-建议设置为1000万-但是必须设置sysctl-fs-nr-open大于它，否则会导致系统无法登陆。"><a href="#nofile-max-number-of-open-files-建议设置为1000万-但是必须设置sysctl-fs-nr-open大于它，否则会导致系统无法登陆。" class="headerlink" title="- nofile - max number of open files  建议设置为1000万 , 但是必须设置sysctl, fs.nr_open大于它，否则会导致系统无法登陆。"></a>- nofile - max number of open files  建议设置为1000万 , 但是必须设置sysctl, fs.nr_open大于它，否则会导致系统无法登陆。</h1><h1 id="nproc-max-number-of-processes"><a href="#nproc-max-number-of-processes" class="headerlink" title="- nproc - max number of processes"></a>- nproc - max number of processes</h1><p>以上四个是非常关心的配置<br>….  </p>
+<h1 id="data-max-data-size-KB"><a href="#data-max-data-size-KB" class="headerlink" title="- data - max data size (KB)"></a>- data - max data size (KB)</h1><h1 id="fsize-maximum-filesize-KB"><a href="#fsize-maximum-filesize-KB" class="headerlink" title="- fsize - maximum filesize (KB)"></a>- fsize - maximum filesize (KB)</h1><h1 id="rss-max-resident-set-size-KB"><a href="#rss-max-resident-set-size-KB" class="headerlink" title="- rss - max resident set size (KB)"></a>- rss - max resident set size (KB)</h1><h1 id="stack-max-stack-size-KB"><a href="#stack-max-stack-size-KB" class="headerlink" title="- stack - max stack size (KB)"></a>- stack - max stack size (KB)</h1><h1 id="cpu-max-CPU-time-MIN"><a href="#cpu-max-CPU-time-MIN" class="headerlink" title="- cpu - max CPU time (MIN)"></a>- cpu - max CPU time (MIN)</h1><h1 id="as-address-space-limit-KB"><a href="#as-address-space-limit-KB" class="headerlink" title="- as - address space limit (KB)"></a>- as - address space limit (KB)</h1><h1 id="maxlogins-max-number-of-logins-for-this-user"><a href="#maxlogins-max-number-of-logins-for-this-user" class="headerlink" title="- maxlogins - max number of logins for this user"></a>- maxlogins - max number of logins for this user</h1><h1 id="maxsyslogins-max-number-of-logins-on-the-system"><a href="#maxsyslogins-max-number-of-logins-on-the-system" class="headerlink" title="- maxsyslogins - max number of logins on the system"></a>- maxsyslogins - max number of logins on the system</h1><h1 id="priority-the-priority-to-run-user-process-with"><a href="#priority-the-priority-to-run-user-process-with" class="headerlink" title="- priority - the priority to run user process with"></a>- priority - the priority to run user process with</h1><h1 id="locks-max-number-of-file-locks-the-user-can-hold"><a href="#locks-max-number-of-file-locks-the-user-can-hold" class="headerlink" title="- locks - max number of file locks the user can hold"></a>- locks - max number of file locks the user can hold</h1><h1 id="sigpending-max-number-of-pending-signals"><a href="#sigpending-max-number-of-pending-signals" class="headerlink" title="- sigpending - max number of pending signals"></a>- sigpending - max number of pending signals</h1><h1 id="msgqueue-max-memory-used-by-POSIX-message-queues-bytes"><a href="#msgqueue-max-memory-used-by-POSIX-message-queues-bytes" class="headerlink" title="- msgqueue - max memory used by POSIX message queues (bytes)"></a>- msgqueue - max memory used by POSIX message queues (bytes)</h1><h1 id="nice-max-nice-priority-allowed-to-raise-to-values-20-19"><a href="#nice-max-nice-priority-allowed-to-raise-to-values-20-19" class="headerlink" title="- nice - max nice priority allowed to raise to values: [-20, 19]"></a>- nice - max nice priority allowed to raise to values: [-20, 19]</h1><h1 id="rtprio-max-realtime-priority"><a href="#rtprio-max-realtime-priority" class="headerlink" title="- rtprio - max realtime priority"></a>- rtprio - max realtime priority</h1><pre><code>
+## 数据库关心的IO调度规则  
+1\. 目前操作系统支持的IO调度策略包括cfq, deadline, noop 等。    
+
+</code></pre><p>/kernel-doc-xxx/Documentation/block<br>-r–r–r– 1 root root   674 Apr  8 16:33 00-INDEX<br>-r–r–r– 1 root root 55006 Apr  8 16:33 biodoc.txt<br>-r–r–r– 1 root root   618 Apr  8 16:33 capability.txt<br>-r–r–r– 1 root root 12791 Apr  8 16:33 cfq-iosched.txt<br>-r–r–r– 1 root root 13815 Apr  8 16:33 data-integrity.txt<br>-r–r–r– 1 root root  2841 Apr  8 16:33 deadline-iosched.txt<br>-r–r–r– 1 root root  4713 Apr  8 16:33 ioprio.txt<br>-r–r–r– 1 root root  2535 Apr  8 16:33 null_blk.txt<br>-r–r–r– 1 root root  4896 Apr  8 16:33 queue-sysfs.txt<br>-r–r–r– 1 root root  2075 Apr  8 16:33 request.txt<br>-r–r–r– 1 root root  3272 Apr  8 16:33 stat.txt<br>-r–r–r– 1 root root  1414 Apr  8 16:33 switching-sched.txt<br>-r–r–r– 1 root root  3916 Apr  8 16:33 writeback_cache_control.txt  </p>
+<pre><code>
+如果你要详细了解这些调度策略的规则，可以查看WIKI或者看内核文档。    
+
+从这里可以看到它的调度策略  
+
+</code></pre><p>cat /sys/block/vdb/queue/scheduler<br>noop [deadline] cfq   </p>
+<pre><code>
+修改    
+
+</code></pre><p>echo deadline > /sys/block/hda/queue/scheduler  </p>
+<pre><code>
+或者修改启动参数    
+
+</code></pre><p>grub.conf<br>elevator=deadline<br><code>`</code>  </p>
+<p>  从很多测试结果来看，数据库使用deadline调度，性能会更稳定一些。      </p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>1. 关闭透明大页  </p>
+<p>2. 禁用NUMA  </p>
+<p>3. SSD的对齐  </p>
+<script>
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return; }
+            const img = document.createElement('img');
+            img.style = 'display:none !important;';
+            img.src = el.dataset.src;
+            img.addEventListener('error', () => {
+              img.remove();
+              el.style.color = 'inherit';
+              el.style.backgroundImage = 'none';
+              el.style.background = 'none';
+            });
+            img.addEventListener('load', () => {
+              img.remove();
+            });
+            document.body.appendChild(img);
+          });
+      </script>
+      
+    </div>
+
+    
+
+    
+    
+    
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+      
+    </div>
+
+    <div>
+          
+            
+
+          
+    </div>
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div></div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpeg" alt="Wang Jiemin Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"><i class="fa fa-angellist" aria-hidden="true"></i> Linux</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/21/mongodb-forEach/" rel="next" title="mongodb 的 forEach用法">
+                <i class="fa fa-chevron-left"></i> mongodb 的 forEach用法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/XIAOXIN.jpg" alt="Wang Jiemin">
+            
+              <p class="site-author-name" itemprop="name">Wang Jiemin</p>
+              <p class="site-description motion-element" itemprop="description">我从不生产BUG, 我是BUG的搬运工~</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">55</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/WangJiemin" title="GitHub &rarr; https://github.com/WangJiemin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:278667010@qq.com" title="E-Mail &rarr; mailto:278667010@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://zhengshun.wang" title="https://zhengshun.wang" rel="noopener" target="_blank">順子の杂货铺</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.chopmoon.com" title="http://blog.chopmoon.com" rel="noopener" target="_blank">龚义杰BLOG</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据库关心的OS内核参数"><span class="nav-number">2.</span> <span class="nav-text">数据库关心的OS内核参数</span></a></li></ol><li class="nav-item nav-level-1"><a class="nav-link" href="#core-limits-the-core-file-size-KB"><span class="nav-number"></span> <span class="nav-text">- core - limits the core file size (KB)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#memlock-max-locked-in-memory-address-space-KB"><span class="nav-number"></span> <span class="nav-text">- memlock - max locked-in-memory address space (KB)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#nofile-max-number-of-open-files-建议设置为1000万-但是必须设置sysctl-fs-nr-open大于它，否则会导致系统无法登陆。"><span class="nav-number"></span> <span class="nav-text">- nofile - max number of open files  建议设置为1000万 , 但是必须设置sysctl, fs.nr_open大于它，否则会导致系统无法登陆。</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#nproc-max-number-of-processes"><span class="nav-number"></span> <span class="nav-text">- nproc - max number of processes</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#data-max-data-size-KB"><span class="nav-number"></span> <span class="nav-text">- data - max data size (KB)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#fsize-maximum-filesize-KB"><span class="nav-number"></span> <span class="nav-text">- fsize - maximum filesize (KB)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#rss-max-resident-set-size-KB"><span class="nav-number"></span> <span class="nav-text">- rss - max resident set size (KB)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#stack-max-stack-size-KB"><span class="nav-number"></span> <span class="nav-text">- stack - max stack size (KB)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#cpu-max-CPU-time-MIN"><span class="nav-number"></span> <span class="nav-text">- cpu - max CPU time (MIN)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#as-address-space-limit-KB"><span class="nav-number"></span> <span class="nav-text">- as - address space limit (KB)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#maxlogins-max-number-of-logins-for-this-user"><span class="nav-number"></span> <span class="nav-text">- maxlogins - max number of logins for this user</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#maxsyslogins-max-number-of-logins-on-the-system"><span class="nav-number"></span> <span class="nav-text">- maxsyslogins - max number of logins on the system</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#priority-the-priority-to-run-user-process-with"><span class="nav-number"></span> <span class="nav-text">- priority - the priority to run user process with</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#locks-max-number-of-file-locks-the-user-can-hold"><span class="nav-number"></span> <span class="nav-text">- locks - max number of file locks the user can hold</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#sigpending-max-number-of-pending-signals"><span class="nav-number"></span> <span class="nav-text">- sigpending - max number of pending signals</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#msgqueue-max-memory-used-by-POSIX-message-queues-bytes"><span class="nav-number"></span> <span class="nav-text">- msgqueue - max memory used by POSIX message queues (bytes)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#nice-max-nice-priority-allowed-to-raise-to-values-20-19"><span class="nav-number"></span> <span class="nav-text">- nice - max nice priority allowed to raise to values: [-20, 19]</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#rtprio-max-realtime-priority"><span class="nav-number"></span> <span class="nav-text">- rtprio - max realtime priority</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#其他"><span class="nav-number">1.</span> <span class="nav-text">其他</span></a></li></ol></li></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+      <div id="music163player">
+         <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="298" height="52" src="//music.163.com/outchain/player?type=0&id=2162667159&auto=1&height=32"></iframe>
+      </div>
+
+    </div>
+  </aside>
+ 
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart" aria-hidden="true"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wang Jiemin</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  <!-- 雪花特效 -->
+  <script type="text/javascript" src="//libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
+  <script type="text/javascript">
+    var windowWidth = $(window).width();
+    if (windowWidth > 480) {
+      document.write('<script type="text/javascript" src="/js/src/snow.js"><\/script>');
+    }
+  </script>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/three/three.min.js"></script>
+
+  
+  <script src="true"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.7.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.7.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+        // ref: https://github.com/ForbesLindesay/unescape-html
+        var unescapeHtml = function(html) {
+          return String(html)
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, '\'')
+            .replace(/&#x3A;/g, ':')
+            // replace all the other &#x; chars
+            .replace(/&#(\d+);/g, function (m, p) { return String.fromCharCode(p); })
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&amp;/g, '&');
+        };
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                content = unescapeHtml(content);
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script>
+    
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+
+      Counter('get', '/classes/Counter', { where: JSON.stringify({ url }) })
+        .done(function ({ results }) {
+          if (results.length > 0) {
+            var counter = results[0];
+            
+            Counter('put', `/classes/Counter/${counter.objectId}`, JSON.stringify({ time: { "__op":"Increment", "amount":1 } }))
+            
+            .done(function () {
+                  var $element = $(document.getElementById(url));
+                  $element.find('.leancloud-visitors-count').text(counter.time + 1);
+            })
+            
+            .fail(function ({ responseJSON }) {
+                console.log('Failed to save Visitor num, with error message: ' + responseJSON.error);
+            })
+          } else {
+            
+              var $element = $(document.getElementById(url));
+              $element.find('.leancloud-visitors-count').text('Counter not initialized! See more at console err msg.');
+              console.error('ATTENTION! LeanCloud counter has security bug, see here how to solve it: https://github.com/theme-next/hexo-leancloud-counter-security. \n But you also can use LeanCloud without security, by set \'security\' option to \'false\'.');
+            
+          }
+        })
+      .fail(function ({ responseJSON }) {
+        console.log('LeanCloud Counter Error:' + responseJSON.code + " " + responseJSON.error);
+      });
+    }
+    
+
+    $(function() {
+      $.get('https://app-router.leancloud.cn/2/route?appId=' + "JkYmxXIhi14yw96jpzv7c0h2-gzGzoHsz")
+        .done(function ({ api_server }) {
+          var Counter = function (method, url, data) {
+            return $.ajax({
+              method: method,
+              url: `https://${api_server}/1.1${url}`,
+              headers: {
+                'X-LC-Id': "JkYmxXIhi14yw96jpzv7c0h2-gzGzoHsz",
+                'X-LC-Key': "EHRmraDPk6Tzs7qjIgvbbI5G",
+                'Content-Type': 'application/json',
+              },
+              data: data,
+            });
+          };
+          
+          addCount(Counter);
+          
+        })
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <style>
+    .copy-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 20px;
+      color: #333;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      background-color: #eee;
+      background-image: linear-gradient(#fcfcfc, #eee);
+      border: 1px solid #d5d5d5;
+      border-radius: 3px;
+      user-select: none;
+      outline: 0;
+    }
+
+    .highlight-wrap .copy-btn {
+      transition: opacity .3s ease-in-out;
+      opacity: 0;
+      padding: 2px 6px;
+      position: absolute;
+      right: 4px;
+      top: 8px;
+    }
+
+    .highlight-wrap:hover .copy-btn,
+    .highlight-wrap .copy-btn:focus {
+      opacity: 1
+    }
+
+    .highlight-wrap {
+      position: relative;
+    }
+  </style>
+  <script>
+    $('.highlight').each(function (i, e) {
+      var $wrap = $('<div>').addClass('highlight-wrap');
+      $(e).after($wrap);
+      $wrap.append($('<button>').addClass('copy-btn').append('Copy').on('click', function (e) {
+        var code = $(this).parent().find('.code').find('.line').map(function (i, e) {
+          return $(e).text();
+        }).toArray().join('\n');
+        var ta = document.createElement('textarea');
+        var range = document.createRange(); //For Chrome
+        var sel = window.getSelection(); //For Chrome
+        var yPosition = window.pageYOffset || document.documentElement.scrollTop;
+        ta.style.top = yPosition + 'px'; //Prevent page scroll
+        ta.style.position = 'absolute';
+        ta.style.opacity = '0';
+        ta.value = code;
+        ta.textContent = code; //For FireFox
+        ta.contentEditable = true;
+        ta.readOnly = false;
+        document.body.appendChild(ta);
+        range.selectNode(ta);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        ta.setSelectionRange(0, code.length);
+        var result = document.execCommand('copy');
+        
+          if (result) $(this).text('Copied');
+          else $(this).text('Copy failed');
+        
+        ta.blur(); //For iOS
+        $(this).blur();
+      })).on('mouseleave', function (e) {
+        var $b = $(this).find('.copy-btn');
+        setTimeout(function () {
+          $b.text('Copy');
+        }, 300);
+      }).append(e);
+    })
+  </script>
+
+
+  
+
+</body>
+</html>
