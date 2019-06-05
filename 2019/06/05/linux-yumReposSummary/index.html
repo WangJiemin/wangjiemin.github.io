@@ -118,25 +118,27 @@
 });
 tpwidget("show");</script>
 
-  <meta name="description" content="前言对于e2fsck 而言，有两个特点，如果文件系统是健康的，可以很快完成，3秒之内解决战斗，但是确实存在error的情况下，可能耗时非常久，这种情况下，进度汇报是非常重要的，如果一个文件系统需要修复几个小时，又没有进度汇报，人会抓狂的。实时检查 e2fsck 进度的方法在e2fsck 进行的时候，在另外一个终端向e2fsck 进程发送SIGUSR1信号。1watch -n 5 kill -10">
+  <meta name="description" content="出卖自己的灵魂和原则并不丢人，丢人的是没能卖一个好价钱。  前言CentOS系统带有几个官方源，默认启用的仅有base, updates和extras三个。如果希望从源安装Nginx，高版本的gcc/PHP等软件，则要导入提供软件包的第三方源。本文整理常见的第三方yum源，并以CentOS 7为例介绍其安装方法。 第三方yum源EPELEPEL是Extra Packages for Enterp">
 <meta name="keywords" content="Linux">
 <meta property="og:type" content="article">
-<meta property="og:title" content="check e2fsck progress realtime">
-<meta property="og:url" content="https://jiemin.wang/2019/03/11/check-e2fsck-progress-realtime/index.html">
+<meta property="og:title" content="Linux 常用yum源整理">
+<meta property="og:url" content="https://jiemin.wang/2019/06/05/linux-yumReposSummary/index.html">
 <meta property="og:site_name" content="Jamin Blog">
-<meta property="og:description" content="前言对于e2fsck 而言，有两个特点，如果文件系统是健康的，可以很快完成，3秒之内解决战斗，但是确实存在error的情况下，可能耗时非常久，这种情况下，进度汇报是非常重要的，如果一个文件系统需要修复几个小时，又没有进度汇报，人会抓狂的。实时检查 e2fsck 进度的方法在e2fsck 进行的时候，在另外一个终端向e2fsck 进程发送SIGUSR1信号。1watch -n 5 kill -10">
+<meta property="og:description" content="出卖自己的灵魂和原则并不丢人，丢人的是没能卖一个好价钱。  前言CentOS系统带有几个官方源，默认启用的仅有base, updates和extras三个。如果希望从源安装Nginx，高版本的gcc/PHP等软件，则要导入提供软件包的第三方源。本文整理常见的第三方yum源，并以CentOS 7为例介绍其安装方法。 第三方yum源EPELEPEL是Extra Packages for Enterp">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-03-11T13:31:59.698Z">
+<meta property="og:image" content="https://jiemin.wang/2019/06/05/linux-yumReposSummary/fm461.jpg">
+<meta property="og:updated_time" content="2019-06-05T02:59:17.283Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="check e2fsck progress realtime">
-<meta name="twitter:description" content="前言对于e2fsck 而言，有两个特点，如果文件系统是健康的，可以很快完成，3秒之内解决战斗，但是确实存在error的情况下，可能耗时非常久，这种情况下，进度汇报是非常重要的，如果一个文件系统需要修复几个小时，又没有进度汇报，人会抓狂的。实时检查 e2fsck 进度的方法在e2fsck 进行的时候，在另外一个终端向e2fsck 进程发送SIGUSR1信号。1watch -n 5 kill -10">
+<meta name="twitter:title" content="Linux 常用yum源整理">
+<meta name="twitter:description" content="出卖自己的灵魂和原则并不丢人，丢人的是没能卖一个好价钱。  前言CentOS系统带有几个官方源，默认启用的仅有base, updates和extras三个。如果希望从源安装Nginx，高版本的gcc/PHP等软件，则要导入提供软件包的第三方源。本文整理常见的第三方yum源，并以CentOS 7为例介绍其安装方法。 第三方yum源EPELEPEL是Extra Packages for Enterp">
+<meta name="twitter:image" content="https://jiemin.wang/2019/06/05/linux-yumReposSummary/fm461.jpg">
 
 
 
 
 
 
-  <link rel="canonical" href="https://jiemin.wang/2019/03/11/check-e2fsck-progress-realtime/">
+  <link rel="canonical" href="https://jiemin.wang/2019/06/05/linux-yumReposSummary/">
 
 
 
@@ -146,7 +148,7 @@ tpwidget("show");</script>
   };
 </script>
 
-  <title>check e2fsck progress realtime | Jamin Blog</title>
+  <title>Linux 常用yum源整理 | Jamin Blog</title>
   
 
 
@@ -412,7 +414,7 @@ tpwidget("show");</script>
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://jiemin.wang/2019/03/11/check-e2fsck-progress-realtime/">
+    <link itemprop="mainEntityOfPage" href="https://jiemin.wang/2019/06/05/linux-yumReposSummary/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Wang Jiemin">
@@ -429,7 +431,7 @@ tpwidget("show");</script>
 
         
         
-          <h1 class="post-title" itemprop="name headline">check e2fsck progress realtime
+          <h1 class="post-title" itemprop="name headline">Linux 常用yum源整理
 
               
             
@@ -455,7 +457,7 @@ tpwidget("show");</script>
                 
               
 
-              <time title="Created: 2019-03-11 21:30:24 / Modified: 21:31:59" itemprop="dateCreated datePublished" datetime="2019-03-11T21:30:24+08:00">2019-03-11</time>
+              <time title="Created: 2019-06-05 10:48:58 / Modified: 10:59:17" itemprop="dateCreated datePublished" datetime="2019-06-05T10:48:58+08:00">2019-06-05</time>
             
 
             
@@ -491,7 +493,7 @@ tpwidget("show");</script>
 
           
           
-             <span id="/2019/03/11/check-e2fsck-progress-realtime/" class="leancloud_visitors" data-flag-title="check e2fsck progress realtime">
+             <span id="/2019/06/05/linux-yumReposSummary/" class="leancloud_visitors" data-flag-title="Linux 常用yum源整理">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -523,10 +525,44 @@ tpwidget("show");</script>
       
 
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h4 id="对于e2fsck-而言，有两个特点，如果文件系统是健康的，可以很快完成，3秒之内解决战斗，但是确实存在error的情况下，可能耗时非常久，这种情况下，进度汇报是非常重要的，如果一个文件系统需要修复几个小时，又没有进度汇报，人会抓狂的。"><a href="#对于e2fsck-而言，有两个特点，如果文件系统是健康的，可以很快完成，3秒之内解决战斗，但是确实存在error的情况下，可能耗时非常久，这种情况下，进度汇报是非常重要的，如果一个文件系统需要修复几个小时，又没有进度汇报，人会抓狂的。" class="headerlink" title="对于e2fsck 而言，有两个特点，如果文件系统是健康的，可以很快完成，3秒之内解决战斗，但是确实存在error的情况下，可能耗时非常久，这种情况下，进度汇报是非常重要的，如果一个文件系统需要修复几个小时，又没有进度汇报，人会抓狂的。"></a>对于e2fsck 而言，有两个特点，如果文件系统是健康的，可以很快完成，3秒之内解决战斗，但是确实存在error的情况下，可能耗时非常久，这种情况下，进度汇报是非常重要的，如果一个文件系统需要修复几个小时，又没有进度汇报，人会抓狂的。</h4><h2 id="实时检查-e2fsck-进度的方法"><a href="#实时检查-e2fsck-进度的方法" class="headerlink" title="实时检查 e2fsck 进度的方法"></a>实时检查 e2fsck 进度的方法</h2><p>在e2fsck 进行的时候，在另外一个终端向e2fsck 进程发送SIGUSR1信号。<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">watch -n 5 <span class="built_in">kill</span> -10 `pidof e2fsck`</span><br></pre></td></tr></tbody></table></figure><p></p>
-<p>在e2fsck调用的终端上，就会每5秒钟显示一下实时的进度。<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">e2fsck 1.42 (29-Nov-2011)</span><br><span class="line">/dev/dm-19 contains a file system with errors, check forced.</span><br><span class="line">Pass 1: Checking inodes, blocks, and sizes</span><br><span class="line">Pass 2: Checking directory structure                                           </span><br><span class="line">Pass 3: Checking directory connectivity                                        </span><br><span class="line">Pass 4: Checking reference counts                                              </span><br><span class="line">Pass 5: Checking group summary information                                     </span><br><span class="line">/dev/dm-19: |======================================================  \ 95.8%</span><br></pre></td></tr></tbody></table></figure><p></p>
-<h2 id="结束语"><a href="#结束语" class="headerlink" title="结束语"></a>结束语</h2><p>并非只有e2fsck 这个工具会响应SIGUSR1信号，dd工具也有同样的特点。dd 拷贝大文件的时候，只有在拷贝结束的时候，才会汇报时间以及速度等信息，但是像我这种等待焦虑综合症的选手，一定是会抓狂的，同样道理，通过实时向dd进程发送 SIGUSR1信号，dd进程就会时时汇报速率信息，不妨试试，很有用。</p>
-<p>对于开发各种工具的人来说，如果工具运行时间可能很久，可以通过注册SIGUSR1信号的处理函数，实时向用户汇报进度，这是一个不错的习惯。</p>
+        <span itemprop="image" itemscope itemtype="http://schema.org/ImageObject"><img itemprop="url image" src="fm461.jpg" class="full-image" alt="alt" title="title"><meta itemprop="width" content="auto"><meta itemprop="height" content="auto"></span>
+<blockquote class="blockquote-center"><p><strong>出卖自己的灵魂和原则并不丢人，丢人的是没能卖一个好价钱。</strong></p>
+</blockquote>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>CentOS系统带有几个官方源，默认启用的仅有base, updates和extras三个。如果希望从源安装Nginx，高版本的gcc/PHP等软件，则要导入提供软件包的第三方源。本文整理常见的第三方yum源，并以CentOS 7为例介绍其安装方法。</p>
+<h2 id="第三方yum源"><a href="#第三方yum源" class="headerlink" title="第三方yum源"></a>第三方yum源</h2><h4 id="EPEL"><a href="#EPEL" class="headerlink" title="EPEL"></a>EPEL</h4><p>EPEL是Extra Packages for Enterprise Linux的缩写，其为EL6或EL7提供重建的Fedora组件，并且不会替换base中的包。EPEL算得上是最著名的第三方软件源，几乎各个云服务器厂商提供的CentOS 系统均会自带该源并默认启用。其收录了web中常用的Nginx软件包。</p>
+<p>EPEL的官网是：<a href="http://fedoraproject.org/wiki/EPEL，可以通过`yum" target="_blank" rel="noopener">http://fedoraproject.org/wiki/EPEL，可以通过`yum</a> install -y epel-release`安装。</p>
+<h4 id="SCL"><a href="#SCL" class="headerlink" title="SCL"></a>SCL</h4><p>SCL是Software Collections的缩写，由CentOS 特别兴趣小组所维护。其收录了许多程序的新版本，例如gcc, PHP, git, python等。安装的软件可与旧版共存，包名多以rh-为前缀。</p>
+<p>SCL的官网是<a href="https://www.softwarecollections.org，CentOS" target="_blank" rel="noopener">https://www.softwarecollections.org，CentOS</a> 7的安装方法是：<code>yum install centos-release-scl</code>。安装完成后在<code>/etc/yum.repos.d</code>目录下会出现<code>CentOS-SCLo-scl.repo</code>和<code>CentOS-SCLo-scl-rh.repo</code>两个文件。安装后源默认启用。</p>
+<h4 id="ELRepo"><a href="#ELRepo" class="headerlink" title="ELRepo"></a>ELRepo</h4><p>ELRepo是The Community Enterprise Linux Repository的缩写，旨在提供驱动程序来增强系统的硬件支持（包括：显示、文件系统、硬件监控、网络、音效、网络摄像镜驱动程序）。也提供较新版的内核，例如支持BBR算法的4.9+内核。</p>
+<p>ELRepo的官方是<a href="http://elrepo.org/，CentOS" target="_blank" rel="noopener">http://elrepo.org/，CentOS</a> 7系统的安装方法是：<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org</span><br><span class="line">rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>安装完成后在<code>/etc/yum.repos.d</code>目录下出现<code>elrepo.repo</code>文件，可编辑文件中的<code>enable</code>的值启用具体仓库，也可在运行时用<code>--enablerepo="xxx"</code>指定使用的软件库。</p>
+<h4 id="IUS"><a href="#IUS" class="headerlink" title="IUS"></a>IUS</h4><p>IUS的官网是<a href="https://ius.io/，旨在为RHEL和CentOS提供高质量、最新版的软件，如PHP" target="_blank" rel="noopener">https://ius.io/，旨在为RHEL和CentOS提供高质量、最新版的软件，如PHP</a>, Python, MySQL等。CentOS 7安装该源的命令为：<code>rpm -Uvh https://centos7.iuscommunity.org/ius-release.rpm</code>。</p>
+<h4 id="RPMfusion"><a href="#RPMfusion" class="headerlink" title="RPMfusion"></a>RPMfusion</h4><p>RPMfusion提供Fedora Project或 Red Hat不愿发行的软件，包含“免费（开源软件）”和“非免费（源代码可公开获取但不开源且限非商业用途）”两种类型的仓库。</p>
+<p>RPMfusion的官网是<a href="https://rpmfusion.org/，CentOS" target="_blank" rel="noopener">https://rpmfusion.org/，CentOS</a> 7的安装方法是：<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 免费库</span></span><br><span class="line">yum localinstall --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm</span><br><span class="line"><span class="comment"># 非免费库</span></span><br><span class="line">yum localinstall --nogpgcheck https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-7.noarch.rpm</span><br></pre></td></tr></tbody></table></figure><p></p>
+<h4 id="Remi"><a href="#Remi" class="headerlink" title="Remi"></a>Remi</h4><p>Remi维护大量组件，包括最新版的PHP, GLPI等。Remi的safe仓库不会替代系统的基本组件，但remi-phpxx.repo中的软件包会替代系统默认的php。需要注意的是Remi可能会与IUS的软件包冲突，因为双方都提供最新版的PHP。</p>
+<p>Remi的官方网站是<a href="http://rpms.remirepo.net/，CentOS" target="_blank" rel="noopener">http://rpms.remirepo.net/，CentOS</a> 7的安装方法是：<code>yum install -y remi-release</code>。</p>
+<h4 id="Webtatic"><a href="#Webtatic" class="headerlink" title="Webtatic"></a>Webtatic</h4><p>提供较新版的PHP、MySQL及其它组件。建议用IUS或SCL代替。</p>
+<h4 id="软件官方维护的源"><a href="#软件官方维护的源" class="headerlink" title="软件官方维护的源"></a>软件官方维护的源</h4><p>除上述收录多个软件包的综合源外，还有许多由软件官方维护的源，例如<code>Nginx</code>, <code>Gitlab</code>, <code>Nodejs</code>等。这些源的安装和使用方法请参考官方指南。</p>
+<h4 id="源管理"><a href="#源管理" class="headerlink" title="源管理"></a>源管理</h4><p>源的配置文件均位于<code>/etc/yum.repos.d</code>目录下，可用<code>vim</code>, <code>nano</code>等编辑器打开配置文件并编辑。</p>
+<p>一些有用的源管理yum命令：</p>
+<ul>
+<li><code>yum repolist</code>： 列出所有启用的源, 等同于<code>yum repolist enabled</code>；</li>
+<li><code>yum repolist disabled</code>： 列出所有禁用的源；</li>
+<li><code>yum repoinfo [enabled|disabled]</code>：列出启用（禁用）源的更详细信息</li>
+<li><code>yum --disablerepo="*" --enablerepo="xxxx" install/search</code>: 从指定源安装/搜索软件；<code>"–disablerepo"</code>和<code>"–enablerepo"</code>选项可独立或配合使用，动态启用和禁用源。</li>
+</ul>
+<h4 id="国内镜像"><a href="#国内镜像" class="headerlink" title="国内镜像"></a>国内镜像</h4><p>因为某些原因，从位于境外的源镜像安装软件慢的让人抓狂。如果遇到了此种情形，建议使用代理，或者配置源的地址为国内镜像的地址。国内知名的yum源镜像站有：</p>
+<ol>
+<li>阿里云，网址：<a href="https://opsx.alibaba.com/mirror" target="_blank" rel="noopener">https://opsx.alibaba.com/mirror</a></li>
+<li>网易163，网址：<a href="http://mirrors.163.com/" target="_blank" rel="noopener">http://mirrors.163.com/</a></li>
+<li>清华大学，网址：<a href="http://mirrors.tuna.tsinghua.edu.cn/" target="_blank" rel="noopener">http://mirrors.tuna.tsinghua.edu.cn/</a></li>
+<li>中科大，网址：<a href="http://mirrors.ustc.edu.cn/" target="_blank" rel="noopener">http://mirrors.ustc.edu.cn/</a></li>
+<li>浙大，网址：<a href="http://mirrors.zju.edu.cn/" target="_blank" rel="noopener">http://mirrors.zju.edu.cn/</a></li>
+</ol>
+<p>具体仓库的配置方法请参考站内指南。需要注意的是并非所有的镜像都包含上述列出的yum源，本人推荐阿里云、清华大学、中科大镜像站。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a href="https://wiki.centos.org/zh/AdditionalResources/Repositories" target="_blank" rel="noopener">https://wiki.centos.org/zh/AdditionalResources/Repositories</a></li>
+</ol>
 <script>
         document.querySelectorAll('.github-emoji')
           .forEach(el => {
@@ -568,6 +604,35 @@ tpwidget("show");</script>
     <div>
           
             
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>本文标题:</span><a href="/2019/06/05/linux-yumReposSummary/">Linux 常用yum源整理</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 Wang Jiemin 的个人博客">Wang Jiemin</a></p>
+  <p><span>发布时间:</span>2019年06月05日 - 10:06</p>
+  <p><span>最后更新:</span>2019年06月05日 - 10:06</p>
+  <p><span>原始链接:</span><a href="/2019/06/05/linux-yumReposSummary/" title="Linux 常用yum源整理">https://jiemin.wang/2019/06/05/linux-yumReposSummary/</a>
+    <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://jiemin.wang/2019/06/05/linux-yumReposSummary/" aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>
+</div>
+<script>
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({
+          title: "",
+          text: '复制成功',
+          icon: "success",
+          showConfirmButton: true
+          });
+    });
+    });
+</script>
+
 
           
     </div>
@@ -622,8 +687,8 @@ tpwidget("show");</script>
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/03/11/iSCSI-command/" rel="next" title="iSCSI_command">
-                <i class="fa fa-chevron-left"></i> iSCSI_command
+              <a href="/2019/05/24/Linux-systemctl-variables/" rel="next" title="DBA不可不知的操作系统内核参数">
+                <i class="fa fa-chevron-left"></i> DBA不可不知的操作系统内核参数
               </a>
             
           </div>
@@ -631,10 +696,6 @@ tpwidget("show");</script>
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/03/11/disk-cache-policy-in-RAID/" rel="prev" title="disk cache policy in RAID">
-                disk cache policy in RAID <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -850,7 +911,7 @@ tpwidget("show");</script>
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#对于e2fsck-而言，有两个特点，如果文件系统是健康的，可以很快完成，3秒之内解决战斗，但是确实存在error的情况下，可能耗时非常久，这种情况下，进度汇报是非常重要的，如果一个文件系统需要修复几个小时，又没有进度汇报，人会抓狂的。"><span class="nav-number">1.0.1.</span> <span class="nav-text">对于e2fsck 而言，有两个特点，如果文件系统是健康的，可以很快完成，3秒之内解决战斗，但是确实存在error的情况下，可能耗时非常久，这种情况下，进度汇报是非常重要的，如果一个文件系统需要修复几个小时，又没有进度汇报，人会抓狂的。</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#实时检查-e2fsck-进度的方法"><span class="nav-number">2.</span> <span class="nav-text">实时检查 e2fsck 进度的方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结束语"><span class="nav-number">3.</span> <span class="nav-text">结束语</span></a></li></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第三方yum源"><span class="nav-number">2.</span> <span class="nav-text">第三方yum源</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#EPEL"><span class="nav-number">2.0.1.</span> <span class="nav-text">EPEL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SCL"><span class="nav-number">2.0.2.</span> <span class="nav-text">SCL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ELRepo"><span class="nav-number">2.0.3.</span> <span class="nav-text">ELRepo</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#IUS"><span class="nav-number">2.0.4.</span> <span class="nav-text">IUS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RPMfusion"><span class="nav-number">2.0.5.</span> <span class="nav-text">RPMfusion</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Remi"><span class="nav-number">2.0.6.</span> <span class="nav-text">Remi</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Webtatic"><span class="nav-number">2.0.7.</span> <span class="nav-text">Webtatic</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#软件官方维护的源"><span class="nav-number">2.0.8.</span> <span class="nav-text">软件官方维护的源</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#源管理"><span class="nav-number">2.0.9.</span> <span class="nav-text">源管理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#国内镜像"><span class="nav-number">2.0.10.</span> <span class="nav-text">国内镜像</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></div>
             
 
           </div>
