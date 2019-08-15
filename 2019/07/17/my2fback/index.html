@@ -138,7 +138,7 @@ tpwidget("show");</script>
 <meta property="og:image" content="https://jiemin.wang/2019/07/17/my2fback/repl_jiexi_start.png">
 <meta property="og:image" content="https://jiemin.wang/2019/07/17/my2fback/repl_jiexi1.png">
 <meta property="og:image" content="https://jiemin.wang/2019/07/17/my2fback/repl_jiexi_end.png">
-<meta property="og:updated_time" content="2019-07-18T06:44:49.014Z">
+<meta property="og:updated_time" content="2019-08-15T03:29:36.174Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL&#x2F;MariaDB binlog&#x2F;relaylog 回滚&#x2F;闪回,前滚,DML分析报告,DDL信息">
 <meta name="twitter:description" content="喜歡就去追阿～ 晚下手，你就是孩子她舅！早下手，就是喜当爹．．．  前言flashback闪回原理上一篇 flashback的概念最早出现于Oracle数据库，用于快速恢复用户的误操作。 flashback for MySQL用于恢复由DML语句引起的误操作，目前不支持DDL语句。例如下面的语句：1mysql&amp;gt; DELETE FROM XXX; UPDATE XXX SET YYY=ZZZ; 若">
@@ -485,7 +485,7 @@ tpwidget("show");</script>
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-07-18 14:44:49" itemprop="dateModified" datetime="2019-07-18T14:44:49+08:00">2019-07-18</time>
+                <time title="Modified: 2019-08-15 11:29:36" itemprop="dateModified" datetime="2019-08-15T11:29:36+08:00">2019-08-15</time>
               
             
           </span>
@@ -557,14 +557,14 @@ tpwidget("show");</script>
 <p>若没有flashback功能，那么当发生误操作时，用户只能通过全备+二进制日志前滚的方式进行恢复。通常来说，这样所需的恢复时间会非常长。为了缩短误操作恢复的时间，通常可以在slave上搭建LVM，通过定期快照的方式来缩短误操作的恢复时间。但是LVM快照的缺点是会对slave的性能产生一定的影响。</p>
 <p>官方<a href="https://dev.mysql.com/doc/refman/8.0/en/mysqlbinlog.html" target="_blank" rel="noopener">mysqlbinlog</a>命令为解析MySQL的二进制日志。当二进制日志的格式为ROW格式时，可以输出每个操作的每条记录的前项与后项。那么通过逆操作即可进行回滚操作，例如：<br></p><figure class="highlight sql"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">原始操作：<span class="keyword">INSERT</span> <span class="keyword">INTO</span> ...</span><br><span class="line"><span class="keyword">flashback</span>操作：<span class="keyword">DELETE</span> ...</span><br><span class="line">  </span><br><span class="line">原始操作：<span class="keyword">DELETE</span> <span class="keyword">FROM</span> ...</span><br><span class="line"><span class="keyword">flashback</span>操作：<span class="keyword">INSERT</span> <span class="keyword">INTO</span> ...</span><br><span class="line">  </span><br><span class="line">原始操作：<span class="keyword">UPDATE</span> XXX <span class="keyword">SET</span> OLD_VALUES ...</span><br><span class="line"><span class="keyword">flashback</span>操作：<span class="keyword">UPDATE</span> XXX <span class="keyword">SET</span> NEW_VALUES ...</span><br></pre></td></tr></tbody></table></figure><p></p>
 <p>目前flashback功能还没有集成于官方<a href="https://dev.mysql.com/doc/refman/8.0/en/mysqlbinlog.html" target="_blank" rel="noopener">mysqlbinlog</a>g命令。于是自己开发了一套 MySQL Flashback 工具 <strong><code>my2fback</code></strong></p>
-<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>my2fback 实现了基于row格式binlog的回滚闪回功能，让误删除或者误更新数据，可以不停机不使用备份而快速回滚误操作。也可以解释binlog（支持非row格式binlog）生成易读的SQL。可以按配置输出各个表的update/insert/delete统计报表， 也会输出大事务与长事务的分析， 应用是否干了坏事一目了然， 也会输出所有DDL。</p>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>my2fback 实现了基于row格式binlog的回滚闪回功能，让误删除或者误更新数据，可以不停机不使用备份而快速回滚误操作。也可以解释binlog（支持非row格式binlog）生成易读的SQL。可以按配置输出各个表的update/insert/delete统计报表， 也会输出大事务与长事务的分析， 应用是否干了坏事一目了然， 也会输出所有DDL。<br></p><figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cat my.cnf</span><br><span class="line">[mysqld]</span><br><span class="line"><span class="comment">##### 添加:</span></span><br><span class="line">binlog_format            = ROW</span><br><span class="line">binlog_row_image         = FULL</span><br></pre></td></tr></tbody></table></figure><p></p>
 <p>my2fback 连接数据库帐号的权限: </p>
 <ul>
-<li><p>MySQL5.6/MariaDB10.1/MariaDB10.2版本</p>
+<li>MySQL5.6/MariaDB10.1/MariaDB10.2版本</li>
+</ul>
 <figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql> GRANT SELECT, REPLICATION SLAVE, REPLICATION CLIENT, PROCESS ON *.* TO <span class="string">'user'</span>@<span class="string">'localhost'</span> IDENTIFIED BY <span class="string">'xxxxxx'</span>;</span><br></pre></td></tr></tbody></table></figure>
-</li>
-<li><p>MySQL5.7版本</p>
-<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql> CREATE USER <span class="string">'user'</span>@<span class="string">'localhost'</span> IDENTIFIED BY <span class="string">'xxxxxx'</span>;</span><br><span class="line">mysql> GRANT SELECT, REPLICATION SLAVE, REPLICATION CLIENT, PROCESS ON *.* TO <span class="string">'user'</span>@<span class="string">'localhost'</span>;</span><br></pre></td></tr></tbody></table></figure>
+<ul>
+<li>MySQL5.7版本<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql> CREATE USER <span class="string">'user'</span>@<span class="string">'localhost'</span> IDENTIFIED BY <span class="string">'xxxxxx'</span>;</span><br><span class="line">mysql> GRANT SELECT, REPLICATION SLAVE, REPLICATION CLIENT, PROCESS ON *.* TO <span class="string">'user'</span>@<span class="string">'localhost'</span>;</span><br></pre></td></tr></tbody></table></figure>
 </li>
 </ul>
 <p>my2fback 通过解释mysql/mariadb binlog/relaylog实现以下三大功能:</p>
@@ -860,7 +860,7 @@ tpwidget("show");</script>
   <p><span>本文标题:</span><a href="/2019/07/17/my2fback/">MySQL/MariaDB binlog/relaylog 回滚/闪回,前滚,DML分析报告,DDL信息</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 Wang Jiemin 的个人博客">Wang Jiemin</a></p>
   <p><span>发布时间:</span>2019年07月17日 - 16:07</p>
-  <p><span>最后更新:</span>2019年07月18日 - 14:07</p>
+  <p><span>最后更新:</span>2019年08月15日 - 11:08</p>
   <p><span>原始链接:</span><a href="/2019/07/17/my2fback/" title="MySQL/MariaDB binlog/relaylog 回滚/闪回,前滚,DML分析报告,DDL信息">https://jiemin.wang/2019/07/17/my2fback/</a>
     <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://jiemin.wang/2019/07/17/my2fback/" aria-label="复制成功！"></i></span>
   </p>
